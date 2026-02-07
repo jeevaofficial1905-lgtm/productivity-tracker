@@ -74,17 +74,8 @@
             border-radius: 10px;
             font-weight: 800;
             font-size: 0.85rem;
-            margin-bottom: 8px; /* Room below to prevent cutting */
+            margin-bottom: 8px; 
             line-height: 1;
-        }
-
-        .icon-badge {
-            background: var(--update-bg);
-            border: 1.5px solid #0284c7;
-            color: #0284c7;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
         }
 
         .subtitle { color: #8a8a8a; font-size: 0.8rem; font-weight: 600; display: block; }
@@ -127,7 +118,7 @@
         /* Cards */
         .stat-card { 
             background: var(--card); 
-            border: 1.5px solid var(--border); 
+            border: 1px solid var(--border); 
             border-radius: 18px; 
             padding: 20px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
@@ -210,7 +201,7 @@
 <body class="light-mode">
 
 <div class="container py-4">
-    <!-- Header UI -->
+    <!-- Header UI (Removed redundant clock box) -->
     <header class="d-flex justify-content-between align-items-start mb-2">
         <div class="flex-grow-1">
             <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
@@ -219,13 +210,8 @@
             </div>
             <p class="subtitle mb-0">Management MIS Dashboard</p>
         </div>
-        <div class="d-flex flex-column align-items-end gap-2">
-            <div class="icon-badge shadow-sm">
-                <i class="far fa-clock"></i>
-            </div>
-            <div class="settings-btn" onclick="toggleTheme()">
-                <i class="fas fa-cog" id="theme-icon"></i>
-            </div>
+        <div class="settings-btn" onclick="toggleTheme()">
+            <i class="fas fa-cog" id="theme-icon"></i>
         </div>
     </header>
 
