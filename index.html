@@ -115,6 +115,21 @@
             border-radius: 6px;
         }
 
+        .active-filter-summary {
+            background: var(--update-bg);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
         .table-container { 
             background: var(--card); 
             border-radius: 16px; 
@@ -122,10 +137,9 @@
             border: 1px solid var(--border); 
         }
 
-        /* Night Mode Table Corrections */
         .table { 
             margin-bottom: 0; 
-            font-size: 0.9rem; 
+            font-size: 0.95rem; 
             vertical-align: middle; 
             color: var(--text-main);
             border-color: var(--border);
@@ -137,7 +151,7 @@
             font-weight: 700;
             border-bottom: 2px solid var(--border);
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             letter-spacing: 0.05em;
         }
 
@@ -146,20 +160,14 @@
             background: transparent;
         }
 
-        .table tbody tr:last-child {
-            border-bottom: none;
-        }
-
         .table-hover tbody tr:hover {
             background-color: var(--table-hover) !important;
-            color: var(--text-main);
         }
 
-        .badge-dept {
-            background: rgba(148, 163, 184, 0.1);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            font-size: 0.75rem;
+        .text-contribution {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.85rem;
         }
 
         #last-updated {
@@ -199,7 +207,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     </style>
 </head>
-<body class="dark-mode"> <!-- Default to dark-mode -->
+<body class="dark-mode">
 
 <div class="container py-4">
     <header class="d-flex justify-content-between align-items-start mb-4">
@@ -281,16 +289,23 @@
                 </div>
             </div>
 
+            <div id="filter-summary-container" class="mb-3">
+                <div class="active-filter-summary shadow-sm">
+                    <span id="summary-bldg">BUILDING: ALL</span>
+                    <span class="opacity-25">|</span>
+                    <span id="summary-dept">DEPT: ALL</span>
+                </div>
+            </div>
+
             <div class="table-container shadow">
                 <table class="table table-hover text-center" id="user-table">
                     <thead>
                         <tr>
-                            <th class="py-3">Bldg</th>
-                            <th class="py-3">Dept</th>
-                            <th class="py-3 text-start">Actor</th>
-                            <th class="py-3" onclick="toggleSort()" style="cursor:pointer">
+                            <th class="py-3 text-start ps-4">Actor</th>
+                            <th class="py-3 text-end" onclick="toggleSort()" style="cursor:pointer">
                                 Qty <i class="fas fa-sort small ms-1 opacity-50"></i>
                             </th>
+                            <th class="py-3 text-end pe-4">Contribution</th>
                         </tr>
                     </thead>
                     <tbody id="user-table-body">
@@ -303,7 +318,6 @@
 </div>
 
 <script>
-    // Configuration
     const firebaseConfig = { databaseURL: "https://productivity-tracker-e3538-default-rtdb.firebaseio.com" };
     
     try {
@@ -316,6 +330,7 @@
     let chart;
     let rawData = [];
     let sortAsc = false;
+    let totalAchievedValue = 0;
 
     const mockData = [
         { Building: "bldg3", Department: "GRN", Actor: "John Doe", Qty: 450 },
@@ -326,7 +341,6 @@
         { Building: "bldg5", Department: "Picking", Actor: "Harvey Specter", Qty: 600 }
     ];
 
-    // Theme Management Logic
     function initTheme() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         if (savedTheme === 'light') {
@@ -371,28 +385,34 @@
 
     function processAndRender() {
         rawData.sort((a, b) => b.Qty - a.Qty);
+        updateAnalytics(); // Calculate totalAchievedValue first
         renderTable(rawData);
-        updateAnalytics();
         updateTimestamp();
+        applyWebFilters(); 
     }
 
     function renderTable(data) {
         const tableBody = document.getElementById('user-table-body');
         tableBody.innerHTML = "";
+        
         data.forEach((row) => {
+            // Calculate contribution percentage relative to global achieved total
+            const contribution = totalAchievedValue > 0 ? ((row.Qty / totalAchievedValue) * 100).toFixed(1) : 0;
+            
             tableBody.innerHTML += `
                 <tr class="user-row" data-bldg="${row.Building}" data-dept="${row.Department}">
-                    <td class="small text-muted fw-bold">${row.Building.toUpperCase().replace('BLDG', 'B')}</td>
-                    <td><span class="badge badge-dept">${row.Department}</span></td>
-                    <td class="text-start ps-3 fw-semibold">${row.Actor}</td>
-                    <td class="text-info fw-bold">${row.Qty.toLocaleString()}</td>
+                    <td class="text-start ps-4 py-3 fw-bold">${row.Actor}</td>
+                    <td class="text-end text-info fw-bold mb-0">${row.Qty.toLocaleString()}</td>
+                    <td class="text-end pe-4 text-contribution">${contribution}%</td>
                 </tr>`;
         });
     }
 
     function applyWebFilters() {
-        const bldgVal = document.getElementById('bldg-filter').value;
-        const deptVal = document.getElementById('dept-filter').value;
+        const bldgSelect = document.getElementById('bldg-filter');
+        const deptSelect = document.getElementById('dept-filter');
+        const bldgVal = bldgSelect.value;
+        const deptVal = deptSelect.value;
         const rows = document.querySelectorAll('.user-row');
 
         rows.forEach(row => {
@@ -400,6 +420,12 @@
             const dMatch = deptVal === 'all' || row.getAttribute('data-dept') === deptVal;
             row.style.display = (bMatch && dMatch) ? "" : "none";
         });
+
+        const bldgText = bldgSelect.options[bldgSelect.selectedIndex].text;
+        const deptText = deptSelect.options[deptSelect.selectedIndex].text;
+        
+        document.getElementById('summary-bldg').innerHTML = `<i class="fas fa-building me-1 small opacity-50"></i> ${bldgText.toUpperCase()}`;
+        document.getElementById('summary-dept').innerHTML = `<i class="fas fa-layer-group me-1 small opacity-50"></i> ${deptText.toUpperCase()}`;
     }
 
     function toggleSort() {
@@ -410,28 +436,37 @@
     }
 
     function updateAnalytics() {
-        const deptFilter = document.getElementById('chart-dept-filter').value;
+        const chartDeptFilter = document.getElementById('chart-dept-filter').value;
         
-        let b3 = 0, b5 = 0;
+        let b3Global = 0, b5Global = 0;
+        let b3Filtered = 0, b5Filtered = 0;
+
         rawData.forEach(r => {
-            const deptMatch = (deptFilter === 'all' || r.Department === deptFilter);
+            // Global sum for the stat cards (Target/Achieved usually reflects global state)
+            if(r.Building.toLowerCase().includes('bldg3')) b3Global += r.Qty;
+            if(r.Building.toLowerCase().includes('bldg5')) b5Global += r.Qty;
+
+            // Filtered sum for the chart
+            const deptMatch = (chartDeptFilter === 'all' || r.Department === chartDeptFilter);
             if (deptMatch) {
-                if(r.Building.toLowerCase().includes('bldg3')) b3 += r.Qty;
-                if(r.Building.toLowerCase().includes('bldg5')) b5 += r.Qty;
+                if(r.Building.toLowerCase().includes('bldg3')) b3Filtered += r.Qty;
+                if(r.Building.toLowerCase().includes('bldg5')) b5Filtered += r.Qty;
             }
         });
+
+        totalAchievedValue = b3Global + b5Global;
 
         db.ref('productivity').once('value', (s) => {
             const val = s.val();
             const target = (val && val.target) ? val.target : 2500;
             document.getElementById('target-val').innerText = target.toLocaleString();
-            document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
-            updateChart(b3, b5, target);
+            document.getElementById('achieved-val').innerText = totalAchievedValue.toLocaleString();
+            updateChart(b3Filtered, b5Filtered, target);
         }, (err) => {
             const target = 2500;
             document.getElementById('target-val').innerText = target.toLocaleString();
-            document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
-            updateChart(b3, b5, target);
+            document.getElementById('achieved-val').innerText = totalAchievedValue.toLocaleString();
+            updateChart(b3Filtered, b5Filtered, target);
         });
     }
 
@@ -439,22 +474,16 @@
         const ctx = document.getElementById('mainChart').getContext('2d');
         const achieved = b3 + b5;
         const remaining = Math.max(0, target - achieved);
-
         const labelColor = getComputedStyle(document.body).getPropertyValue('--text-muted').trim();
 
         if (chart) chart.destroy();
-        
         chart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Bldg 3', 'Bldg 5', 'Remaining'],
                 datasets: [{
                     data: [b3, b5, remaining],
-                    backgroundColor: [
-                        '#38bdf8', 
-                        '#818cf8', 
-                        '#94a3b833' 
-                    ],
+                    backgroundColor: ['#38bdf8', '#818cf8', '#94a3b833'],
                     hoverOffset: 15,
                     borderWidth: 0,
                     borderRadius: 5
@@ -466,18 +495,7 @@
                 plugins: { 
                     legend: { 
                         position: 'bottom', 
-                        labels: { 
-                            color: labelColor, 
-                            padding: 20,
-                            usePointStyle: true,
-                            font: { size: 12, weight: '500' } 
-                        } 
-                    },
-                    tooltip: {
-                        backgroundColor: '#1e293b',
-                        titleColor: '#38bdf8',
-                        bodyColor: '#f1f5f9',
-                        displayColors: false
+                        labels: { color: labelColor, padding: 20, usePointStyle: true, font: { size: 12, weight: '500' } } 
                     }
                 } 
             }
@@ -486,8 +504,6 @@
 
     window.onload = initializeApp;
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
