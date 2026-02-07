@@ -54,7 +54,7 @@
             .header-title { font-size: 1.1rem !important; }
         }
 
-        /* Header UI (Screenshot Match) */
+        /* Header UI Styles */
         .header-title { 
             font-weight: 900; 
             color: #0284c7; 
@@ -203,7 +203,7 @@
 <body class="light-mode">
 
 <div class="container py-4">
-    <!-- Header (Fixed to match Image.png) -->
+    <!-- Header -->
     <header class="d-flex justify-content-between align-items-start mb-2">
         <div class="flex-grow-1">
             <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
@@ -217,7 +217,7 @@
         </div>
     </header>
 
-    <!-- Navigation Tabs (Pill Style) -->
+    <!-- Navigation Tabs -->
     <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
         <li class="nav-item">
             <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">
@@ -321,13 +321,17 @@
 
 <script>
     const firebaseConfig = { databaseURL: "https://productivity-tracker-e3538-default-rtdb.firebaseio.com" };
-    try { firebase.initializeApp(firebaseConfig); } catch (e) {}
+    try { 
+        firebase.initializeApp(firebaseConfig); 
+    } catch (e) {
+        console.warn("Firebase config not available yet.");
+    }
     
     const db = firebase.database();
     let chart;
     let rawData = [];
     let sortAsc = false;
-    let globalTotalAchievedTotal = 0;
+    let currentGlobalAchievedTotal = 0;
 
     const DEPARTMENT_TARGETS = { 'all': 24500, 'GRN': 15000, 'Picking': 9500 };
 
@@ -360,19 +364,21 @@
         db.ref('detailed_productivity').on('value', (snapshot) => {
             const data = snapshot.val();
             rawData = data ? Object.values(data) : [...mockData];
-            updateLastUpdatedTime(); // Update time only when new data is received
+            
+            // SERVER SYNC: Update timestamp only here
+            updateLastUpdatedTime(); 
+            
             processAndRender();
         }, (err) => {
             console.warn("Firebase Read Error", err);
             rawData = [...mockData];
-            updateLastUpdatedTime();
             processAndRender();
         });
     }
 
     function processAndRender() {
         rawData.sort((a, b) => Number(b.Qty || 0) - Number(a.Qty || 0));
-        globalTotalAchievedTotal = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
+        currentGlobalAchievedTotal = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
         
         updateAnalytics(); 
         renderTable(rawData);
@@ -384,7 +390,7 @@
         tableBody.innerHTML = "";
         data.forEach((row) => {
             const qty = Number(row.Qty || 0);
-            const contribution = globalTotalAchievedTotal > 0 ? ((qty / globalTotalAchievedTotal) * 100).toFixed(1) : 0;
+            const contribution = currentGlobalAchievedTotal > 0 ? ((qty / currentGlobalAchievedTotal) * 100).toFixed(1) : 0;
             tableBody.innerHTML += `
                 <tr class="user-row" data-bldg="${row.Building || ''}" data-dept="${row.Department || ''}" data-qty="${qty}">
                     <td class="text-start ps-4 py-3 fw-bold">${row.Actor || 'N/A'}</td>
@@ -406,7 +412,6 @@
             const rBldg = String(row.getAttribute('data-bldg')).toLowerCase();
             const rDept = String(row.getAttribute('data-dept')).toLowerCase();
             
-            // Robust check: look for building number (3 or 5)
             const bMatch = bldgVal === 'all' || rBldg.includes(bldgVal.replace('building', '').replace('bldg', '').trim());
             const dMatch = deptVal === 'all' || rDept === deptVal;
             
@@ -479,7 +484,7 @@
                 maintainAspectRatio: false,
                 cutout: '75%', 
                 plugins: { 
-                    legend: { position: 'bottom', labels: { color: labelColor, padding: 25, usePointStyle: true, font: { size: 12, weight: '700' } } }
+                    legend: { position: 'bottom', labels: { color: labelColor, padding: 25, usePointStyle: true, font: { size: 11, weight: '700' } } }
                 } 
             }
         });
