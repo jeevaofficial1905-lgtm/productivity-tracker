@@ -17,9 +17,10 @@
             --card: #1e293b; 
             --accent: #38bdf8; 
             --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
+            --text-muted: #cbd5e1; 
             --border: #334155;
-            --table-header: #334155;
+            --table-header: #1e293b;
+            --table-hover: rgba(56, 189, 248, 0.05);
             --nav-bg: #1e293b;
             --update-bg: rgba(56, 189, 248, 0.1);
         }
@@ -32,7 +33,8 @@
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --table-header: #f1f5f9;
+            --table-header: #f8fafc;
+            --table-hover: rgba(2, 132, 199, 0.03);
             --nav-bg: #ffffff;
             --update-bg: rgba(2, 132, 199, 0.1);
         }
@@ -83,6 +85,16 @@
             border-color: var(--accent);
         }
 
+        .stat-label {
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+        }
+
         .filter-select { 
             background-color: var(--card); 
             color: var(--text-main); 
@@ -92,11 +104,15 @@
             padding: 10px;
         }
 
-        .filter-select:focus {
-            background-color: var(--card);
-            color: var(--text-main);
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-            border-color: var(--accent);
+        .chart-filter {
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            width: auto;
+            min-width: 120px;
+            background: var(--bg);
+            color: var(--accent);
+            border: 1px solid var(--border);
+            border-radius: 6px;
         }
 
         .table-container { 
@@ -106,26 +122,46 @@
             border: 1px solid var(--border); 
         }
 
+        /* Night Mode Table Corrections */
         .table { 
             margin-bottom: 0; 
             font-size: 0.9rem; 
             vertical-align: middle; 
             color: var(--text-main);
+            border-color: var(--border);
         }
 
-        .table thead { 
+        .table thead th { 
             background: var(--table-header); 
             color: var(--accent); 
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid var(--border);
+            background: transparent;
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: var(--table-hover) !important;
+            color: var(--text-main);
         }
 
         .badge-dept {
             background: rgba(148, 163, 184, 0.1);
             color: var(--text-muted);
-            border: 1px solid rgba(148, 163, 184, 0.2);
+            border: 1px solid var(--border);
             font-size: 0.75rem;
         }
 
-        /* Updated Timestamp Visibility */
         #last-updated {
             font-size: 0.8rem;
             text-transform: none;
@@ -139,7 +175,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Theme Toggle Styling */
         .theme-toggle {
             cursor: pointer;
             width: 40px;
@@ -159,7 +194,6 @@
 
         .tracking-wider { letter-spacing: 0.1em; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -200,13 +234,13 @@
             <div class="row g-3 mb-4 text-center">
                 <div class="col-6">
                     <div class="stat-card">
-                        <small class="text-muted d-block mb-1">GLOBAL TARGET</small>
+                        <span class="stat-label">Target</span>
                         <span id="target-val" class="h3 fw-bold">0</span>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="stat-card">
-                        <small class="text-muted d-block mb-1">TOTAL ACHIEVED</small>
+                        <span class="stat-label">Achieved</span>
                         <span id="achieved-val" class="h3 fw-bold text-info">0</span>
                     </div>
                 </div>
@@ -214,7 +248,13 @@
             <div class="stat-card shadow-lg">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="m-0 fw-bold">Distribution by Building</h6>
-                    <span class="badge bg-dark border border-secondary text-muted small" style="font-size: 0.65rem;">LIVE DATA</span>
+                    <div>
+                        <select id="chart-dept-filter" class="form-select chart-filter" onchange="updateAnalytics()">
+                            <option value="all">All Depts</option>
+                            <option value="GRN">GRN</option>
+                            <option value="Picking">Picking</option>
+                        </select>
+                    </div>
                 </div>
                 <div style="position: relative; height: 300px;">
                     <canvas id="mainChart"></canvas>
@@ -234,10 +274,9 @@
                 </div>
                 <div class="col-6">
                     <select id="dept-filter" class="form-select filter-select" onchange="applyWebFilters()">
-                        <option value="all">All Departments</option>
+                        <option value="all">All Depts</option>
                         <option value="GRN">GRN</option>
-                        <option value="QC">QC</option>
-                        <option value="STAGING">STAGING</option>
+                        <option value="Picking">Picking</option>
                     </select>
                 </div>
             </div>
@@ -280,11 +319,11 @@
 
     const mockData = [
         { Building: "bldg3", Department: "GRN", Actor: "John Doe", Qty: 450 },
-        { Building: "bldg3", Department: "QC", Actor: "Sarah Smith", Qty: 320 },
+        { Building: "bldg3", Department: "Picking", Actor: "Sarah Smith", Qty: 320 },
         { Building: "bldg5", Department: "GRN", Actor: "Mike Ross", Qty: 580 },
-        { Building: "bldg5", Department: "STAGING", Actor: "Anna Bell", Qty: 210 },
+        { Building: "bldg5", Department: "Picking", Actor: "Anna Bell", Qty: 210 },
         { Building: "bldg3", Department: "GRN", Actor: "James Bond", Qty: 150 },
-        { Building: "bldg5", Department: "QC", Actor: "Harvey Specter", Qty: 600 }
+        { Building: "bldg5", Department: "Picking", Actor: "Harvey Specter", Qty: 600 }
     ];
 
     // Theme Management Logic
@@ -300,7 +339,6 @@
         const isLight = document.body.classList.toggle('light-mode');
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
         updateThemeIcon(isLight);
-        // Re-render chart to update label colors
         updateAnalytics(); 
     }
 
@@ -372,10 +410,15 @@
     }
 
     function updateAnalytics() {
+        const deptFilter = document.getElementById('chart-dept-filter').value;
+        
         let b3 = 0, b5 = 0;
         rawData.forEach(r => {
-            if(r.Building.toLowerCase().includes('bldg3')) b3 += r.Qty;
-            if(r.Building.toLowerCase().includes('bldg5')) b5 += r.Qty;
+            const deptMatch = (deptFilter === 'all' || r.Department === deptFilter);
+            if (deptMatch) {
+                if(r.Building.toLowerCase().includes('bldg3')) b3 += r.Qty;
+                if(r.Building.toLowerCase().includes('bldg5')) b5 += r.Qty;
+            }
         });
 
         db.ref('productivity').once('value', (s) => {
@@ -397,7 +440,6 @@
         const achieved = b3 + b5;
         const remaining = Math.max(0, target - achieved);
 
-        // Get current text color from CSS variable for the legend
         const labelColor = getComputedStyle(document.body).getPropertyValue('--text-muted').trim();
 
         if (chart) chart.destroy();
@@ -411,7 +453,7 @@
                     backgroundColor: [
                         '#38bdf8', 
                         '#818cf8', 
-                        '#94a3b833' // Faded version of slate
+                        '#94a3b833' 
                     ],
                     hoverOffset: 15,
                     borderWidth: 0,
