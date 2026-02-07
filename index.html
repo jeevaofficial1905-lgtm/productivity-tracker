@@ -3,104 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productivity Dashboard</title>
+    <title>Management MIS | Live</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
-        body { background-color: #f8f9fa; }
-        .card { border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: #2e7d32; }
+        :root { --dark-bg: #0f172a; --card-bg: #1e293b; --accent: #38bdf8; }
+        body { background-color: var(--dark-bg); color: #f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Professional Navigation Bar */
+        .nav-tabs { border-bottom: none; justify-content: center; background: var(--card-bg); padding: 10px; border-radius: 50px; margin: 20px auto; width: 90%; }
+        .nav-link { color: #94a3b8; border: none !important; border-radius: 50px !important; padding: 10px 25px; transition: 0.3s; }
+        .nav-link.active { background: var(--accent) !important; color: white !important; font-weight: bold; }
+
+        /* Card Styling */
+        .stat-card { background: var(--card-bg); border: 1px solid #334155; border-radius: 16px; padding: 20px; text-align: center; height: 100%; }
+        .stat-label { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; margin-top: 5px; color: #fff; }
+
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        .table-professional { background: var(--card-bg); border-radius: 16px; overflow: hidden; border: 1px solid #334155; }
+        .table { color: #f1f5f9; margin-bottom: 0; }
+        .table thead { background: #334155; }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
+<div class="container py-3">
     <header class="text-center mb-4">
-        <h1 class="display-6">Management Dashboard</h1>
-        <p class="text-muted">Live Productivity Tracking</p>
+        <h4 class="fw-bold"><i class="fas fa-chart-line text-info me-2"></i>Productivity MIS</h4>
+        <p class="text-muted small">Live Data from GRN Department</p>
     </header>
 
-    <div class="row">
-        <div class="col-6 col-md-3">
-            <div class="card p-3 text-center">
-                <div class="text-muted small">Target</div>
-                <div class="stat-val" id="target-val">0</div>
+    <div class="row g-3 mb-4">
+        <div class="col-6">
+            <div class="stat-card">
+                <div class="stat-label">Target</div>
+                <div class="stat-value text-info" id="target-ui">0</div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card p-3 text-center">
-                <div class="text-muted small">Achieved</div>
-                <div class="stat-val" id="achieved-val">0</div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6">
-            <div class="card p-3">
-                <canvas id="productivityChart"></canvas>
+        <div class="col-6">
+            <div class="stat-card">
+                <div class="stat-label">Achieved</div>
+                <div class="stat-value text-success" id="achieved-ui">0</div>
             </div>
         </div>
     </div>
 
-    <div class="card p-3">
-        <h5>Department Performance</h5>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Dept</th>
-                        <th>Status</th>
-                        <th>%</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    </tbody>
-            </table>
+    <ul class="nav nav-tabs shadow-sm" id="dashboardTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart-view" type="button"><i class="fas fa-pie-chart me-2"></i>Chart</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-view" type="button"><i class="fas fa-list me-2"></i>Table</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-4" id="dashboardContent">
+        <div class="tab-pane fade show active" id="chart-view" role="tabpanel">
+            <div class="stat-card">
+                <h6 class="mb-4">Goal Progression</h6>
+                <div class="chart-container">
+                    <canvas id="productivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="table-view" role="tabpanel">
+            <div class="table-professional shadow">
+                <table class="table table-dark table-hover text-center">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Completion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    async function loadData() {
-        try {
-            // Fetching the JSON generated by your EXE
-            const response = await fetch('web_data.json');
-            const data = await response.json();
+    // 1. Firebase Configuration
+    const firebaseConfig = { 
+        databaseURL: "https://productivity-tracker-e3538-default-rtdb.firebaseio.com" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-            // Update Statistics
-            document.getElementById('target-val').innerText = data.target;
-            document.getElementById('achieved-val').innerText = data.achieved;
+    let myPieChart;
 
-            // Update Chart
-            const ctx = document.getElementById('productivityChart').getContext('2d');
-            const remaining = Math.max(0, data.target - data.achieved);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Achieved', 'Remaining'],
-                    datasets: [{
-                        data: [data.achieved, remaining],
-                        backgroundColor: ['#2e7d32', '#d32f2f']
-                    }]
+    // 2. Real-time Listener (Triggers when EXE Syncs)
+    db.ref('productivity').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        // Update Stats UI
+        document.getElementById('target-ui').innerText = data.target.toLocaleString();
+        document.getElementById('achieved-ui').innerText = data.achieved.toLocaleString();
+
+        // Update Table UI
+        const percent = ((data.achieved / data.target) * 100).toFixed(1);
+        document.getElementById('table-body').innerHTML = `
+            <tr>
+                <td>${data.department}</td>
+                <td><span class="badge bg-success">LIVE</span></td>
+                <td>${percent}%</td>
+            </tr>
+        `;
+
+        // Update Pie Chart
+        renderChart(data.achieved, data.target);
+    });
+
+    function renderChart(achieved, target) {
+        const ctx = document.getElementById('productivityChart').getContext('2d');
+        const remaining = Math.max(0, target - achieved);
+
+        if (myPieChart) { myPieChart.destroy(); }
+
+        myPieChart = new Chart(ctx, {
+            type: 'doughnut', // Doughnut looks more professional for mobile
+            data: {
+                labels: ['Achieved Qty', 'Remaining'],
+                datasets: [{
+                    data: [achieved, remaining],
+                    backgroundColor: ['#22c55e', '#ef4444'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#f1f5f9', font: { size: 12 } } }
                 },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // Update Table
-            const progress = ((data.achieved / data.target) * 100).toFixed(1);
-            document.getElementById('table-body').innerHTML = `
-                <tr>
-                    <td>${data.department}</td>
-                    <td><span class="badge bg-success">Active</span></td>
-                    <td>${progress}%</td>
-                </tr>
-            `;
-
-        } catch (error) {
-            console.error("Error loading JSON:", error);
-        }
+                cutout: '70%' // Thin professional doughnut
+            }
+        });
     }
-    loadData();
 </script>
 </body>
 </html>
