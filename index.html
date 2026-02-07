@@ -21,6 +21,7 @@
             --border: #334155;
             --table-header: #334155;
             --nav-bg: #1e293b;
+            --update-bg: rgba(56, 189, 248, 0.1);
         }
 
         /* Light Mode Variables */
@@ -33,6 +34,7 @@
             --border: #e2e8f0;
             --table-header: #f1f5f9;
             --nav-bg: #ffffff;
+            --update-bg: rgba(2, 132, 199, 0.1);
         }
         
         body { 
@@ -123,6 +125,20 @@
             font-size: 0.75rem;
         }
 
+        /* Updated Timestamp Visibility */
+        #last-updated {
+            font-size: 0.8rem;
+            text-transform: none;
+            vertical-align: middle;
+            background: var(--update-bg);
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
         /* Theme Toggle Styling */
         .theme-toggle {
             cursor: pointer;
@@ -152,9 +168,12 @@
 <body class="dark-mode"> <!-- Default to dark-mode -->
 
 <div class="container py-4">
-    <header class="d-flex justify-content-between align-items-center mb-4">
+    <header class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <h6 class="fw-bold text-uppercase tracking-wider mb-0" style="color: var(--accent)">Productivity Hub</h6>
+            <h6 class="fw-bold text-uppercase tracking-wider mb-2" style="color: var(--accent)">
+                Productivity Hub 
+                <span id="last-updated" class="ms-3 fw-bold"></span>
+            </h6>
             <p class="text-muted small mb-0">Management MIS Dashboard</p>
         </div>
         <button class="theme-toggle shadow-sm" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
@@ -290,6 +309,12 @@
         icon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
     }
 
+    function updateTimestamp() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('last-updated').innerHTML = `<i class="fas fa-clock me-1"></i> UPDATED: ${timeStr}`;
+    }
+
     function initializeApp() {
         initTheme();
         db.ref('detailed_productivity').on('value', (snapshot) => {
@@ -310,6 +335,7 @@
         rawData.sort((a, b) => b.Qty - a.Qty);
         renderTable(rawData);
         updateAnalytics();
+        updateTimestamp();
     }
 
     function renderTable(data) {
