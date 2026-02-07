@@ -25,7 +25,6 @@
             --update-bg: rgba(56, 189, 248, 0.1);
         }
 
-        /* Light Mode Variables */
         body.light-mode {
             --bg: #f8fafc;
             --card: #ffffff;
@@ -48,14 +47,12 @@
             overflow-x: hidden;
         }
 
-        /* Mobile Responsive Adjustments */
         @media (max-width: 576px) {
             .container { padding-left: 10px; padding-right: 10px; }
-            .h3 { font-size: 1.4rem !important; }
+            .h2 { font-size: 1.6rem !important; }
             .nav-link { padding: 10px 18px !important; font-size: 0.85rem !important; }
-            .stat-card { padding: 18px 12px !important; }
-            .table { font-size: 0.9rem !important; }
-            header h6 { font-size: 1rem !important; }
+            .stat-card { padding: 20px 12px !important; }
+            header h6 { font-size: 1.1rem !important; }
         }
 
         .nav-pills { 
@@ -63,7 +60,7 @@
             padding: 6px; 
             border-radius: 50px; 
             width: fit-content; 
-            margin: 20px auto; 
+            margin: 6px auto 20px; 
             border: 1px solid var(--border);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
@@ -74,14 +71,13 @@
             padding: 10px 28px; 
             border: none; 
             font-size: 0.95rem; 
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s ease;
         }
 
         .nav-link.active { 
             background: var(--accent) !important; 
             color: white !important; 
-            font-weight: 700; 
             box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
         }
 
@@ -90,18 +86,19 @@
             border: 1px solid var(--border); 
             border-radius: 16px; 
             padding: 24px; 
-            transition: transform 0.2s ease, border-color 0.3s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
 
         .stat-label {
             color: var(--text-muted);
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            font-size: 0.75rem;
+            opacity: 1 !important;
         }
 
         .filter-select { 
@@ -109,36 +106,32 @@
             color: var(--text-main); 
             border: 1px solid var(--border); 
             border-radius: 12px; 
-            font-size: 0.9rem; 
-            padding: 10px;
-            font-weight: 500;
+            font-size: 0.95rem; 
+            padding: 12px;
         }
 
         .chart-filter {
             padding: 4px 12px;
-            font-size: 0.75rem;
-            width: auto;
-            min-width: 110px;
+            font-size: 0.8rem;
             background: var(--bg);
             color: var(--accent);
             border: 1px solid var(--border);
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .active-filter-summary {
             background: var(--update-bg);
             border: 1px solid var(--accent);
             color: var(--accent);
-            padding: 12px 15px;
+            padding: 12px;
             border-radius: 12px;
             font-weight: 900;
             font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            gap: 15px;
         }
 
         .table-container { 
@@ -150,10 +143,8 @@
 
         .table { 
             margin-bottom: 0; 
-            font-size: 1rem; 
             vertical-align: middle; 
             color: var(--text-main);
-            border-color: var(--border);
         }
 
         .table thead th { 
@@ -162,43 +153,31 @@
             font-weight: 800;
             border-bottom: 2px solid var(--border);
             text-transform: uppercase;
-            font-size: 0.7rem;
-            letter-spacing: 0.1em;
+            font-size: 0.75rem;
             padding: 18px 10px;
         }
 
-        .table tbody tr {
-            border-bottom: 1px solid var(--border);
-            background: transparent;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: var(--table-hover) !important;
-        }
+        .table tbody tr { border-bottom: 1px solid var(--border); }
 
         .text-contribution {
             color: var(--accent);
-            font-weight: 700;
-            font-size: 0.9rem;
+            font-weight: 800;
         }
 
         #last-updated {
             font-size: 0.75rem;
-            text-transform: none;
-            vertical-align: middle;
             background: var(--update-bg);
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 8px;
             border: 1px solid var(--accent);
             color: var(--accent);
             font-weight: 800;
-            transition: all 0.3s ease;
         }
 
         .theme-toggle {
             cursor: pointer;
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -207,19 +186,7 @@
             border: 1px solid var(--border);
             color: var(--accent);
             transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
-        .theme-toggle:hover {
-            background: var(--border);
-            transform: scale(1.05);
-        }
-
-        .tracking-wider { letter-spacing: 0.12em; }
-        
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     </style>
 </head>
 <body class="dark-mode">
@@ -227,11 +194,11 @@
 <div class="container py-4">
     <header class="d-flex justify-content-between align-items-center mb-4">
         <div class="flex-grow-1">
-            <h6 class="fw-bold text-uppercase tracking-wider mb-1" style="color: var(--accent)">
-                Productivity Hub 
+            <h6 class="fw-bold text-uppercase tracking-wider mb-1" style="color: var(--accent); letter-spacing: 0.15em;">
+                PRODUCTIVITY HUB 
                 <span id="last-updated" class="ms-3"></span>
             </h6>
-            <p class="text-muted small mb-0 fw-semibold opacity-75">Management MIS Dashboard</p>
+            <p class="text-muted small mb-0 fw-bold opacity-75">Management MIS Dashboard</p>
         </div>
         <button class="theme-toggle" onclick="toggleTheme()" title="Switch Theme">
             <i class="fas fa-moon" id="theme-icon"></i>
@@ -256,21 +223,21 @@
         <div class="tab-pane fade show active" id="view-chart">
             <div class="row g-3 mb-4 text-center">
                 <div class="col-6">
-                    <div class="stat-card">
-                        <span class="stat-label">Target</span>
-                        <span id="target-val" class="h3 fw-bold">0</span>
+                    <div class="stat-card" style="border: 1px solid var(--accent)">
+                        <span class="stat-label">TARGET</span>
+                        <span id="target-val" class="h2 fw-bold">24,500</span>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="stat-card">
-                        <span class="stat-label">Achieved</span>
-                        <span id="achieved-val" class="h3 fw-bold text-info">0</span>
+                        <span class="stat-label">ACHIEVED</span>
+                        <span id="achieved-val" class="h2 fw-bold text-info">0</span>
                     </div>
                 </div>
             </div>
             <div class="stat-card shadow-lg">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="m-0 fw-bold">Distribution by Building</h6>
+                    <h6 class="m-0 fw-bold">Contribution</h6>
                     <div>
                         <select id="chart-dept-filter" class="form-select chart-filter" onchange="updateAnalytics()">
                             <option value="all">All Depts</option>
@@ -279,7 +246,7 @@
                         </select>
                     </div>
                 </div>
-                <div style="position: relative; height: 300px;">
+                <div style="position: relative; height: 320px;">
                     <canvas id="mainChart"></canvas>
                 </div>
             </div>
@@ -291,8 +258,8 @@
                 <div class="col-6">
                     <select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()">
                         <option value="all">All Buildings</option>
-                        <option value="bldg3">Building 3</option>
-                        <option value="bldg5">Building 5</option>
+                        <option value="bldg3">Bldg 3</option>
+                        <option value="bldg5">Bldg 5</option>
                     </select>
                 </div>
                 <div class="col-6">
@@ -305,10 +272,24 @@
             </div>
 
             <div id="filter-summary-container" class="mb-3">
-                <div class="active-filter-summary shadow-sm">
-                    <span id="summary-bldg" class="text-uppercase">BUILDING: ALL</span>
+                <div class="active-filter-summary shadow-sm mb-3">
+                    <span id="summary-bldg">BUILDING: ALL</span>
                     <span class="opacity-25">|</span>
-                    <span id="summary-dept" class="text-uppercase">DEPT: ALL</span>
+                    <span id="summary-dept">DEPT: ALL</span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="stat-card p-3 text-center">
+                            <small class="stat-label mb-1">Total Actors</small>
+                            <span id="total-actors-count" class="fw-bold h4 mb-0">0</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card p-3 text-center">
+                            <small class="stat-label mb-1">Total Quantity</small>
+                            <span id="total-qty-sum" class="fw-bold h4 mb-0 text-info">0</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -323,9 +304,7 @@
                             <th class="py-3 text-end pe-4">Contribution</th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body">
-                        <!-- Rows dynamically generated -->
-                    </tbody>
+                    <tbody id="user-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -345,19 +324,23 @@
     let chart;
     let rawData = [];
     let sortAsc = false;
-    let totalAchievedValue = 0;
+    let globalTotalAchieved = 0;
 
-    // Realistic mock data reflecting screenshots
+    // Fixed Target mapping per department selection
+    const DEPARTMENT_TARGETS = {
+        'all': 24500,
+        'grn': 15000,
+        'picking': 9500
+    };
+
     const mockData = [
         { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "anithadas", Qty: 1639 },
         { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "nikita.m", Qty: 1618 },
         { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "madhukumari", Qty: 1507 },
         { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "priti.p", Qty: 1486 },
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "sunilnahak", Qty: 1236 },
         { Building: "WMS_ENTOMA_B3", Department: "Picking", Actor: "tituswail", Qty: 1126 },
         { Building: "WMS_ENTOMA_B3", Department: "Picking", Actor: "ashok.marko", Qty: 984 },
         { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "jaya", Qty: 928 },
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "laila", Qty: 898 },
         { Building: "WMS_ENTOMA_B3", Department: "Picking", Actor: "ranjith.dehury", Qty: 874 }
     ];
 
@@ -391,20 +374,24 @@
         initTheme();
         db.ref('detailed_productivity').on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                rawData = Object.values(data);
-            } else {
-                rawData = [...mockData];
-            }
+            rawData = data ? Object.values(data) : [...mockData];
             processAndRender();
         }, (error) => {
+            console.warn("Firebase Read Failed:", error);
             rawData = [...mockData];
             processAndRender();
         });
     }
 
     function processAndRender() {
-        rawData.sort((a, b) => b.Qty - a.Qty);
+        rawData.sort((a, b) => Number(b.Qty || 0) - Number(a.Qty || 0));
+        
+        // Sum total achieved for contribution percentages
+        globalTotalAchieved = 0;
+        rawData.forEach(r => {
+            globalTotalAchieved += Number(r.Qty || 0);
+        });
+        
         updateAnalytics(); 
         renderTable(rawData);
         updateTimestamp();
@@ -416,13 +403,12 @@
         tableBody.innerHTML = "";
         
         data.forEach((row) => {
-            // Contribution based on currently visible/filtered total
-            const contribution = totalAchievedValue > 0 ? ((row.Qty / totalAchievedValue) * 100).toFixed(1) : 0;
-            
+            const qty = Number(row.Qty || 0);
+            const contribution = globalTotalAchieved > 0 ? ((qty / globalTotalAchieved) * 100).toFixed(1) : 0;
             tableBody.innerHTML += `
-                <tr class="user-row" data-bldg="${row.Building}" data-dept="${row.Department}">
-                    <td class="text-start ps-4 py-3 fw-bold">${row.Actor}</td>
-                    <td class="text-end text-info fw-bold">${row.Qty.toLocaleString()}</td>
+                <tr class="user-row" data-bldg="${row.Building || ''}" data-dept="${row.Department || ''}" data-qty="${qty}">
+                    <td class="text-start ps-4 py-3 fw-bold">${row.Actor || 'N/A'}</td>
+                    <td class="text-end text-info fw-bold">${qty.toLocaleString()}</td>
                     <td class="text-end pe-4 text-contribution">${contribution}%</td>
                 </tr>`;
         });
@@ -431,72 +417,67 @@
     function applyWebFilters() {
         const bldgSelect = document.getElementById('bldg-filter');
         const deptSelect = document.getElementById('dept-filter');
-        const bldgVal = bldgSelect.value;
-        const deptVal = deptSelect.value;
+        const bldgVal = bldgSelect.value.toLowerCase();
+        const deptVal = deptSelect.value.toLowerCase();
         const rows = document.querySelectorAll('.user-row');
 
+        let visibleCount = 0;
+        let visibleQtySum = 0;
+
         rows.forEach(row => {
-            const bMatch = bldgVal === 'all' || row.getAttribute('data-bldg').toLowerCase().includes(bldgVal.toLowerCase());
-            const dMatch = deptVal === 'all' || row.getAttribute('data-dept').toLowerCase() === deptVal.toLowerCase();
-            row.style.display = (bMatch && dMatch) ? "" : "none";
+            const rowBldg = String(row.getAttribute('data-bldg') || "").toLowerCase();
+            const rowDept = String(row.getAttribute('data-dept') || "").toLowerCase();
+            
+            const bMatch = bldgVal === 'all' || rowBldg.includes(bldgVal);
+            const dMatch = deptVal === 'all' || rowDept === deptVal;
+            
+            if (bMatch && dMatch) {
+                row.style.display = "";
+                visibleCount++;
+                visibleQtySum += Number(row.getAttribute('data-qty') || 0);
+            } else {
+                row.style.display = "none";
+            }
         });
 
-        const bldgText = bldgSelect.options[bldgSelect.selectedIndex].text;
-        const deptText = deptSelect.options[deptSelect.selectedIndex].text;
+        document.getElementById('summary-bldg').innerHTML = `<i class="fas fa-building me-1 opacity-50"></i> BUILDING: ${bldgSelect.options[bldgSelect.selectedIndex].text.toUpperCase()}`;
+        document.getElementById('summary-dept').innerHTML = `<i class="fas fa-layer-group me-1 opacity-50"></i> DEPT: ${deptSelect.options[deptSelect.selectedIndex].text.toUpperCase()}`;
+        document.getElementById('total-actors-count').innerText = visibleCount.toLocaleString();
+        document.getElementById('total-qty-sum').innerText = visibleQtySum.toLocaleString();
+    }
+
+    function updateAnalytics() {
+        const filterVal = document.getElementById('chart-dept-filter').value.toLowerCase();
+        let b3Filtered = 0, b5Filtered = 0;
+
+        // Perform calculation locally on rawData array
+        rawData.forEach(r => {
+            const rowDept = String(r.Department || "").toLowerCase();
+            const isMatch = (filterVal === 'all' || rowDept === filterVal);
+            
+            if (isMatch) {
+                const bldg = String(r.Building || "").toLowerCase();
+                const qty = Number(r.Qty || 0);
+                if (bldg.includes('3')) b3Filtered += qty;
+                else if (bldg.includes('5')) b5Filtered += qty;
+            }
+        });
+
+        const currentAchieved = b3Filtered + b5Filtered;
+        const currentTarget = DEPARTMENT_TARGETS[filterVal] || 24500;
+
+        // Force UI updates immediately
+        document.getElementById('achieved-val').innerText = currentAchieved.toLocaleString();
+        document.getElementById('target-val').innerText = currentTarget.toLocaleString();
         
-        document.getElementById('summary-bldg').innerHTML = `<i class="fas fa-building me-1 opacity-50"></i> ${bldgText.toUpperCase()}`;
-        document.getElementById('summary-dept').innerHTML = `<i class="fas fa-layer-group me-1 opacity-50"></i> ${deptText.toUpperCase()}`;
+        updateChart(b3Filtered, b5Filtered, currentTarget);
     }
 
     function toggleSort() {
         sortAsc = !sortAsc;
-        rawData.sort((a, b) => sortAsc ? a.Qty - b.Qty : b.Qty - a.Qty);
+        rawData.sort((a, b) => sortAsc ? Number(a.Qty || 0) - Number(b.Qty || 0) : Number(b.Qty || 0) - Number(a.Qty || 0));
         renderTable(rawData);
         applyWebFilters();
-    }
-
-    function updateAnalytics() {
-        const chartDeptFilter = document.getElementById('chart-dept-filter').value;
-        
-        let b3Filtered = 0, b5Filtered = 0;
-        let globalSum = 0;
-
-        rawData.forEach(r => {
-            globalSum += r.Qty; // Sum for base comparison
-
-            const deptMatch = (chartDeptFilter === 'all' || r.Department === chartDeptFilter);
-            if (deptMatch) {
-                if(r.Building.toLowerCase().includes('b3')) b3Filtered += r.Qty;
-                if(r.Building.toLowerCase().includes('b5')) b5Filtered += r.Qty;
-            }
-        });
-
-        totalAchievedValue = globalSum;
-
-        // Reactive Target Logic: Adjust target based on current filter
-        db.ref('productivity').once('value', (s) => {
-            const val = s.val();
-            let baseTarget = (val && val.target) ? val.target : 24500;
-            
-            // If filtering by dept, we adjust the visible target proportionally 
-            // or fetch a specific key if defined in DB (e.g. target_grn)
-            let adjustedTarget = baseTarget;
-            if (chartDeptFilter !== 'all') {
-                // If specific targets aren't in DB, calculate a subset for UI visibility
-                // Logic: In a real app, you'd fetch db.ref(`targets/${chartDeptFilter}`)
-                const deptWeights = { 'GRN': 0.6, 'Picking': 0.4 };
-                adjustedTarget = Math.round(baseTarget * (deptWeights[chartDeptFilter] || 1));
-            }
-
-            document.getElementById('target-val').innerText = adjustedTarget.toLocaleString();
-            document.getElementById('achieved-val').innerText = (b3Filtered + b5Filtered).toLocaleString();
-            updateChart(b3Filtered, b5Filtered, adjustedTarget);
-        }, (err) => {
-            const fallbackTarget = 24500;
-            document.getElementById('target-val').innerText = fallbackTarget.toLocaleString();
-            document.getElementById('achieved-val').innerText = (b3Filtered + b5Filtered).toLocaleString();
-            updateChart(b3Filtered, b5Filtered, fallbackTarget);
-        });
     }
 
     function updateChart(b3, b5, target) {
@@ -520,17 +501,16 @@
             },
             options: { 
                 maintainAspectRatio: false,
-                cutout: '70%', 
+                cutout: '72%', 
                 plugins: { 
                     legend: { 
                         position: 'bottom', 
-                        labels: { color: labelColor, padding: 20, usePointStyle: true, font: { size: 12, weight: '600' } } 
+                        labels: { color: labelColor, padding: 25, usePointStyle: true, font: { size: 12, weight: '700' } } 
                     }
                 } 
             }
         });
     }
-
     window.onload = initializeApp;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
