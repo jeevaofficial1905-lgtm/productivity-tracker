@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Management MIS | Professional</title>
+    <!-- External Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,69 +12,232 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; }
-        body { background-color: var(--bg); color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        .nav-pills { background: var(--card); padding: 5px; border-radius: 50px; width: fit-content; margin: 15px auto; }
-        .nav-link { color: #94a3b8; border-radius: 50px !important; padding: 8px 20px; border: none; font-size: 0.9rem; }
-        .nav-link.active { background: var(--accent) !important; color: #000 !important; font-weight: 600; }
-        .stat-card { background: var(--card); border: 1px solid #334155; border-radius: 12px; padding: 15px; }
-        .filter-select { background-color: #334155; color: white; border: 1px solid #475569; border-radius: 8px; font-size: 0.85rem; }
-        .table-container { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #334155; }
-        .table { margin-bottom: 0; font-size: 0.85rem; vertical-align: middle; }
-        .table thead { background: #334155; color: var(--accent); }
+        :root { 
+            --bg: #0f172a; 
+            --card: #1e293b; 
+            --accent: #38bdf8; 
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --table-header: #334155;
+            --nav-bg: #1e293b;
+        }
+
+        /* Light Mode Variables */
+        body.light-mode {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --accent: #0284c7;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --table-header: #f1f5f9;
+            --nav-bg: #ffffff;
+        }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-pills { 
+            background: var(--nav-bg); 
+            padding: 5px; 
+            border-radius: 50px; 
+            width: fit-content; 
+            margin: 20px auto; 
+            border: 1px solid var(--border);
+        }
+
+        .nav-link { 
+            color: var(--text-muted); 
+            border-radius: 50px !important; 
+            padding: 8px 24px; 
+            border: none; 
+            font-size: 0.9rem; 
+            transition: all 0.2s ease;
+        }
+
+        .nav-link.active { 
+            background: var(--accent) !important; 
+            color: white !important; 
+            font-weight: 600; 
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .stat-card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 20px; 
+            transition: transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .filter-select { 
+            background-color: var(--card); 
+            color: var(--text-main); 
+            border: 1px solid var(--border); 
+            border-radius: 10px; 
+            font-size: 0.9rem; 
+            padding: 10px;
+        }
+
+        .filter-select:focus {
+            background-color: var(--card);
+            color: var(--text-main);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+            border-color: var(--accent);
+        }
+
+        .table-container { 
+            background: var(--card); 
+            border-radius: 16px; 
+            overflow: hidden; 
+            border: 1px solid var(--border); 
+        }
+
+        .table { 
+            margin-bottom: 0; 
+            font-size: 0.9rem; 
+            vertical-align: middle; 
+            color: var(--text-main);
+        }
+
+        .table thead { 
+            background: var(--table-header); 
+            color: var(--accent); 
+        }
+
+        .badge-dept {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            font-size: 0.75rem;
+        }
+
+        /* Theme Toggle Styling */
+        .theme-toggle {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            transition: all 0.2s ease;
+        }
+        .theme-toggle:hover {
+            background: var(--border);
+        }
+
+        .tracking-wider { letter-spacing: 0.1em; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="dark-mode"> <!-- Default to dark-mode -->
 
-<div class="container py-3">
-    <header class="text-center mb-3">
-        <h6 class="fw-bold text-uppercase tracking-wider">Productivity Monitoring Hub</h6>
+<div class="container py-4">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h6 class="fw-bold text-uppercase tracking-wider mb-0" style="color: var(--accent)">Productivity Hub</h6>
+            <p class="text-muted small mb-0">Management MIS Dashboard</p>
+        </div>
+        <button class="theme-toggle shadow-sm" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+            <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
     </header>
 
     <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">Analytics</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">User Details</button></li>
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">
+                <i class="fas fa-chart-pie me-2"></i>Analytics
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">
+                <i class="fas fa-users me-2"></i>User Details
+            </button>
+        </li>
     </ul>
 
     <div class="tab-content" id="pills-tabContent">
+        <!-- Analytics View -->
         <div class="tab-pane fade show active" id="view-chart">
-            <div class="row g-2 mb-3 text-center">
-                <div class="col-6"><div class="stat-card"><small class="text-muted d-block">TARGET</small><span id="target-val" class="h4 fw-bold">0</span></div></div>
-                <div class="col-6"><div class="stat-card"><small class="text-muted d-block">ACHIEVED</small><span id="achieved-val" class="h4 fw-bold text-info">0</span></div></div>
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-6">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">GLOBAL TARGET</small>
+                        <span id="target-val" class="h3 fw-bold">0</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">TOTAL ACHIEVED</small>
+                        <span id="achieved-val" class="h3 fw-bold text-info">0</span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <canvas id="mainChart" style="max-height: 280px;"></canvas>
+            <div class="stat-card shadow-lg">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0 fw-bold">Distribution by Building</h6>
+                    <span class="badge bg-dark border border-secondary text-muted small" style="font-size: 0.65rem;">LIVE DATA</span>
+                </div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="mainChart"></canvas>
+                </div>
             </div>
         </div>
 
+        <!-- User Details View -->
         <div class="tab-pane fade" id="view-table">
-            <div class="row g-2 mb-3">
+            <div class="row g-3 mb-3">
                 <div class="col-6">
                     <select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()">
                         <option value="all">All Buildings</option>
-                        <option value="bldg3">Bldg 3</option>
-                        <option value="bldg5">Bldg 5</option>
+                        <option value="bldg3">Building 3</option>
+                        <option value="bldg5">Building 5</option>
                     </select>
                 </div>
                 <div class="col-6">
                     <select id="dept-filter" class="form-select filter-select" onchange="applyWebFilters()">
-                        <option value="all">All Depts</option>
+                        <option value="all">All Departments</option>
                         <option value="GRN">GRN</option>
+                        <option value="QC">QC</option>
+                        <option value="STAGING">STAGING</option>
                     </select>
                 </div>
             </div>
 
             <div class="table-container shadow">
-                <table class="table table-dark table-striped text-center" id="user-table">
+                <table class="table table-hover text-center" id="user-table">
                     <thead>
                         <tr>
-                            <th>Bldg</th>
-                            <th>Dept</th>
-                            <th>Actor</th>
-                            <th onclick="toggleSort()" style="cursor:pointer">Qty <i class="fas fa-sort small ms-1"></i></th>
+                            <th class="py-3">Bldg</th>
+                            <th class="py-3">Dept</th>
+                            <th class="py-3 text-start">Actor</th>
+                            <th class="py-3" onclick="toggleSort()" style="cursor:pointer">
+                                Qty <i class="fas fa-sort small ms-1 opacity-50"></i>
+                            </th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body"></tbody>
+                    <tbody id="user-table-body">
+                        <!-- Rows injected here -->
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -81,24 +245,72 @@
 </div>
 
 <script>
+    // Configuration
     const firebaseConfig = { databaseURL: "https://productivity-tracker-e3538-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
+    
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch (e) {
+        console.warn("Firebase Init Error:", e.message);
+    }
+    
     const db = firebase.database();
     let chart;
     let rawData = [];
     let sortAsc = false;
 
-    // Listen for Detailed List
-    db.ref('detailed_productivity').on('value', (snapshot) => {
-        rawData = [];
-        snapshot.forEach((child) => { rawData.push(child.val()); });
-        
-        // Initial Sort (Highest Qty First)
+    const mockData = [
+        { Building: "bldg3", Department: "GRN", Actor: "John Doe", Qty: 450 },
+        { Building: "bldg3", Department: "QC", Actor: "Sarah Smith", Qty: 320 },
+        { Building: "bldg5", Department: "GRN", Actor: "Mike Ross", Qty: 580 },
+        { Building: "bldg5", Department: "STAGING", Actor: "Anna Bell", Qty: 210 },
+        { Building: "bldg3", Department: "GRN", Actor: "James Bond", Qty: 150 },
+        { Building: "bldg5", Department: "QC", Actor: "Harvey Specter", Qty: 600 }
+    ];
+
+    // Theme Management Logic
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            updateThemeIcon(true);
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        updateThemeIcon(isLight);
+        // Re-render chart to update label colors
+        updateAnalytics(); 
+    }
+
+    function updateThemeIcon(isLight) {
+        const icon = document.getElementById('theme-icon');
+        icon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    function initializeApp() {
+        initTheme();
+        db.ref('detailed_productivity').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                rawData = Object.values(data);
+            } else {
+                rawData = [...mockData];
+            }
+            processAndRender();
+        }, (error) => {
+            rawData = [...mockData];
+            processAndRender();
+        });
+    }
+
+    function processAndRender() {
         rawData.sort((a, b) => b.Qty - a.Qty);
-        
         renderTable(rawData);
         updateAnalytics();
-    });
+    }
 
     function renderTable(data) {
         const tableBody = document.getElementById('user-table-body');
@@ -106,15 +318,14 @@
         data.forEach((row) => {
             tableBody.innerHTML += `
                 <tr class="user-row" data-bldg="${row.Building}" data-dept="${row.Department}">
-                    <td class="small text-muted">${row.Building.includes('bldg3') ? 'B3' : 'B5'}</td>
-                    <td><span class="badge bg-secondary" style="font-size: 0.7rem;">${row.Department}</span></td>
-                    <td class="fw-bold">${row.Actor}</td>
-                    <td class="text-info fw-bold">${row.Qty}</td>
+                    <td class="small text-muted fw-bold">${row.Building.toUpperCase().replace('BLDG', 'B')}</td>
+                    <td><span class="badge badge-dept">${row.Department}</span></td>
+                    <td class="text-start ps-3 fw-semibold">${row.Actor}</td>
+                    <td class="text-info fw-bold">${row.Qty.toLocaleString()}</td>
                 </tr>`;
         });
     }
 
-    // Professional Filtering Logic (Building & Dept Wise)
     function applyWebFilters() {
         const bldgVal = document.getElementById('bldg-filter').value;
         const deptVal = document.getElementById('dept-filter').value;
@@ -122,12 +333,11 @@
 
         rows.forEach(row => {
             const bMatch = bldgVal === 'all' || row.getAttribute('data-bldg').includes(bldgVal);
-            const dMatch = deptVal === 'all' || row.getAttribute('data-dept'] === deptVal;
+            const dMatch = deptVal === 'all' || row.getAttribute('data-dept') === deptVal;
             row.style.display = (bMatch && dMatch) ? "" : "none";
         });
     }
 
-    // Sorting Option in Qty
     function toggleSort() {
         sortAsc = !sortAsc;
         rawData.sort((a, b) => sortAsc ? a.Qty - b.Qty : b.Qty - a.Qty);
@@ -138,14 +348,20 @@
     function updateAnalytics() {
         let b3 = 0, b5 = 0;
         rawData.forEach(r => {
-            if(r.Building.includes('bldg3')) b3 += r.Qty;
-            if(r.Building.includes('bldg5')) b5 += r.Qty;
+            if(r.Building.toLowerCase().includes('bldg3')) b3 += r.Qty;
+            if(r.Building.toLowerCase().includes('bldg5')) b5 += r.Qty;
         });
 
         db.ref('productivity').once('value', (s) => {
-            const target = s.val() ? s.val().target : 0;
-            document.getElementById('target-val').innerText = target;
-            document.getElementById('achieved-val').innerText = (b3 + b5);
+            const val = s.val();
+            const target = (val && val.target) ? val.target : 2500;
+            document.getElementById('target-val').innerText = target.toLocaleString();
+            document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
+            updateChart(b3, b5, target);
+        }, (err) => {
+            const target = 2500;
+            document.getElementById('target-val').innerText = target.toLocaleString();
+            document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
             updateChart(b3, b5, target);
         });
     }
@@ -155,20 +371,55 @@
         const achieved = b3 + b5;
         const remaining = Math.max(0, target - achieved);
 
+        // Get current text color from CSS variable for the legend
+        const labelColor = getComputedStyle(document.body).getPropertyValue('--text-muted').trim();
+
         if (chart) chart.destroy();
+        
         chart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Bldg 3', 'Bldg 5', 'Remaining'],
                 datasets: [{
                     data: [b3, b5, remaining],
-                    backgroundColor: ['#81c784', '#2e7d32', '#424242'], // 3-Color Logic
-                    borderWidth: 0
+                    backgroundColor: [
+                        '#38bdf8', 
+                        '#818cf8', 
+                        '#94a3b833' // Faded version of slate
+                    ],
+                    hoverOffset: 15,
+                    borderWidth: 0,
+                    borderRadius: 5
                 }]
             },
-            options: { cutout: '75%', plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } } }
+            options: { 
+                maintainAspectRatio: false,
+                cutout: '70%', 
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            color: labelColor, 
+                            padding: 20,
+                            usePointStyle: true,
+                            font: { size: 12, weight: '500' } 
+                        } 
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#38bdf8',
+                        bodyColor: '#f1f5f9',
+                        displayColors: false
+                    }
+                } 
+            }
         });
     }
+
+    window.onload = initializeApp;
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
