@@ -22,7 +22,7 @@
             --table-header: #f8fafc;
             --table-hover: rgba(2, 132, 199, 0.03);
             --nav-bg: #ffffff;
-            --update-bg: rgba(2, 132, 199, 0.05);
+            --update-bg: #e0f2fe;
         }
 
         body.dark-mode {
@@ -47,176 +47,192 @@
             overflow-x: hidden;
         }
 
-        /* Mobile Adjustments for "Perfect" Look */
+        /* Mobile Specific Fixes */
         @media (max-width: 576px) {
             .container { padding-left: 15px; padding-right: 15px; }
-            .stat-card { padding: 15px !important; }
             .h3 { font-size: 1.3rem !important; }
-            .h2 { font-size: 1.5rem !important; }
-            .nav-link { padding: 10px 18px !important; font-size: 0.85rem !important; }
-            header h6 { font-size: 1.05rem !important; }
-            .table { font-size: 0.85rem !important; }
+            .h2 { font-size: 1.6rem !important; }
+            .stat-card { padding: 15px !important; }
+            .header-title { font-size: 1rem !important; }
         }
 
-        /* Header Styles */
-        .hub-title { font-weight: 800; color: var(--accent); letter-spacing: 1px; }
+        /* Header UI (Fixed Overlap) */
+        .header-title { 
+            font-weight: 900; 
+            color: #0284c7; 
+            letter-spacing: 1px; 
+            display: block;
+            margin-bottom: 8px; /* Increased space between title and time */
+        }
         
         #timestamp-badge {
             display: inline-flex;
             align-items: center;
             background: var(--update-bg);
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 2px 10px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            margin-top: 5px;
+            border: 1.5px solid #0284c7;
+            color: #0284c7;
+            padding: 4px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            margin-bottom: 8px; /* Extra room before subtitle */
+            line-height: 1;
         }
+
+        .icon-badge {
+            background: var(--update-bg);
+            border: 1.5px solid #0284c7;
+            color: #0284c7;
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .subtitle { color: #8a8a8a; font-size: 0.8rem; font-weight: 600; display: block; }
 
         /* Navigation Pills */
         .nav-pills { 
             background: var(--nav-bg); 
             padding: 5px; 
             border-radius: 50px; 
-            width: fit-content; 
-            margin: 15px auto 25px; 
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            width: 100%; 
+            max-width: 340px;
+            margin: 20px auto 25px; 
+            border: 1.5px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
         }
 
+        .nav-pills .nav-item { flex: 1; }
+
         .nav-link { 
+            width: 100%;
             color: var(--text-muted); 
             border-radius: 50px !important; 
-            padding: 10px 24px; 
+            padding: 10px 0; 
             border: none; 
-            font-size: 0.9rem; 
-            font-weight: 600;
+            font-size: 0.85rem; 
+            font-weight: 700;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .nav-link.active { 
-            background: var(--accent) !important; 
+            background: #0284c7 !important; 
             color: white !important; 
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.3);
         }
 
         /* Stat Cards */
         .stat-card { 
             background: var(--card); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
+            border: 1.5px solid var(--border); 
+            border-radius: 18px; 
             padding: 20px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .stat-label {
-            color: var(--text-muted);
+            color: #8e9aaf;
             display: block;
-            margin-bottom: 5px;
-            font-weight: 700;
+            margin-bottom: 6px;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-size: 0.65rem;
         }
 
-        /* Filter Selects */
+        /* Filters */
         .filter-select { 
             background-color: var(--card); 
             color: var(--text-main); 
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
+            border: 1.5px solid var(--border); 
+            border-radius: 12px; 
             font-size: 0.9rem; 
-            padding: 10px;
-            font-weight: 500;
-        }
-
-        .chart-filter {
-            padding: 3px 10px;
-            font-size: 0.75rem;
-            background: var(--card);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            border-radius: 6px;
+            padding: 12px;
             font-weight: 600;
         }
 
-        /* Summary Banner */
         .active-filter-summary {
-            background: var(--update-bg);
-            border: 1px solid var(--accent);
-            color: var(--accent);
+            background: #e0f2fe;
+            border: 1.5px solid #0284c7;
+            color: #0284c7;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 800;
             font-size: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        /* Table Design */
+        /* Table */
         .table-container { 
             background: var(--card); 
-            border-radius: 12px; 
+            border-radius: 18px; 
             overflow: hidden; 
-            border: 1px solid var(--border); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1.5px solid var(--border); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
         }
 
         .table thead th { 
             background: var(--table-header); 
-            color: var(--accent); 
-            font-weight: 700;
-            border-bottom: 1px solid var(--border);
+            color: #0284c7; 
+            font-weight: 800;
+            border-bottom: 1.5px solid var(--border);
             text-transform: uppercase;
             font-size: 0.7rem;
-            padding: 15px 10px;
+            padding: 15px 12px;
         }
 
-        .table tbody tr { border-bottom: 1px solid var(--border); }
-        .table tbody tr:last-child { border-bottom: none; }
+        .text-contribution { color: var(--text-main); font-weight: 800; }
 
-        .text-contribution { color: var(--text-main); font-weight: 700; }
-
-        /* Theme Toggle */
-        .theme-toggle {
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
+        /* Settings Icon */
+        .settings-btn {
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--accent);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background: white;
+            border: 1.5px solid var(--border);
+            color: #0284c7;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
         }
-
-        .tracking-wider { letter-spacing: 0.05em; }
     </style>
 </head>
 <body class="light-mode">
 
-<div class="container py-3">
-    <!-- Header Area -->
+<div class="container py-4">
+    <!-- Header (Screenshot Adjusted) -->
     <header class="d-flex justify-content-between align-items-start mb-2">
         <div class="flex-grow-1">
-            <h6 class="hub-title text-uppercase mb-0">Productivity Hub</h6>
+            <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
             <div id="timestamp-badge">
-                <i class="far fa-clock me-2"></i><span id="live-clock">--:--:-- --</span>
+                <span id="live-clock">--:--:-- --</span>
             </div>
-            <p class="text-muted small mb-0 fw-semibold mt-1">Management MIS Dashboard</p>
+            <p class="subtitle mb-0">Management MIS Dashboard</p>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()">
-            <i class="fas fa-cog" id="theme-icon"></i>
-        </button>
+        <div class="d-flex flex-column align-items-end gap-3">
+            <div class="icon-badge">
+                <i class="far fa-clock"></i>
+            </div>
+            <div class="settings-btn" onclick="toggleTheme()">
+                <i class="fas fa-cog" id="theme-icon"></i>
+            </div>
+        </div>
     </header>
 
-    <!-- Navigation -->
+    <!-- Navigation Pills -->
     <ul class="nav nav-pills" id="pills-tab" role="tablist">
         <li class="nav-item">
             <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">
@@ -231,13 +247,13 @@
     </ul>
 
     <div class="tab-content" id="pills-tabContent">
-        <!-- ANALYTICS TAB -->
+        <!-- Analytics View -->
         <div class="tab-pane fade show active" id="view-chart">
             <div class="row g-3 mb-4 text-center">
                 <div class="col-6">
-                    <div class="stat-card" style="border-bottom: 2px solid var(--accent)">
+                    <div class="stat-card" style="border: 1.5px solid #0284c7">
                         <span class="stat-label">Target</span>
-                        <span id="target-val" class="h2 fw-bold">24,500</span>
+                        <span id="target-val" class="h2 fw-bold" style="color: #1a1a1a;">24,500</span>
                     </div>
                 </div>
                 <div class="col-6">
@@ -247,22 +263,22 @@
                     </div>
                 </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h6 class="m-0 fw-bold">Contribution</h6>
-                    <select id="chart-dept-filter" class="form-select chart-filter w-auto" onchange="updateAnalytics()">
+                    <select id="chart-dept-filter" class="form-select filter-select w-auto py-1 px-3" style="font-size: 0.75rem;" onchange="updateAnalytics()">
                         <option value="all">All Depts</option>
                         <option value="GRN">GRN</option>
                         <option value="Picking">Picking</option>
                     </select>
                 </div>
-                <div style="position: relative; height: 280px;">
+                <div style="position: relative; height: 300px;">
                     <canvas id="mainChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- USER DETAILS TAB -->
+        <!-- User Details View -->
         <div class="tab-pane fade" id="view-table">
             <div class="row g-2 mb-3">
                 <div class="col-6">
@@ -281,23 +297,23 @@
                 </div>
             </div>
 
-            <div class="active-filter-summary mb-3">
-                <span id="summary-bldg"><i class="fas fa-building small opacity-50 me-1"></i> BUILDING: ALL</span>
+            <div class="active-filter-summary mb-4 shadow-sm">
+                <span id="summary-bldg" class="text-truncate">BUILDING: ALL</span>
                 <span class="opacity-25">|</span>
-                <span id="summary-dept"><i class="fas fa-layer-group small opacity-50 me-1"></i> DEPT: ALL</span>
+                <span id="summary-dept" class="text-truncate">DEPT: ALL</span>
             </div>
 
-            <div class="row g-2 mb-3">
+            <div class="row g-3 mb-4">
                 <div class="col-6">
-                    <div class="stat-card p-2 text-center" style="border: none; background: rgba(0,0,0,0.02);">
-                        <span class="stat-label" style="font-size: 0.55rem;">Total Actors</span>
+                    <div class="stat-card p-3 text-center" style="background: #f1f5f9; border: none;">
+                        <span class="stat-label">Total Actors</span>
                         <span id="total-actors-count" class="fw-bold h4 mb-0">0</span>
                     </div>
                 </div>
                 <div class="col-6">
-                    <div class="stat-card p-2 text-center" style="border: none; background: rgba(0,0,0,0.02);">
-                        <span class="stat-label" style="font-size: 0.55rem;">Total Quantity</span>
-                        <span id="total-qty-sum" class="fw-bold h4 mb-0 text-info">0</span>
+                    <div class="stat-card p-3 text-center" style="background: #f1f5f9; border: none;">
+                        <span class="stat-label">Total Quantity</span>
+                        <span id="total-qty-sum" class="fw-bold h4 mb-0" style="color: #0284c7;">0</span>
                     </div>
                 </div>
             </div>
@@ -306,9 +322,9 @@
                 <table class="table table-hover text-center" id="user-table">
                     <thead>
                         <tr>
-                            <th class="text-start ps-3">Actor</th>
+                            <th class="text-start ps-4">Actor</th>
                             <th class="text-end" onclick="toggleSort()" style="cursor:pointer">Qty <i class="fas fa-sort small ms-1"></i></th>
-                            <th class="text-end pe-3">Contribution</th>
+                            <th class="text-end pe-4">Contribution</th>
                         </tr>
                     </thead>
                     <tbody id="user-table-body"></tbody>
@@ -329,11 +345,10 @@
     let chart;
     let rawData = [];
     let sortAsc = false;
-    let currentGlobalAchieved = 0;
+    let currentGlobalAchievedTotal = 0;
 
     const DEPARTMENT_TARGETS = { 'all': 24500, 'GRN': 15000, 'Picking': 9500 };
 
-    // High quality mock data to match screenshots
     const mockData = [
         { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "anithadas", Qty: 1639 },
         { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "nikita.m", Qty: 1618 },
@@ -349,14 +364,15 @@
     function toggleTheme() {
         const isDark = document.body.classList.toggle('dark-mode');
         document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-cog';
-        updateAnalytics(); // Redraw chart for label colors
+        updateAnalytics(); 
     }
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('live-clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('live-clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     }
     setInterval(updateClock, 1000);
+    updateClock();
 
     function initializeApp() {
         db.ref('detailed_productivity').on('value', (snapshot) => {
@@ -371,8 +387,7 @@
 
     function processAndRender() {
         rawData.sort((a, b) => Number(b.Qty || 0) - Number(a.Qty || 0));
-        currentGlobalAchieved = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
-        
+        currentGlobalAchievedTotal = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
         updateAnalytics(); 
         renderTable(rawData);
         applyWebFilters(); 
@@ -383,29 +398,29 @@
         tableBody.innerHTML = "";
         data.forEach((row) => {
             const qty = Number(row.Qty || 0);
-            const contribution = currentGlobalAchieved > 0 ? ((qty / currentGlobalAchieved) * 100).toFixed(1) : 0;
+            const contribution = currentGlobalAchievedTotal > 0 ? ((qty / currentGlobalAchievedTotal) * 100).toFixed(1) : 0;
             tableBody.innerHTML += `
                 <tr class="user-row" data-bldg="${row.Building || ''}" data-dept="${row.Department || ''}" data-qty="${qty}">
-                    <td class="text-start ps-3 py-3 fw-bold">${row.Actor || 'N/A'}</td>
-                    <td class="text-end text-info fw-bold">${qty.toLocaleString()}</td>
-                    <td class="text-end pe-3 text-contribution">${contribution}%</td>
+                    <td class="text-start ps-4 py-3 fw-bold">${row.Actor || 'N/A'}</td>
+                    <td class="text-end fw-bold" style="color: #0284c7;">${qty.toLocaleString()}</td>
+                    <td class="text-end pe-4 text-contribution">${contribution}%</td>
                 </tr>`;
         });
     }
 
     function applyWebFilters() {
-        const bldgVal = document.getElementById('bldg-filter').value.toLowerCase();
-        const deptVal = document.getElementById('dept-filter').value.toLowerCase();
+        const bSelect = document.getElementById('bldg-filter');
+        const dSelect = document.getElementById('dept-filter');
+        const bldgVal = bSelect.value.toLowerCase();
+        const deptVal = dSelect.value.toLowerCase();
         const rows = document.querySelectorAll('.user-row');
 
         let vCount = 0, vQty = 0;
         rows.forEach(row => {
             const rBldg = String(row.getAttribute('data-bldg')).toLowerCase();
             const rDept = String(row.getAttribute('data-dept')).toLowerCase();
-            
-            const bMatch = bldgVal === 'all' || rBldg.includes(bldgVal.replace('bldg', ''));
+            const bMatch = bldgVal === 'all' || rBldg.includes(bldgVal.replace('building', '').replace('bldg', '').trim());
             const dMatch = deptVal === 'all' || rDept === deptVal;
-            
             if (bMatch && dMatch) {
                 row.style.display = "";
                 vCount++;
@@ -417,35 +432,30 @@
 
         document.getElementById('total-actors-count').innerText = vCount.toLocaleString();
         document.getElementById('total-qty-sum').innerText = vQty.toLocaleString();
-        
-        const bldgText = document.getElementById('bldg-filter').options[document.getElementById('bldg-filter').selectedIndex].text;
-        const deptText = document.getElementById('dept-filter').options[document.getElementById('dept-filter').selectedIndex].text;
-        document.getElementById('summary-bldg').innerHTML = `<i class="fas fa-building small opacity-50 me-1"></i> BUILDING: ${bldgText.toUpperCase()}`;
-        document.getElementById('summary-dept').innerHTML = `<i class="fas fa-layer-group small opacity-50 me-1"></i> DEPT: ${deptText.toUpperCase()}`;
+        document.getElementById('summary-bldg').innerText = `BUILDING: ${bSelect.options[bSelect.selectedIndex].text.toUpperCase()}`;
+        document.getElementById('summary-dept').innerText = `DEPT: ${dSelect.options[dSelect.selectedIndex].text.toUpperCase()}`;
     }
 
     function updateAnalytics() {
-        const filter = document.getElementById('chart-dept-filter').value;
-        let b3 = 0, b5 = 0;
+        const deptFilter = document.getElementById('chart-dept-filter').value;
+        let b3Filtered = 0, b5Filtered = 0;
 
         rawData.forEach(r => {
             const rDept = String(r.Department || "").toLowerCase();
-            const fDept = filter.toLowerCase();
+            const fDept = deptFilter.toLowerCase();
             if (fDept === 'all' || rDept === fDept) {
                 const bldg = String(r.Building || "").toLowerCase();
                 const qty = Number(r.Qty || 0);
-                if (bldg.includes('3')) b3 += qty;
-                else if (bldg.includes('5')) b5 += qty;
+                if (bldg.includes('3')) b3Filtered += qty;
+                else if (bldg.includes('5')) b5Filtered += qty;
             }
         });
 
-        const achieved = b3 + b5;
-        const target = DEPARTMENT_TARGETS[filter] || 24500;
-
+        const achieved = b3Filtered + b5Filtered;
+        const target = DEPARTMENT_TARGETS[deptFilter] || 24500;
         document.getElementById('achieved-val').innerText = achieved.toLocaleString();
         document.getElementById('target-val').innerText = target.toLocaleString();
-        
-        updateChart(b3, b5, target);
+        updateChart(b3Filtered, b5Filtered, target);
     }
 
     function toggleSort() {
@@ -468,17 +478,17 @@
                 labels: ['Bldg 3', 'Bldg 5', 'Remaining'],
                 datasets: [{
                     data: [b3, b5, remaining],
-                    backgroundColor: ['#38bdf8', '#818cf8', '#e2e8f0'],
-                    hoverOffset: 10,
+                    backgroundColor: ['#38bdf8', '#818cf8', '#f1f5f9'],
+                    hoverOffset: 12,
                     borderWidth: 0,
-                    borderRadius: 4
+                    borderRadius: 5
                 }]
             },
             options: { 
                 maintainAspectRatio: false,
-                cutout: '72%', 
+                cutout: '75%', 
                 plugins: { 
-                    legend: { position: 'bottom', labels: { color: labelColor, padding: 20, usePointStyle: true, font: { size: 11, weight: '700' } } }
+                    legend: { position: 'bottom', labels: { color: labelColor, padding: 25, usePointStyle: true, font: { size: 11, weight: '700' } } }
                 } 
             }
         });
