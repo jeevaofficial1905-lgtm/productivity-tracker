@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management MIS | Productivity Hub</title>
+    <title>Management MIS | Professional</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,85 +12,284 @@
 
     <style>
         :root { 
-            --bg: #f8fafc; --card: #ffffff; --accent: #0284c7; 
-            --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; 
-            --table-header: #f8fafc; --nav-bg: #ffffff; --update-bg: #e0f2fe;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --accent: #0284c7;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --table-header: #f8fafc;
+            --nav-bg: #ffffff;
+            --update-bg: #e0f2fe;
         }
+
         body.dark-mode {
-            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; 
-            --text-main: #f1f5f9; --text-muted: #cbd5e1; --border: #334155;
-            --table-header: #1e293b; --nav-bg: #1e293b; --update-bg: rgba(56, 189, 248, 0.1);
+            --bg: #0f172a; 
+            --card: #1e293b; 
+            --accent: #38bdf8; 
+            --text-main: #f1f5f9;
+            --text-muted: #cbd5e1; 
+            --border: #334155;
+            --table-header: #1e293b;
+            --nav-bg: #1e293b;
+            --update-bg: rgba(56, 189, 248, 0.1);
         }
-        body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
-        .header-title { font-weight: 900; color: var(--accent); letter-spacing: 1.2px; }
-        #timestamp-badge { display: inline-flex; align-items: center; background: var(--update-bg); border: 1.5px solid var(--accent); color: var(--accent); padding: 3px 14px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; }
-        .nav-pills { background: var(--nav-bg); padding: 5px; border-radius: 50px; border: 1.5px solid var(--border); display: flex; width: 100%; max-width: 500px; margin: 0 auto 20px auto; }
-        .nav-link { flex: 1; white-space: nowrap; color: var(--text-muted); border-radius: 50px !important; font-weight: 700; font-size: 0.85rem; border: none; }
-        .nav-link.active { background: var(--accent) !important; color: white !important; }
-        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; height: 100%; }
-        .stat-label { color: var(--text-muted); font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 576px) {
+            .container { padding-left: 12px; padding-right: 12px; }
+            .h3 { font-size: 1.2rem !important; }
+            .h2 { font-size: 1.5rem !important; }
+            .stat-card { padding: 12px !important; }
+            .header-title { font-size: 1rem !important; }
+            .table-forward { font-size: 0.65rem !important; }
+            .table-forward th { white-space: nowrap; }
+        }
+
+        /* Header Styles */
+        .header-title { font-weight: 900; color: var(--accent); letter-spacing: 1.2px; margin-bottom: 2px; }
+        
+        #timestamp-badge {
+            display: inline-flex;
+            align-items: center;
+            background: var(--update-bg);
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
+            padding: 3px 14px;
+            border-radius: 20px; 
+            font-weight: 800;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            margin-bottom: 8px; 
+            line-height: 1.2;
+            box-shadow: 0 2px 5px rgba(2, 132, 199, 0.1);
+        }
+
+        .subtitle { color: #8a8a8a; font-size: 0.8rem; font-weight: 600; display: block; }
+
+        .settings-btn {
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: var(--card); border: 1.5px solid var(--border); color: var(--accent); cursor: pointer;
+        }
+
+        /* Navigation Pills - Scrollable */
+        .nav-scroller { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 20px; }
+        .nav-scroller::-webkit-scrollbar { display: none; }
+        .nav-pills { 
+            background: var(--nav-bg); padding: 5px; border-radius: 50px; width: max-content; 
+            min-width: 100%; border: 1.5px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex;
+        }
+        .nav-link { white-space: nowrap; color: var(--text-muted); border-radius: 50px !important; padding: 10px 18px; border: none; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; }
+        .nav-link.active { background: var(--accent) !important; color: white !important; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2); }
+
+        /* Stat Cards */
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); height: 100%; }
+        .stat-label { color: var(--text-muted); display: block; margin-bottom: 5px; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
+
+        /* Summary Banner */
+        .active-filter-summary { background: var(--update-bg); border: 1.5px solid var(--accent); color: var(--accent); padding: 10px; border-radius: 10px; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* Tables */
         .table-container { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .table thead th { background: var(--table-header); color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
-        .forward-section-header { background: var(--accent); color: white; font-weight: 800; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; }
+        .table thead th { background: var(--table-header); color: var(--accent); font-weight: 800; border-bottom: 1.5px solid var(--border); text-transform: uppercase; font-size: 0.65rem; padding: 12px 8px; }
+        .table-forward td { font-weight: 600; padding: 8px 4px; border-color: var(--border); }
+        .bg-total { background: var(--update-bg) !important; font-weight: 800 !important; }
+
+        /* Forward Table Specifics */
+        .forward-section-header { background: var(--accent); color: white; font-weight: 800; padding: 10px; border-radius: 8px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; }
+        .forward-table-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); border-left: 4px solid var(--accent); padding-left: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        .sortable-header { cursor: pointer; transition: background 0.2s; }
+        .sortable-header:hover { background: var(--update-bg) !important; }
+
     </style>
 </head>
 <body class="light-mode">
 
-<div class="container py-4">
-    <header class="d-flex justify-content-between align-items-start mb-3">
-        <div>
+<div class="container py-3">
+    <header class="d-flex justify-content-between align-items-start mb-2">
+        <div class="flex-grow-1">
             <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
-            <div id="timestamp-badge"><i class="fas fa-sync-alt me-2"></i><span id="last-updated-time">INITIALIZING...</span></div>
+            <div id="timestamp-badge">
+                <span id="last-updated-time">FETCHING...</span>
+            </div>
+            <p class="subtitle mb-0">Management MIS Dashboard</p>
         </div>
-        <button class="btn border rounded-circle" onclick="toggleTheme()"><i class="fas fa-cog" id="theme-icon"></i></button>
+        <div class="header-actions">
+            <button class="settings-btn" onclick="toggleTheme()">
+                <i class="fas fa-cog" id="theme-icon"></i>
+            </button>
+        </div>
     </header>
 
-    <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">Analytics</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">User Performance</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-forward">Forward Ops</button></li>
-    </ul>
+    <div class="nav-scroller">
+        <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">
+                    <i class="fas fa-chart-pie me-2"></i>Analytics
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">
+                    <i class="fas fa-users me-2"></i>Users
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-inventory">
+                    <i class="fas fa-boxes me-2"></i>Inventory
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-forward">
+                    <i class="fas fa-chart-line me-2"></i>Forward
+                </button>
+            </li>
+        </ul>
+    </div>
 
-    <div class="tab-content">
+    <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade show active" id="view-chart">
-            <div class="row g-3 mb-4 text-center">
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Daily Target</span><span id="target-val" class="h3 fw-bold">0</span></div></div>
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Total Achieved</span><span id="achieved-val" class="h3 fw-bold text-info">0</span></div></div>
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Progress</span><span id="progress-pct" class="h3 fw-bold text-success">0%</span></div></div>
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Gap</span><span id="gap-val" class="h3 fw-bold text-warning">0</span></div></div>
+            <div class="row g-2 mb-3 text-center">
+                <div class="col-6">
+                    <div class="stat-card" style="border: 1px solid var(--accent)">
+                        <span class="stat-label">Target</span>
+                        <span id="target-val" class="h3 fw-bold">--</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card">
+                        <span class="stat-label">Achieved</span>
+                        <span id="achieved-val" class="h3 fw-bold text-info">0</span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card shadow-sm p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h6 class="m-0 fw-bold">Building Distribution</h6>
-                    <select id="chart-dept-filter" class="form-select w-auto" style="font-size: 0.8rem;" onchange="updateAnalytics()">
-                        <option value="all">All Departments</option>
+            <div class="stat-card shadow-lg p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0 fw-bold small">Contribution</h6>
+                    <select id="chart-dept-filter" class="form-select w-auto py-1" style="font-size: 0.7rem;" onchange="updateAnalytics()">
+                        <option value="all">All Depts</option>
                         <option value="GRN">GRN</option>
                         <option value="Picking">Picking</option>
                         <option value="Packing">Packing</option>
                     </select>
                 </div>
-                <div style="height: 320px;"><canvas id="mainChart"></canvas></div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="mainChart"></canvas>
+                </div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="view-table">
-            <div class="row g-2 mb-3">
-                <div class="col-6"><select id="bldg-filter" class="form-select" onchange="applyWebFilters()"><option value="all">All Buildings</option><option value="3">Building 03</option><option value="5">Building 05</option></select></div>
-                <div class="col-6"><select id="dept-filter" class="form-select" onchange="applyWebFilters()"><option value="all">All Departments</option><option value="GRN">GRN</option><option value="Picking">Picking</option><option value="Packing">Packing</option></select></div>
+            <div class="row g-2 mb-2">
+                <div class="col-6"><select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()"><option value="all">All Bldgs</option><option value="3">Building 3</option><option value="5">Building 5</option></select></div>
+                <div class="col-6"><select id="dept-filter" class="form-select filter-select" onchange="applyWebFilters()"><option value="all">All Depts</option><option value="GRN">GRN</option><option value="Picking">Picking</option><option value="Packing">Packing</option></select></div>
             </div>
-            <div class="table-container shadow-sm">
+            <div class="active-filter-summary mb-3 shadow-sm">
+                <span id="summary-bldg">BUILDING: ALL</span><span class="opacity-25">|</span><span id="summary-dept">DEPT: ALL</span>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Actors</span><span id="total-actors-count" class="fw-bold h5 mb-0">0</span></div></div>
+                <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Quantity</span><span id="total-qty-sum" class="fw-bold h5 mb-0 text-info">0</span></div></div>
+            </div>
+            <div class="table-container">
                 <table class="table table-hover text-center mb-0">
-                    <thead><tr><th class="text-start ps-3">Actor</th><th>Units</th><th class="text-end pe-3">Contr. %</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th class="ps-3 text-start sortable-header" onclick="sortTable('Actor')">
+                                Actor <i class="fas fa-sort small ms-1 opacity-50"></i>
+                            </th>
+                            <th class="sortable-header" onclick="sortTable('Qty')">
+                                Qty <i class="fas fa-sort small ms-1 opacity-50"></i>
+                            </th>
+                            <th class="pe-3 text-end sortable-header" onclick="sortTable('Qty')">
+                                Contribution <i class="fas fa-sort small ms-1 opacity-50"></i>
+                            </th>
+                        </tr>
+                    </thead>
                     <tbody id="user-table-body"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="tab-pane fade" id="view-forward">
-            <div class="forward-section-header shadow-sm">Live Forward Operations Tracking</div>
+            <div class="forward-section-header shadow-sm" id="forward-building-title">Building - 05</div>
+            <div class="row g-2 mb-3">
+                 <div class="col-6">
+                    <select class="form-select filter-select" id="forward-bldg-select" onchange="document.getElementById('forward-building-title').innerText='Building - 0'+this.value">
+                        <option value="5">Building-05</option>
+                        <option value="3">Building-03</option>
+                    </select>
+                 </div>
+                 <div class="col-6">
+                    <div class="active-filter-summary h-100">Forward Tracking</div>
+                 </div>
+            </div>
+
+            <div class="forward-table-title">Today's SLA Orders Pending</div>
+            <div class="table-container mb-4 shadow-sm" style="overflow-x: auto;">
+                <table class="table table-bordered table-forward text-center mb-0" style="min-width: 600px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Channel</th>
+                            <th>Release Pending</th>
+                            <th>Pick Pending</th>
+                            <th>Pack Pending</th>
+                            <th>Manifest Pending</th>
+                            <th>Manifest Done</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sla-pending-body"></tbody>
+                </table>
+            </div>
+
+            <div class="forward-table-title">Total Orders</div>
+            <div class="table-container mb-4 shadow-sm" style="overflow-x: auto;">
+                <table class="table table-bordered table-forward text-center mb-0" style="min-width: 600px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Channel</th>
+                            <th>Release Pending</th>
+                            <th>Pick Pending</th>
+                            <th>Pack Pending</th>
+                            <th>Manifest Pending</th>
+                            <th>Manifest Done</th>
+                        </tr>
+                    </thead>
+                    <tbody id="total-orders-body"></tbody>
+                </table>
+            </div>
+
+            <div class="row justify-content-end">
+                <div class="col-10 col-md-5">
+                    <div class="table-container border-2 border-primary">
+                        <table class="table table-sm table-forward mb-0">
+                            <tbody>
+                                <tr><td class="text-start ps-3 fw-bold">TARGET</td><td class="text-end pe-3 fw-bold" id="fwd-target-count">--</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold">EXECUTED ORDERS</td><td class="text-end pe-3 fw-bold" id="executed-count">0</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold">TODAY'S SLA PENDING</td><td class="text-end pe-3 fw-bold" id="sla-pending-count">0</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold">NORMAL PENDING</td><td class="text-end pe-3 fw-bold" id="normal-pending-count">0</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold text-danger">SLA BREACHED</td><td class="text-end pe-3 fw-bold text-danger" id="breached-count">0</td></tr>
+                                <tr class="bg-total"><td class="text-start ps-3">TOTAL ORDERS</td><td class="text-end pe-3" id="fwd-total-orders">0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="view-inventory">
             <div class="stat-card text-center py-5">
-                <i class="fas fa-shipping-fast fa-3x text-muted opacity-25 mb-3"></i>
-                <p class="text-muted">Forward Dashboard data is currently being synced from the master hub.</p>
+                <i class="fas fa-boxes fa-3x text-muted mb-3 opacity-25"></i>
+                <h6 class="fw-bold">Inventory Syncing...</h6>
+                <p class="text-muted small">Warehouse stock updates will appear here.</p>
             </div>
         </div>
     </div>
@@ -98,26 +297,46 @@
 
 <script>
     const firebaseConfig = { databaseURL: "https://productivity-tracker-e3538-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
+    try { firebase.initializeApp(firebaseConfig); } catch (e) {}
+    
     const db = firebase.database();
-
-    let chart, rawData = [], DEPT_TARGETS = { 'all': 0, 'GRN': 0, 'Picking': 0, 'Packing': 0 };
+    let chart, rawData = [], sortAsc = false, sortCol = 'Qty', globalAchieved = 0;
+    
+    // FETCH DYNAMIC TARGETS FROM FIREBASE
+    const DEPT_TARGETS = { 'all': 0, 'GRN': 0, 'Picking': 0, 'Packing': 0 };
+    const CHANNELS = ["Myntra", "Flipkart", "Ajio", "Tatacliq", "Nykaa", "Cocoblu", "Lifestyle", "BG-Shopify"];
 
     function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const icon = document.getElementById('theme-icon');
-        icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-cog';
-        updateAnalytics();
+        const isDark = document.body.classList.toggle('dark-mode');
+        document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-cog';
+        updateAnalytics(); 
+    }
+
+    function updateLastUpdatedDisplay() {
+        const now = new Date();
+        document.getElementById('last-updated-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    }
+
+    function initForwardTables() {
+        ['sla-pending-body', 'total-orders-body'].forEach(id => {
+            const body = document.getElementById(id);
+            if(!body) return;
+            body.innerHTML = CHANNELS.map(ch => `<tr><td class="text-start ps-2 fw-bold">${ch}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`).join('') +
+                             `<tr class="bg-total"><td class="text-start ps-2">TOTAL</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`;
+        });
     }
 
     function initializeApp() {
-        // 1. Fetch Targets
+        initForwardTables();
+        
+        // 1. Sync Targets from Firebase (Pushed by EXE)
         db.ref('productivity/targets').on('value', snap => {
             const targets = snap.val();
             if (targets) {
                 DEPT_TARGETS['GRN'] = targets.GRN || 0;
                 DEPT_TARGETS['Picking'] = targets.Picking || 0;
                 DEPT_TARGETS['Packing'] = targets.Packing || 0;
+                
                 db.ref('productivity/total_target').once('value', tSnap => {
                     DEPT_TARGETS['all'] = tSnap.val() || 0;
                     updateAnalytics();
@@ -125,95 +344,111 @@
             }
         });
 
-        // 2. Fetch Productivity Data
+        // 2. Sync Detailed Data (Handling fuzzy building names)
         db.ref('detailed_productivity').on('value', snap => {
             const data = snap.val();
             rawData = data ? Object.values(data) : [];
-            document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString();
-            updateAnalytics();
-            renderTable();
+            updateLastUpdatedDisplay();
+            processAndRender();
+        });
+
+        // 3. Sync Forward Tracking
+        db.ref('forward_stats').on('value', snap => {
+            const stats = snap.val();
+            if (stats) {
+                document.getElementById('executed-count').innerText = Number(stats.executed || 0).toLocaleString();
+                document.getElementById('sla-pending-count').innerText = Number(stats.sla_pending || 0).toLocaleString();
+                document.getElementById('normal-pending-count').innerText = Number(stats.normal_pending || 0).toLocaleString();
+                document.getElementById('breached-count').innerText = Number(stats.breached || 0).toLocaleString();
+                document.getElementById('fwd-total-orders').innerText = Number(stats.total || 0).toLocaleString();
+            }
         });
     }
 
-    function updateAnalytics() {
-        const filter = document.getElementById('chart-dept-filter').value;
-        let b3 = 0, b5 = 0;
+    function processAndRender() {
+        rawData.sort((a, b) => {
+            let valA = a[sortCol] || 0, valB = b[sortCol] || 0;
+            if (sortCol === 'Actor') return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            return sortAsc ? Number(valA) - Number(valB) : Number(valB) - Number(valA);
+        });
+        globalAchieved = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
+        updateAnalytics(); 
+        renderTable(rawData);
+        applyWebFilters(); 
+    }
 
-        // FUZZY MATCHING: Ensures 'wms_entoma_bldg3' matches Building 3
+    function renderTable(data) {
+        const tableBody = document.getElementById('user-table-body');
+        if(!tableBody) return;
+        tableBody.innerHTML = data.map(row => {
+            const qty = Number(row.Qty || 0);
+            const contr = globalAchieved > 0 ? ((qty / globalAchieved) * 100).toFixed(1) : 0;
+            return `
+                <tr class="user-row" data-bldg="${row.Building || ''}" data-dept="${row.Department || ''}" data-qty="${qty}">
+                    <td class="text-start ps-3 py-3 fw-bold">${row.Actor || 'N/A'}</td>
+                    <td class="fw-bold" style="color: var(--accent);">${qty.toLocaleString()}</td>
+                    <td class="text-end pe-3 fw-bold">${contr}%</td>
+                </tr>`;
+        }).join('');
+    }
+
+    function applyWebFilters() {
+        const bldgVal = document.getElementById('bldg-filter').value.toLowerCase();
+        const deptVal = document.getElementById('dept-filter').value.toLowerCase();
+        const rows = document.querySelectorAll('.user-row');
+        let vCount = 0, vQty = 0;
+        rows.forEach(row => {
+            const rBldg = String(row.getAttribute('data-bldg')).toLowerCase();
+            const rDept = String(row.getAttribute('data-dept')).toLowerCase();
+            // Fuzzy match for building (wms_entoma_bldg3 matches 3)
+            const bMatch = bldgVal === 'all' || rBldg.includes(bldgVal);
+            const dMatch = deptVal === 'all' || rDept === deptVal;
+            if (bMatch && dMatch) { row.style.display = ""; vCount++; vQty += Number(row.getAttribute('data-qty')); }
+            else row.style.display = "none";
+        });
+        document.getElementById('total-actors-count').innerText = vCount.toLocaleString();
+        document.getElementById('total-qty-sum').innerText = vQty.toLocaleString();
+        document.getElementById('summary-bldg').innerText = `BUILDING: ${document.getElementById('bldg-filter').options[document.getElementById('bldg-filter').selectedIndex].text.toUpperCase()}`;
+        document.getElementById('summary-dept').innerText = `DEPT: ${document.getElementById('dept-filter').options[document.getElementById('dept-filter').selectedIndex].text.toUpperCase()}`;
+    }
+
+    function updateAnalytics() {
+        const f = document.getElementById('chart-dept-filter').value;
+        let b3 = 0, b5 = 0;
         rawData.forEach(r => {
             const rDept = (r.Department || "").toUpperCase();
             const rBldg = (r.Building || "").toUpperCase();
-            
-            if (filter === 'all' || rDept === filter.toUpperCase()) {
-                if (rBldg.includes('3')) b3 += Number(r.Qty || 0);
+            if (f === 'all' || rDept === f.toUpperCase()) {
+                if (rBldg.includes('3')) b3 += Number(r.Qty || 0); 
                 else if (rBldg.includes('5')) b5 += Number(r.Qty || 0);
             }
         });
-
-        const target = DEPT_TARGETS[filter] || DEPT_TARGETS['all'];
-        const achieved = b3 + b5;
-        const gap = Math.max(0, target - achieved);
-        const progress = target > 0 ? ((achieved / target) * 100).toFixed(1) : 0;
-
-        document.getElementById('achieved-val').innerText = achieved.toLocaleString();
+        
+        const target = DEPT_TARGETS[f] || DEPT_TARGETS['all'];
+        document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
         document.getElementById('target-val').innerText = target.toLocaleString();
-        document.getElementById('gap-val').innerText = gap.toLocaleString();
-        document.getElementById('progress-pct').innerText = progress + '%';
-
         updateChart(b3, b5, target);
     }
 
     function updateChart(b3, b5, target) {
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        const achieved = b3 + b5;
-        const rem = Math.max(0, target - achieved);
-        const isDark = document.body.classList.contains('dark-mode');
-
+        const canvas = document.getElementById('mainChart');
+        if(!canvas) return;
+        const achieved = b3 + b5, remaining = Math.max(0, target - achieved);
         if (chart) chart.destroy();
-        chart = new Chart(ctx, {
+        chart = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: ['Building 03', 'Building 05', 'Remaining Gap'],
-                datasets: [{
-                    data: [b3, b5, rem],
-                    backgroundColor: ['#38bdf8', '#818cf8', isDark ? '#334155' : '#e2e8f0'],
-                    borderWidth: 0,
-                    borderRadius: 6
-                }]
+                labels: ['Bldg 3', 'Bldg 5', 'Gap'],
+                datasets: [{ data: [b3, b5, remaining], backgroundColor: ['#38bdf8', '#818cf8', '#cbd5e1'], hoverOffset: 12, borderWidth: 0, borderRadius: 5 }]
             },
-            options: {
-                maintainAspectRatio: false,
-                cutout: '80%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: isDark ? '#cbd5e1' : '#64748b', usePointStyle: true } }
-                }
-            }
+            options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } } }
         });
     }
 
-    function renderTable() {
-        const body = document.getElementById('user-table-body');
-        const total = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
-        
-        body.innerHTML = rawData.sort((a,b) => b.Qty - a.Qty).map(r => {
-            const contr = total > 0 ? ((r.Qty / total) * 100).toFixed(1) : 0;
-            return `<tr class="user-row" data-bldg="${r.Building}" data-dept="${r.Department}">
-                <td class="text-start ps-3 fw-bold">${r.Actor}</td>
-                <td class="fw-bold text-primary">${r.Qty}</td>
-                <td class="text-end pe-3 text-muted">${contr}%</td></tr>`;
-        }).join('');
-        applyWebFilters();
-    }
-
-    function applyWebFilters() {
-        const bVal = document.getElementById('bldg-filter').value;
-        const dVal = document.getElementById('dept-filter').value;
-        
-        document.querySelectorAll('.user-row').forEach(row => {
-            const match = (bVal === 'all' || row.dataset.bldg.includes(bVal)) && 
-                          (dVal === 'all' || row.dataset.dept === dVal);
-            row.style.display = match ? "" : "none";
-        });
+    function sortTable(col) {
+        if (sortCol === col) sortAsc = !sortAsc;
+        else { sortCol = col; sortAsc = false; }
+        processAndRender();
     }
 
     window.onload = initializeApp;
