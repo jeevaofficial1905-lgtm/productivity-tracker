@@ -116,7 +116,7 @@
 <body class="light-mode">
 
 <div class="container py-3">
-    <!-- Header -->
+    <!-- Header Area -->
     <header class="d-flex justify-content-between align-items-start mb-2">
         <div class="flex-grow-1">
             <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
@@ -132,7 +132,7 @@
         </div>
     </header>
 
-    <!-- Navigation -->
+    <!-- Global Navigation -->
     <div class="nav-scroller">
         <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
             <li class="nav-item">
@@ -142,7 +142,7 @@
             </li>
             <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">
-                    <i class="fas fa-users me-2"></i>Users
+                    <i class="fas fa-users-cog me-2"></i>Users
                 </button>
             </li>
             <li class="nav-item">
@@ -159,7 +159,7 @@
     </div>
 
     <div class="tab-content" id="pills-tabContent">
-        <!-- Analytics View -->
+        <!-- ANALYTICS TAB -->
         <div class="tab-pane fade show active" id="view-chart">
             <div class="row g-2 mb-3 text-center">
                 <div class="col-6">
@@ -191,18 +191,41 @@
             </div>
         </div>
 
-        <!-- User Details View -->
+        <!-- USERS TAB (WITH SORTING) -->
         <div class="tab-pane fade" id="view-table">
             <div class="row g-2 mb-2">
-                <div class="col-6"><select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()"><option value="all">All Bldgs</option><option value="3">Building 3</option><option value="5">Building 5</option></select></div>
-                <div class="col-6"><select id="dept-filter" class="form-select filter-select" onchange="applyWebFilters()"><option value="all">All Depts</option><option value="GRN">GRN</option><option value="Picking">Picking</option><option value="Packing">Packing</option></select></div>
+                <div class="col-6">
+                    <select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()">
+                        <option value="all">All Bldgs</option>
+                        <option value="3">Building 3</option>
+                        <option value="5">Building 5</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <select id="dept-filter" class="form-select filter-select" onchange="applyWebFilters()">
+                        <option value="all">All Depts</option>
+                        <option value="GRN">GRN</option>
+                        <option value="Picking">Picking</option>
+                        <option value="Packing">Packing</option>
+                    </select>
+                </div>
             </div>
             <div class="active-filter-summary mb-3 shadow-sm">
                 <span id="summary-bldg">BUILDING: ALL</span><span class="opacity-25">|</span><span id="summary-dept">DEPT: ALL</span>
             </div>
             <div class="row g-2 mb-3">
-                <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Actors</span><span id="total-actors-count" class="fw-bold h5 mb-0">0</span></div></div>
-                <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Quantity</span><span id="total-qty-sum" class="fw-bold h5 mb-0 text-info">0</span></div></div>
+                <div class="col-6">
+                    <div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);">
+                        <span class="stat-label">Total Actors</span>
+                        <span id="total-actors-count" class="fw-bold h5 mb-0">0</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);">
+                        <span class="stat-label">Total Quantity</span>
+                        <span id="total-qty-sum" class="fw-bold h5 mb-0 text-info">0</span>
+                    </div>
+                </div>
             </div>
             <div class="table-container">
                 <table class="table table-hover text-center mb-0">
@@ -224,7 +247,7 @@
             </div>
         </div>
 
-        <!-- Forward Dashboard View -->
+        <!-- FORWARD DASHBOARD TAB -->
         <div class="tab-pane fade" id="view-forward">
             <div class="forward-section-header shadow-sm" id="forward-building-title">Building - 05</div>
             
@@ -282,7 +305,6 @@
                                 <tr><td class="text-start ps-3 fw-bold">TARGET</td><td class="text-end pe-3 fw-bold" id="fwd-target-count">--</td></tr>
                                 <tr><td class="text-start ps-3 fw-bold">EXECUTED ORDERS</td><td class="text-end pe-3 fw-bold" id="executed-count">0</td></tr>
                                 <tr><td class="text-start ps-3 fw-bold">TODAY'S SLA PENDING</td><td class="text-end pe-3 fw-bold" id="sla-pending-count">0</td></tr>
-                                <tr><td class="text-start ps-3 fw-bold">NORMAL PENDING</td><td class="text-end pe-3 fw-bold" id="normal-pending-count">0</td></tr>
                                 <tr><td class="text-start ps-3 fw-bold text-danger">SLA BREACHED</td><td class="text-end pe-3 fw-bold text-danger" id="breached-count">0</td></tr>
                                 <tr class="bg-total"><td class="text-start ps-3">TOTAL ORDERS</td><td class="text-end pe-3" id="fwd-total-orders">0</td></tr>
                             </tbody>
@@ -292,7 +314,7 @@
             </div>
         </div>
 
-        <!-- Inventory View -->
+        <!-- INVENTORY TAB (PLACEHOLDER) -->
         <div class="tab-pane fade" id="view-inventory">
             <div class="stat-card text-center py-5">
                 <i class="fas fa-boxes fa-3x text-muted mb-3 opacity-25"></i>
@@ -310,8 +332,8 @@
     const db = firebase.database();
     let chart, rawData = [], sortAsc = false, sortCol = 'Qty', globalAchieved = 0;
     
-    // Dynamic targets fetched from DB. Fallbacks included if DB is empty.
-    const DEPT_TARGETS = { 'all': 24500, 'GRN': 15000, 'Picking': 9500, 'Packing': 12000 };
+    // Local memory for targets synced from server
+    const DEPT_TARGETS = { 'all': 0, 'GRN': 0, 'Picking': 0, 'Packing': 0 };
     const CHANNELS = ["Myntra", "Flipkart", "Ajio", "Tatacliq", "Nykaa", "Cocoblu", "Lifestyle", "BG-Shopify"];
 
     function toggleTheme() {
@@ -337,17 +359,12 @@
     function initializeApp() {
         initForwardTables();
         
-        // --- 1. CORE FEATURE: FETCH TARGETS FROM FIREBASE ---
+        // 1. SYNC TARGETS FROM SERVER
         db.ref('targets').on('value', snap => {
             const targets = snap.val();
             if (targets) { 
-                // Overwrite local targets with database values
                 Object.assign(DEPT_TARGETS, targets);
-                
-                // Update Analytics UI (Doughnut and Stats)
                 updateAnalytics(); 
-                
-                // Update Forward Dashboard Target specifically
                 if (targets.all) {
                     const fwdTarget = document.getElementById('fwd-target-count');
                     if(fwdTarget) fwdTarget.innerText = Number(targets.all).toLocaleString();
@@ -355,7 +372,7 @@
             }
         });
 
-        // 2. Fetch Detailed User Productivity
+        // 2. SYNC PRODUCTIVITY DATA
         db.ref('detailed_productivity').on('value', snap => {
             const data = snap.val();
             rawData = data ? Object.values(data) : [];
@@ -363,19 +380,18 @@
             processAndRender();
         });
 
-        // 3. Fetch Forward Dashboard Data
+        // 3. SYNC FORWARD DASHBOARD DATA
         db.ref('forward_stats').on('value', snap => {
             const stats = snap.val();
             if (stats) {
                 document.getElementById('executed-count').innerText = Number(stats.executed || 0).toLocaleString();
                 document.getElementById('sla-pending-count').innerText = Number(stats.sla_pending || 0).toLocaleString();
-                document.getElementById('normal-pending-count').innerText = Number(stats.normal_pending || 0).toLocaleString();
                 document.getElementById('breached-count').innerText = Number(stats.breached || 0).toLocaleString();
                 document.getElementById('fwd-total-orders').innerText = Number(stats.total || 0).toLocaleString();
             }
         });
 
-        // 4. Update Time from Server Metadata
+        // 4. Update Time from Server
         db.ref('productivity').on('value', s => {
             const val = s.val();
             if (val && val.last_updated) updateLastUpdatedDisplay(val.last_updated);
@@ -443,10 +459,7 @@
                 if (b.includes('3')) b3 += Number(r.Qty || 0); else if (b.includes('5')) b5 += Number(r.Qty || 0);
             }
         });
-        
-        // Fetch specific target from the mapping that was synced with the database
         const target = DEPT_TARGETS[f] || DEPT_TARGETS['all'];
-        
         document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
         document.getElementById('target-val').innerText = target.toLocaleString();
         updateChart(b3, b5, target);
