@@ -71,18 +71,15 @@
             margin-top: 4px;
             margin-bottom: 8px; 
             line-height: 1.2;
+            box-shadow: 0 2px 5px rgba(2, 132, 199, 0.1);
         }
 
         .subtitle { color: #8a8a8a; font-size: 0.8rem; font-weight: 600; display: block; }
 
-        .header-actions { display: flex; gap: 8px; align-items: center; }
-
-        .icon-btn {
+        .settings-btn {
             width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             background: var(--card); border: 1.5px solid var(--border); color: var(--accent); cursor: pointer;
-            transition: all 0.2s ease;
         }
-        .icon-btn:hover { transform: scale(1.1); }
 
         /* Navigation Pills - Scrollable */
         .nav-scroller { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 20px; }
@@ -95,7 +92,7 @@
         .nav-link.active { background: var(--accent) !important; color: white !important; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2); }
 
         /* Stat Cards */
-        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); height: 100%; position: relative; overflow: hidden; }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); height: 100%; }
         .stat-label { color: var(--text-muted); display: block; margin-bottom: 5px; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
 
         /* Summary Banner */
@@ -110,6 +107,9 @@
         /* Forward Table Specifics */
         .forward-section-header { background: var(--accent); color: white; font-weight: 800; padding: 8px; border-radius: 6px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; }
         .forward-table-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); border-left: 4px solid var(--accent); padding-left: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        .sortable-header { cursor: pointer; transition: background 0.2s; }
+        .sortable-header:hover { background: var(--update-bg) !important; }
 
     </style>
 </head>
@@ -126,7 +126,7 @@
             <p class="subtitle mb-0">Management MIS Dashboard</p>
         </div>
         <div class="header-actions">
-            <button class="icon-btn" onclick="toggleTheme()">
+            <button class="settings-btn" onclick="toggleTheme()">
                 <i class="fas fa-cog" id="theme-icon"></i>
             </button>
         </div>
@@ -191,7 +191,7 @@
             </div>
         </div>
 
-        <!-- User Details View -->
+        <!-- User Details View (With Sorting) -->
         <div class="tab-pane fade" id="view-table">
             <div class="row g-2 mb-2">
                 <div class="col-6"><select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()"><option value="all">All Bldgs</option><option value="3">Building 3</option><option value="5">Building 5</option></select></div>
@@ -204,7 +204,24 @@
                 <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Actors</span><span id="total-actors-count" class="fw-bold h5 mb-0">0</span></div></div>
                 <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Quantity</span><span id="total-qty-sum" class="fw-bold h5 mb-0 text-info">0</span></div></div>
             </div>
-            <div class="table-container"><table class="table table-hover text-center mb-0"><thead id="user-table-head"><tr><th class="ps-3 text-start">Actor</th><th>Qty</th><th class="pe-3 text-end">Contribution</th></tr></thead><tbody id="user-table-body"></tbody></table></div>
+            <div class="table-container">
+                <table class="table table-hover text-center mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3 text-start sortable-header" onclick="sortTable('Actor')">
+                                Actor <i class="fas fa-sort small ms-1 opacity-50"></i>
+                            </th>
+                            <th class="sortable-header" onclick="sortTable('Qty')">
+                                Qty <i class="fas fa-sort small ms-1 opacity-50"></i>
+                            </th>
+                            <th class="pe-3 text-end sortable-header" onclick="sortTable('Qty')">
+                                Contribution <i class="fas fa-sort small ms-1 opacity-50"></i>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body"></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Forward Dashboard View -->
@@ -223,7 +240,6 @@
                  </div>
             </div>
 
-            <!-- Table 1: Today's SLA Pending -->
             <div class="forward-table-title">Today's SLA Orders Pending</div>
             <div class="table-container mb-4 shadow-sm" style="overflow-x: auto;">
                 <table class="table table-bordered table-forward text-center mb-0" style="min-width: 600px;">
@@ -241,7 +257,6 @@
                 </table>
             </div>
 
-            <!-- Table 2: Total Orders -->
             <div class="forward-table-title">Total Orders</div>
             <div class="table-container mb-4 shadow-sm" style="overflow-x: auto;">
                 <table class="table table-bordered table-forward text-center mb-0" style="min-width: 600px;">
@@ -264,8 +279,8 @@
                     <div class="table-container border-2 border-primary">
                         <table class="table table-sm table-forward mb-0">
                             <tbody>
-                                <tr><td class="text-start ps-3 fw-bold">EXECUTED ORDERS</td><td class="text-end pe-3 fw-bold" id="executed-count">1,240</td></tr>
-                                <tr><td class="text-start ps-3 fw-bold">TODAY'S SLA PENDING</td><td class="text-end pe-3 fw-bold" id="sla-pending-count">450</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold">EXECUTED ORDERS</td><td class="text-end pe-3 fw-bold">1,240</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold">TODAY'S SLA PENDING</td><td class="text-end pe-3 fw-bold">450</td></tr>
                                 <tr><td class="text-start ps-3 fw-bold text-danger">SLA BREACHED</td><td class="text-end pe-3 fw-bold text-danger">12</td></tr>
                                 <tr class="bg-total"><td class="text-start ps-3">TOTAL ORDERS</td><td class="text-end pe-3">1,702</td></tr>
                             </tbody>
@@ -291,13 +306,9 @@
     try { firebase.initializeApp(firebaseConfig); } catch (e) {}
     
     const db = firebase.database();
-    let chart, rawData = [], sortAsc = false, globalAchieved = 0;
-    const DEPT_TARGETS = { 
-        'all': 24500, 
-        'GRN': 15000, 
-        'Picking': 9500,
-        'Packing': 12000 // Added Packing target
-    };
+    let chart, rawData = [], sortAsc = false, sortCol = 'Qty', globalAchieved = 0;
+    
+    const DEPT_TARGETS = { 'all': 24500, 'GRN': 15000, 'Picking': 9500, 'Packing': 12000 };
     const CHANNELS = ["Myntra", "Flipkart", "Ajio", "Tatacliq", "Nykaa", "Cocoblu", "Lifestyle", "BG-Shopify"];
 
     function toggleTheme() {
@@ -312,39 +323,44 @@
     }
 
     function initForwardTables() {
-        const containers = ['sla-pending-body', 'total-orders-body'];
-        containers.forEach(id => {
+        ['sla-pending-body', 'total-orders-body'].forEach(id => {
             const body = document.getElementById(id);
             if(!body) return;
-            body.innerHTML = "";
-            CHANNELS.forEach(ch => {
-                body.innerHTML += `<tr><td class="text-start ps-2 fw-bold">${ch}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`;
-            });
-            body.innerHTML += `<tr class="bg-total"><td class="text-start ps-2">TOTAL</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`;
+            body.innerHTML = CHANNELS.map(ch => `<tr><td class="text-start ps-2 fw-bold">${ch}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`).join('') +
+                             `<tr class="bg-total"><td class="text-start ps-2">TOTAL</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`;
         });
     }
 
     function initializeApp() {
         initForwardTables();
-        db.ref('detailed_productivity').on('value', (snapshot) => {
-            const data = snapshot.val();
-            rawData = data ? Object.values(data) : [
-                { Building: "B5", Department: "GRN", Actor: "anithadas", Qty: 1639 },
-                { Building: "B5", Department: "GRN", Actor: "nikita.m", Qty: 1618 },
-                { Building: "B3", Department: "Picking", Actor: "tituswail", Qty: 1126 }
-            ];
+        db.ref('targets').on('value', snap => {
+            const targets = snap.val();
+            if (targets) { for (const k in targets) DEPT_TARGETS[k] = Number(targets[k]); updateAnalytics(); }
+        });
+        db.ref('detailed_productivity').on('value', snap => {
+            const data = snap.val();
+            rawData = data ? Object.values(data) : [];
             updateLastUpdatedDisplay();
             processAndRender();
         });
-
-        db.ref('productivity').on('value', (s) => {
+        db.ref('productivity').on('value', s => {
             const val = s.val();
             if (val && val.last_updated) updateLastUpdatedDisplay(val.last_updated);
         });
     }
 
+    function sortTable(col) {
+        if (sortCol === col) sortAsc = !sortAsc;
+        else { sortCol = col; sortAsc = (col === 'Actor'); }
+        processAndRender();
+    }
+
     function processAndRender() {
-        rawData.sort((a, b) => Number(b.Qty || 0) - Number(a.Qty || 0));
+        rawData.sort((a, b) => {
+            let valA = a[sortCol] || 0, valB = b[sortCol] || 0;
+            if (sortCol === 'Actor') return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            return sortAsc ? Number(valA) - Number(valB) : Number(valB) - Number(valA);
+        });
         globalAchieved = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
         updateAnalytics(); 
         renderTable(rawData);
@@ -354,17 +370,16 @@
     function renderTable(data) {
         const tableBody = document.getElementById('user-table-body');
         if(!tableBody) return;
-        tableBody.innerHTML = "";
-        data.forEach((row) => {
+        tableBody.innerHTML = data.map(row => {
             const qty = Number(row.Qty || 0);
-            const contribution = globalAchieved > 0 ? ((qty / globalAchieved) * 100).toFixed(1) : 0;
-            tableBody.innerHTML += `
+            const contr = globalAchieved > 0 ? ((qty / globalAchieved) * 100).toFixed(1) : 0;
+            return `
                 <tr class="user-row" data-bldg="${row.Building || ''}" data-dept="${row.Department || ''}" data-qty="${qty}">
                     <td class="text-start ps-3 py-3 fw-bold">${row.Actor || 'N/A'}</td>
                     <td class="fw-bold" style="color: var(--accent);">${qty.toLocaleString()}</td>
-                    <td class="text-end pe-3 fw-bold">${contribution}%</td>
+                    <td class="text-end pe-3 fw-bold">${contr}%</td>
                 </tr>`;
-        });
+        }).join('');
     }
 
     function applyWebFilters() {
@@ -378,43 +393,35 @@
             const bMatch = bldgVal === 'all' || rBldg.includes(bldgVal);
             const dMatch = deptVal === 'all' || rDept === deptVal;
             if (bMatch && dMatch) { row.style.display = ""; vCount++; vQty += Number(row.getAttribute('data-qty')); }
-            else { row.style.display = "none"; }
+            else row.style.display = "none";
         });
-        const actorEl = document.getElementById('total-actors-count');
-        const qtyEl = document.getElementById('total-qty-sum');
-        if(actorEl) actorEl.innerText = vCount.toLocaleString();
-        if(qtyEl) qtyEl.innerText = vQty.toLocaleString();
-        
-        const bldgText = document.getElementById('bldg-filter').options[document.getElementById('bldg-filter').selectedIndex].text;
-        const deptText = document.getElementById('dept-filter').options[document.getElementById('dept-filter').selectedIndex].text;
-        document.getElementById('summary-bldg').innerText = `BUILDING: ${bldgText.toUpperCase()}`;
-        document.getElementById('summary-dept').innerText = `DEPT: ${deptText.toUpperCase()}`;
+        document.getElementById('total-actors-count').innerText = vCount.toLocaleString();
+        document.getElementById('total-qty-sum').innerText = vQty.toLocaleString();
+        document.getElementById('summary-bldg').innerText = `BUILDING: ${document.getElementById('bldg-filter').options[document.getElementById('bldg-filter').selectedIndex].text.toUpperCase()}`;
+        document.getElementById('summary-dept').innerText = `DEPT: ${document.getElementById('dept-filter').options[document.getElementById('dept-filter').selectedIndex].text.toUpperCase()}`;
     }
 
     function updateAnalytics() {
-        const deptFilter = document.getElementById('chart-dept-filter').value;
-        let b3Filtered = 0, b5Filtered = 0;
+        const f = document.getElementById('chart-dept-filter').value;
+        let b3 = 0, b5 = 0;
         rawData.forEach(r => {
-            if (deptFilter === 'all' || (r.Department || "").toLowerCase() === deptFilter.toLowerCase()) {
-                const bldg = (r.Building || "").toLowerCase();
-                if (bldg.includes('3')) b3Filtered += r.Qty; else if (bldg.includes('5')) b5Filtered += r.Qty;
+            if (f === 'all' || (r.Department || "").toLowerCase() === f.toLowerCase()) {
+                const b = (r.Building || "").toLowerCase();
+                if (b.includes('3')) b3 += Number(r.Qty || 0); else if (b.includes('5')) b5 += Number(r.Qty || 0);
             }
         });
-        const currentAchieved = b3Filtered + b5Filtered;
-        const achievedEl = document.getElementById('achieved-val');
-        const targetEl = document.getElementById('target-val');
-        if(achievedEl) achievedEl.innerText = currentAchieved.toLocaleString();
-        if(targetEl) targetEl.innerText = (DEPT_TARGETS[deptFilter] || 24500).toLocaleString();
-        updateChart(b3Filtered, b5Filtered, DEPT_TARGETS[deptFilter] || 24500);
+        const target = DEPT_TARGETS[f] || DEPT_TARGETS['all'];
+        document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
+        document.getElementById('target-val').innerText = target.toLocaleString();
+        updateChart(b3, b5, target);
     }
 
     function updateChart(b3, b5, target) {
         const canvas = document.getElementById('mainChart');
         if(!canvas) return;
-        const ctx = canvas.getContext('2d');
         const achieved = b3 + b5, remaining = Math.max(0, target - achieved);
         if (chart) chart.destroy();
-        chart = new Chart(ctx, {
+        chart = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: ['Bldg 3', 'Bldg 5', 'Remaining'],
