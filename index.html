@@ -1,47 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management MIS | Professional Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root { 
+            --bg: #f8fafc; --card: #ffffff; --accent: #0284c7; 
+            --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; 
+            --table-header: #f8fafc; --nav-bg: #ffffff; --update-bg: #e0f2fe;
+        }
+        body.dark-mode {
+            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; 
+            --text-main: #f1f5f9; --text-muted: #cbd5e1; --border: #334155;
+            --table-header: #1e293b; --nav-bg: #1e293b; --update-bg: rgba(56, 189, 248, 0.1);
+        }
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; transition: all 0.3s ease; overflow-x: hidden; }
+        
+        /* Login Screen */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .login-card { background: var(--card); padding: 35px; border-radius: 24px; border: 1.5px solid var(--border); width: 100%; max-width: 380px; text-align: center; }
+        
+        /* Dashboard Content */
+        #dashboard-content { display: none; }
+        .header-title { font-weight: 900; color: var(--accent); letter-spacing: 1.2px; margin-bottom: 2px; }
+        #timestamp-badge { display: inline-flex; align-items: center; background: var(--update-bg); border: 1.5px solid var(--accent); color: var(--accent); padding: 3px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(2, 132, 199, 0.1); }
+        .nav-pills { background: var(--nav-bg); padding: 5px; border-radius: 50px; border: 1.5px solid var(--border); display: flex; width: 100%; max-width: 450px; margin: 15px auto; }
+        .nav-link { flex: 1; color: var(--text-muted); border-radius: 50px !important; font-weight: 700; font-size: 0.85rem; }
+        .nav-link.active { background: var(--accent) !important; color: white !important; }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; height: 100%; }
+        .stat-label { color: var(--text-muted); font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
+        .table-container { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+        .table thead th { background: var(--table-header); color: var(--accent); font-weight: 800; font-size: 0.65rem; text-transform: uppercase; }
+    </style>
+</head>
+<body class="light-mode">
+
+<div id="login-screen">
+    <div class="login-card shadow-lg">
+        <i class="fas fa-user-shield fa-3x mb-3" style="color: var(--accent);"></i>
+        <h5 class="fw-bold mb-4">Manager Access</h5>
+        <input type="text" id="user-input" class="form-control mb-3 text-center" placeholder="Username">
+        <input type="password" id="pass-input" class="form-control mb-4 text-center" placeholder="Password">
+        <button id="login-btn" class="btn btn-primary w-100 fw-bold py-2" onclick="validateUser()">Login to Hub</button>
+        <p id="err-msg" class="text-danger mt-3 small fw-bold" style="display:none;">Invalid Credentials</p>
+    </div>
+</div>
+
+<div id="dashboard-content" class="container py-3">
+    <header class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+            <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
+            <div id="timestamp-badge"><span id="last-updated-time">FETCHING...</span></div>
+        </div>
+        <button class="btn border rounded-circle" onclick="toggleTheme()"><i class="fas fa-cog" id="theme-icon"></i></button>
+    </header>
+
+    <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">Analytics</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">User Details</button></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="view-chart">
+            <div class="row g-2 mb-3 text-center">
+                <div class="col-6"><div class="stat-card" style="border: 1px solid var(--accent)"><span class="stat-label">Target</span><span id="target-val" class="h3 fw-bold">--</span></div></div>
+                <div class="col-6"><div class="stat-card"><span class="stat-label">Achieved</span><span id="achieved-val" class="h3 fw-bold text-info">0</span></div></div>
+            </div>
+            <div class="stat-card p-3 shadow-sm">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="fw-bold small">Contribution</h6>
+                    <select id="chart-dept-filter" class="form-select w-auto py-0" style="font-size: 0.7rem;" onchange="updateUI()">
+                        <option value="all">All Depts</option>
+                        <option value="GRN">GRN</option>
+                        <option value="Picking">Picking</option>
+                        <option value="Packing">Packing</option>
+                    </select>
+                </div>
+                <div style="height: 280px;"><canvas id="mainChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="view-table">
+            <div class="row g-2 mb-2">
+                <div class="col-6"><select id="b-filter" class="form-select" onchange="applyFilters()"><option value="all">All Bldgs</option><option value="3">Bldg 3</option><option value="5">Bldg 5</option></select></div>
+                <div class="col-6"><select id="d-filter" class="form-select" onchange="applyFilters()"><option value="all">All Depts</option><option value="GRN">GRN</option><option value="Picking">Picking</option><option value="Packing">Packing</option></select></div>
+            </div>
+            <div class="table-container shadow-sm">
+                <table class="table table-hover text-center mb-0">
+                    <thead><tr><th class="text-start ps-3">Actor</th><th>Qty</th><th>Dept</th></tr></thead>
+                    <tbody id="user-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const firebaseConfig = { databaseURL: "https://productivity-tracker-e3538-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     let chart, rawData = [], DEPT_TARGETS = { 'all': 0, 'GRN': 0, 'Picking': 0, 'Packing': 0 };
 
-    function initializeApp() {
-        // --- TARGET LISTENER: FETCH FROM FIREBASE ---
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); updateUI(); }
+
+    async function validateUser() {
+        const u = document.getElementById('user-input').value.trim();
+        const p = document.getElementById('pass-input').value;
+        const btn = document.getElementById('login-btn');
+        btn.innerText = "Verifying...";
+        
+        try {
+            const snap = await db.ref(`authorized_users/${u}`).once('value');
+            if (snap.exists() && snap.val() === p) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+                startSync();
+            } else { throw new Error(); }
+        } catch (e) {
+            document.getElementById('err-msg').style.display = 'block';
+            btn.innerText = "Login to Hub";
+        }
+    }
+
+    function startSync() {
+        // FETCH TARGETS
         db.ref('productivity/targets').on('value', snap => {
             const targets = snap.val();
             if (targets) {
                 DEPT_TARGETS['GRN'] = targets.GRN || 0;
                 DEPT_TARGETS['Picking'] = targets.Picking || 0;
                 DEPT_TARGETS['Packing'] = targets.Packing || 0;
-                // Fetch the total total target pushed by EXE
                 db.ref('productivity/total_target').once('value', tSnap => {
                     DEPT_TARGETS['all'] = tSnap.val() || 0;
-                    updateAnalytics(); 
+                    updateUI();
                 });
             }
         });
 
+        // FETCH PRODUCTIVITY DATA
         db.ref('detailed_productivity').on('value', snap => {
             rawData = snap.val() ? Object.values(snap.val()) : [];
             document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString();
-            updateAnalytics();
+            updateUI();
             renderTable();
         });
     }
 
-    function updateAnalytics() {
+    function updateUI() {
         const f = document.getElementById('chart-dept-filter').value;
         let b3 = 0, b5 = 0;
         rawData.forEach(r => {
             if (f === 'all' || r.Department === f) {
-                if (r.Building.includes('3')) b3 += Number(r.Qty); else b5 += Number(r.Qty);
+                if (r.Building.toString().includes('3')) b3 += Number(r.Qty); 
+                else b5 += Number(r.Qty);
             }
         });
-        // Use individual department target from Firebase
         const target = DEPT_TARGETS[f] || DEPT_TARGETS['all'];
         document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
         document.getElementById('target-val').innerText = target.toLocaleString();
-        updateChart(b3, b5, target);
+        
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['B3', 'B5', 'Rem'],
+                datasets: [{ 
+                    data: [b3, b5, Math.max(0, target-(b3+b5))], 
+                    backgroundColor: ['#38bdf8', '#818cf8', document.body.classList.contains('dark-mode') ? '#334155' : '#cbd5e1'],
+                    borderWidth: 0 
+                }]
+            },
+            options: { maintainAspectRatio: false, cutout: '82%', plugins: { legend: { position: 'bottom', labels: { color: document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#64748b' } } } }
+        });
     }
-    // ... Keep existing updateChart and renderTable functions ...
-    window.onload = initializeApp;
+
+    function renderTable() {
+        const body = document.getElementById('user-table-body');
+        body.innerHTML = rawData.sort((a,b) => b.Qty - a.Qty).map(r => `
+            <tr class="user-row" data-bldg="${r.Building}" data-dept="${r.Department}">
+                <td class="text-start ps-3 fw-bold">${r.Actor}</td>
+                <td class="fw-bold text-primary">${r.Qty}</td>
+                <td><span class="badge ${r.Department==='GRN'?'bg-primary':'bg-success'}">${r.Department}</span></td>
+            </tr>`).join('');
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const b = document.getElementById('b-filter').value, d = document.getElementById('d-filter').value;
+        document.querySelectorAll('.user-row').forEach(row => {
+            const m = (b==='all'||row.dataset.bldg.includes(b)) && (d==='all'||row.dataset.dept===d);
+            row.style.display = m ? "" : "none";
+        });
+    }
 </script>
+</body>
+</html>
