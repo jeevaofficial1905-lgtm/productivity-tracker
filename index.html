@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management MIS | Productivity Hub</title>
+    <title>Management MIS | Professional</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,111 +11,82 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { 
-            --bg: #f8fafc; --card: #ffffff; --accent: #0284c7; 
-            --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; 
-            --table-header: #f8fafc; --nav-bg: #ffffff; --update-bg: #e0f2fe;
-        }
-        body.dark-mode {
-            --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; 
-            --text-main: #f1f5f9; --text-muted: #cbd5e1; --border: #334155;
-            --table-header: #1e293b; --nav-bg: #1e293b; --update-bg: rgba(56, 189, 248, 0.1);
-        }
-        body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
-        .header-title { font-weight: 900; color: var(--accent); letter-spacing: 1.2px; }
-        #timestamp-badge { display: inline-flex; align-items: center; background: var(--update-bg); border: 1.5px solid var(--accent); color: var(--accent); padding: 3px 14px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; }
-        
-        /* Fixed Navigation Scroller */
-        .nav-scroller { overflow-x: auto; white-space: nowrap; padding-bottom: 10px; }
-        .nav-pills { background: var(--nav-bg); padding: 5px; border-radius: 50px; border: 1.5px solid var(--border); display: inline-flex; min-width: 100%; }
-        .nav-link { color: var(--text-muted); border-radius: 50px !important; font-weight: 700; font-size: 0.85rem; padding: 10px 20px; }
+        :root { --bg: #f8fafc; --card: #ffffff; --accent: #0284c7; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --table-header: #f8fafc; --nav-bg: #ffffff; --update-bg: #e0f2fe; }
+        body.dark-mode { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text-main: #f1f5f9; --text-muted: #cbd5e1; --border: #334155; --table-header: #1e293b; --nav-bg: #1e293b; --update-bg: rgba(56, 189, 248, 0.1); }
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; transition: all 0.3s ease; overflow-x: hidden; }
+        .header-title { font-weight: 900; color: var(--accent); letter-spacing: 1.2px; margin-bottom: 2px; }
+        #timestamp-badge { display: inline-flex; align-items: center; background: var(--update-bg); border: 1.5px solid var(--accent); color: var(--accent); padding: 3px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(2, 132, 199, 0.1); }
+        .nav-scroller { overflow-x: auto; margin-bottom: 20px; }
+        .nav-pills { background: var(--nav-bg); padding: 5px; border-radius: 50px; width: max-content; min-width: 100%; border: 1.5px solid var(--border); display: flex; }
+        .nav-link { white-space: nowrap; color: var(--text-muted); border-radius: 50px !important; padding: 10px 18px; font-size: 0.85rem; font-weight: 700; border: none; }
         .nav-link.active { background: var(--accent) !important; color: white !important; }
-        
         .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; height: 100%; }
-        .stat-label { color: var(--text-muted); font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
+        .stat-label { color: var(--text-muted); display: block; margin-bottom: 5px; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
         .table-container { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .forward-section-header { background: var(--accent); color: white; font-weight: 800; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; }
-        .bg-total { background: var(--update-bg) !important; font-weight: 800 !important; }
+        .table thead th { background: var(--table-header); color: var(--accent); font-weight: 800; border-bottom: 1.5px solid var(--border); text-transform: uppercase; font-size: 0.65rem; padding: 12px 8px; }
+        .forward-section-header { background: var(--accent); color: white; font-weight: 800; padding: 10px; border-radius: 8px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; }
     </style>
 </head>
-<body>
+<body class="light-mode">
 
-<div class="container py-4">
-    <header class="d-flex justify-content-between align-items-start mb-3">
-        <div>
+<div class="container py-3">
+    <header class="d-flex justify-content-between align-items-start mb-2">
+        <div class="flex-grow-1">
             <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
-            <div id="timestamp-badge"><i class="fas fa-sync-alt me-2"></i><span id="last-updated-time">INITIALIZING...</span></div>
+            <div id="timestamp-badge"><span id="last-updated-time">FETCHING...</span></div>
         </div>
         <button class="btn border rounded-circle" onclick="toggleTheme()"><i class="fas fa-cog" id="theme-icon"></i></button>
     </header>
 
-    <div class="nav-scroller mb-4">
-        <ul class="nav nav-pills shadow-sm" id="main-nav" role="tablist">
-            <li class="nav-item"><button class="nav-link active" id="btn-chart" data-bs-toggle="pill" data-bs-target="#view-chart">Analytics</button></li>
-            <li class="nav-item"><button class="nav-link" id="btn-table" data-bs-toggle="pill" data-bs-target="#view-table">Performance</button></li>
-            <li class="nav-item"><button class="nav-link" id="btn-forward" data-bs-toggle="pill" data-bs-target="#view-forward">Forward Ops</button></li>
-            <li class="nav-item"><button class="nav-link" id="btn-inventory" data-bs-toggle="pill" data-bs-target="#view-inventory">Inventory</button></li>
+    <div class="nav-scroller">
+        <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">Analytics</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">Users</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-inventory">Inventory</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-forward">Forward</button></li>
         </ul>
     </div>
 
-    <div class="tab-content" id="nav-tabContent">
+    <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade show active" id="view-chart">
-            <div class="row g-3 mb-4 text-center">
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Daily Target</span><span id="target-val" class="h3 fw-bold">0</span></div></div>
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Achieved</span><span id="achieved-val" class="h3 fw-bold text-info">0</span></div></div>
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Progress</span><span id="progress-pct" class="h3 fw-bold text-success">0%</span></div></div>
-                <div class="col-6 col-md-3"><div class="stat-card"><span class="stat-label">Gap</span><span id="gap-val" class="h3 fw-bold text-warning">0</span></div></div>
+            <div class="row g-2 mb-3 text-center">
+                <div class="col-6"><div class="stat-card" style="border: 1px solid var(--accent)"><span class="stat-label">Target</span><span id="target-val" class="h3 fw-bold">--</span></div></div>
+                <div class="col-6"><div class="stat-card"><span class="stat-label">Achieved</span><span id="achieved-val" class="h3 fw-bold text-info">0</span></div></div>
             </div>
-            <div class="stat-card shadow-sm p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h6 class="m-0 fw-bold">Building Distribution</h6>
-                    <select id="chart-dept-filter" class="form-select w-auto" onchange="updateAnalytics()">
+            <div class="stat-card shadow-lg p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0 fw-bold small">Contribution</h6>
+                    <select id="chart-dept-filter" class="form-select w-auto py-1" style="font-size: 0.7rem;" onchange="updateAnalytics()">
                         <option value="all">All Depts</option>
                         <option value="GRN">GRN</option>
                         <option value="Picking">Picking</option>
                         <option value="Packing">Packing</option>
                     </select>
                 </div>
-                <div style="height: 320px;"><canvas id="mainChart"></canvas></div>
+                <div style="height: 260px;"><canvas id="mainChart"></canvas></div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="view-table">
-            <div class="row g-2 mb-3">
-                <div class="col-6"><select id="bldg-filter" class="form-select" onchange="applyWebFilters()"><option value="all">All Buildings</option><option value="3">Bldg 03</option><option value="5">Bldg 05</option></select></div>
+            <div class="row g-2 mb-2">
+                <div class="col-6"><select id="bldg-filter" class="form-select" onchange="applyWebFilters()"><option value="all">All Bldgs</option><option value="3">Bldg 3</option><option value="5">Bldg 5</option></select></div>
                 <div class="col-6"><select id="dept-filter" class="form-select" onchange="applyWebFilters()"><option value="all">All Depts</option><option value="GRN">GRN</option><option value="Picking">Picking</option><option value="Packing">Packing</option></select></div>
             </div>
             <div class="table-container shadow-sm">
                 <table class="table table-hover text-center mb-0">
-                    <thead><tr><th class="text-start ps-3">Actor</th><th>Units</th><th class="text-end pe-3">Contr %</th></tr></thead>
+                    <thead><tr><th class="text-start ps-3">Actor</th><th>Qty</th><th class="text-end pe-3">Contr. %</th></tr></thead>
                     <tbody id="user-table-body"></tbody>
                 </table>
             </div>
         </div>
 
-        <div class="tab-pane fade" id="view-forward">
-            <div class="forward-section-header shadow-sm">Live Forward Operations Tracking</div>
-            <div class="row g-2 mb-4">
-                <div class="col-md-6 offset-md-3">
-                    <div class="table-container border-primary">
-                        <table class="table table-sm mb-0">
-                            <tbody>
-                                <tr><td class="text-start ps-3 fw-bold">TOTAL TARGET</td><td class="text-end pe-3 fw-bold" id="fwd-target">0</td></tr>
-                                <tr><td class="text-start ps-3 fw-bold">EXECUTED</td><td class="text-end pe-3 fw-bold text-success" id="executed-count">0</td></tr>
-                                <tr><td class="text-start ps-3 fw-bold">SLA PENDING</td><td class="text-end pe-3 fw-bold text-danger" id="sla-pending-count">0</td></tr>
-                                <tr class="bg-total"><td class="text-start ps-3">GRAND TOTAL</td><td class="text-end pe-3" id="fwd-total">0</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="tab-pane fade" id="view-inventory">
+            <div class="stat-card text-center py-5"><i class="fas fa-boxes fa-3x text-muted mb-3 opacity-25"></i><p>Inventory Syncing...</p></div>
         </div>
 
-        <div class="tab-pane fade" id="view-inventory">
-            <div class="stat-card text-center py-5">
-                <i class="fas fa-boxes fa-3x text-muted opacity-25 mb-3"></i>
-                <p class="text-muted">Inventory tracking is currently syncing with the warehouse...</p>
-            </div>
+        <div class="tab-pane fade" id="view-forward">
+            <div class="forward-section-header shadow-sm">Forward Tracking</div>
+            <div class="stat-card text-center py-5"><i class="fas fa-chart-line fa-3x text-muted mb-3 opacity-25"></i><p>Forward Dashboard Loading...</p></div>
         </div>
     </div>
 </div>
@@ -130,7 +101,6 @@
     function toggleTheme() { document.body.classList.toggle('dark-mode'); updateAnalytics(); }
 
     function initializeApp() {
-        // Targets Listener
         db.ref('productivity/targets').on('value', snap => {
             const targets = snap.val();
             if (targets) {
@@ -139,13 +109,11 @@
                 DEPT_TARGETS['Packing'] = targets.Packing || 0;
                 db.ref('productivity/total_target').once('value', tSnap => {
                     DEPT_TARGETS['all'] = tSnap.val() || 0;
-                    document.getElementById('fwd-target').innerText = DEPT_TARGETS['all'].toLocaleString();
                     updateAnalytics();
                 });
             }
         });
 
-        // Data Listener
         db.ref('detailed_productivity').on('value', snap => {
             rawData = snap.val() ? Object.values(snap.val()) : [];
             document.getElementById('last-updated-time').innerText = new Date().toLocaleTimeString();
@@ -161,17 +129,12 @@
             const rDept = (r.Department || "").toUpperCase();
             const rBldg = (r.Building || "").toUpperCase();
             if (filter === 'all' || rDept === filter.toUpperCase()) {
-                if (rBldg.includes('3')) b3 += Number(r.Qty || 0);
-                else if (rBldg.includes('5')) b5 += Number(r.Qty || 0);
+                if (rBldg.includes('3')) b3 += Number(r.Qty); else if (rBldg.includes('5')) b5 += Number(r.Qty);
             }
         });
-
         const target = DEPT_TARGETS[filter] || DEPT_TARGETS['all'];
-        const achieved = b3 + b5;
-        document.getElementById('achieved-val').innerText = achieved.toLocaleString();
+        document.getElementById('achieved-val').innerText = (b3 + b5).toLocaleString();
         document.getElementById('target-val').innerText = target.toLocaleString();
-        document.getElementById('gap-val').innerText = Math.max(0, target - achieved).toLocaleString();
-        document.getElementById('progress-pct').innerText = target > 0 ? ((achieved / target) * 100).toFixed(1) + '%' : '0%';
         updateChart(b3, b5, target);
     }
 
@@ -180,14 +143,7 @@
         if (chart) chart.destroy();
         chart = new Chart(ctx, {
             type: 'doughnut',
-            data: {
-                labels: ['Bldg 3', 'Bldg 5', 'Gap'],
-                datasets: [{ 
-                    data: [b3, b5, Math.max(0, target-(b3+b5))], 
-                    backgroundColor: ['#38bdf8', '#818cf8', '#e2e8f0'], 
-                    borderWidth: 0 
-                }]
-            },
+            data: { labels: ['Bldg 3', 'Bldg 5', 'Gap'], datasets: [{ data: [b3, b5, Math.max(0, target-(b3+b5))], backgroundColor: ['#38bdf8', '#818cf8', '#cbd5e1'], borderWidth: 0 }] },
             options: { maintainAspectRatio: false, cutout: '80%', plugins: { legend: { position: 'bottom' } } }
         });
     }
@@ -205,8 +161,7 @@
     }
 
     function applyWebFilters() {
-        const b = document.getElementById('bldg-filter').value;
-        const d = document.getElementById('dept-filter').value;
+        const b = document.getElementById('bldg-filter').value, d = document.getElementById('dept-filter').value;
         document.querySelectorAll('.user-row').forEach(row => {
             const m = (b==='all'||row.dataset.bldg.includes(b)) && (d==='all'||row.dataset.dept===d);
             row.style.display = m ? "" : "none";
