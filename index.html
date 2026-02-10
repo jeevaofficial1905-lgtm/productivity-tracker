@@ -45,219 +45,147 @@
             overflow-x: hidden;
         }
 
-        /* Mobile Adjustments */
         @media (max-width: 576px) {
-            .container { padding-left: 15px; padding-right: 15px; }
-            .h3 { font-size: 1.3rem !important; }
-            .h2 { font-size: 1.6rem !important; }
-            .stat-card { padding: 15px !important; }
-            .header-title { font-size: 1.1rem !important; }
+            .container { padding-left: 12px; padding-right: 12px; }
+            .h3 { font-size: 1.2rem !important; }
+            .h2 { font-size: 1.5rem !important; }
+            .stat-card { padding: 12px !important; }
+            .header-title { font-size: 1rem !important; }
+            .table-forward { font-size: 0.65rem !important; }
+            .table-forward th { white-space: nowrap; }
         }
 
-        /* Header UI Styles */
-        .header-title { 
-            font-weight: 900; 
-            color: #0284c7; 
-            letter-spacing: 1.2px; 
-            margin-bottom: 2px;
-        }
+        /* Header Styles */
+        .header-title { font-weight: 900; color: var(--accent); letter-spacing: 1.2px; margin-bottom: 2px; }
         
         #timestamp-badge {
             display: inline-flex;
             align-items: center;
             background: var(--update-bg);
-            border: 1.5px solid #0284c7;
-            color: #0284c7;
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
             padding: 3px 14px;
-            border-radius: 20px; /* Exact pill shape from screenshot */
+            border-radius: 20px; 
             font-weight: 800;
             font-size: 0.8rem;
             margin-top: 4px;
             margin-bottom: 8px; 
             line-height: 1.2;
-            box-shadow: 0 2px 5px rgba(2, 132, 199, 0.1);
         }
 
-        .subtitle { color: #8a8a8a; font-size: 0.85rem; font-weight: 600; display: block; }
+        .subtitle { color: #8a8a8a; font-size: 0.8rem; font-weight: 600; display: block; }
 
-        /* Settings Button */
-        .settings-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border: 1.5px solid var(--border);
-            color: #0284c7;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            cursor: pointer;
-        }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
 
-        /* Navigation Pills */
-        .nav-pills { 
-            background: var(--nav-bg); 
-            padding: 5px; 
-            border-radius: 50px; 
-            width: 100%; 
-            max-width: 360px;
-            margin: 15px auto 25px; 
-            border: 1.5px solid var(--border);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
-            display: flex;
-        }
-
-        .nav-pills .nav-item { flex: 1; }
-
-        .nav-link { 
-            width: 100%;
-            color: var(--text-muted); 
-            border-radius: 50px !important; 
-            padding: 10px 0; 
-            border: none; 
-            font-size: 0.9rem; 
-            font-weight: 700;
+        .icon-btn {
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: var(--card); border: 1.5px solid var(--border); color: var(--accent); cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
+        .icon-btn:hover { transform: scale(1.1); }
 
-        .nav-link.active { 
-            background: #0284c7 !important; 
-            color: white !important; 
-            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.25);
+        /* Navigation Pills - Scrollable */
+        .nav-scroller { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 20px; }
+        .nav-scroller::-webkit-scrollbar { display: none; }
+        .nav-pills { 
+            background: var(--nav-bg); padding: 5px; border-radius: 50px; width: max-content; 
+            min-width: 100%; border: 1.5px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex;
         }
+        .nav-link { white-space: nowrap; color: var(--text-muted); border-radius: 50px !important; padding: 10px 18px; border: none; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; }
+        .nav-link.active { background: var(--accent) !important; color: white !important; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2); }
 
         /* Stat Cards */
-        .stat-card { 
-            background: var(--card); 
-            border: 1.5px solid var(--border); 
-            border-radius: 18px; 
-            padding: 20px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); height: 100%; position: relative; overflow: hidden; }
+        .stat-label { color: var(--text-muted); display: block; margin-bottom: 5px; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; }
 
-        .stat-label {
-            color: #8e9aaf;
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 0.65rem;
-        }
+        /* Summary Banner */
+        .active-filter-summary { background: var(--update-bg); border: 1.5px solid var(--accent); color: var(--accent); padding: 10px; border-radius: 10px; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        /* Filters */
-        .filter-select { 
-            background-color: var(--card); 
-            color: var(--text-main); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            font-size: 0.9rem; 
-            padding: 10px;
-            font-weight: 600;
-        }
+        /* Tables */
+        .table-container { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+        .table thead th { background: var(--table-header); color: var(--accent); font-weight: 800; border-bottom: 1.5px solid var(--border); text-transform: uppercase; font-size: 0.65rem; padding: 12px 8px; }
+        .table-forward td { font-weight: 600; padding: 8px 4px; border-color: var(--border); }
+        .bg-total { background: var(--update-bg) !important; font-weight: 800 !important; }
 
-        .active-filter-summary {
-            background: #e0f2fe;
-            border: 1.5px solid #0284c7;
-            color: #0284c7;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
+        /* Forward Table Specifics */
+        .forward-section-header { background: var(--accent); color: white; font-weight: 800; padding: 8px; border-radius: 6px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; }
+        .forward-table-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); border-left: 4px solid var(--accent); padding-left: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* Table */
-        .table-container { 
-            background: var(--card); 
-            border-radius: 18px; 
-            overflow: hidden; 
-            border: 1px solid var(--border); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-        }
-
-        .table thead th { 
-            background: var(--table-header); 
-            color: #0284c7; 
-            font-weight: 800;
-            border-bottom: 1.5px solid var(--border);
-            text-transform: uppercase;
-            font-size: 0.7rem;
-            padding: 15px 12px;
-        }
-
-        .text-contribution { color: var(--text-main); font-weight: 800; }
     </style>
 </head>
 <body class="light-mode">
 
-<div class="container py-4">
+<div class="container py-3">
     <!-- Header -->
     <header class="d-flex justify-content-between align-items-start mb-2">
         <div class="flex-grow-1">
             <h6 class="header-title text-uppercase">PRODUCTIVITY HUB</h6>
             <div id="timestamp-badge">
-                <span id="last-updated-time">--:--:-- --</span>
+                <span id="last-updated-time">FETCHING...</span>
             </div>
             <p class="subtitle mb-0">Management MIS Dashboard</p>
         </div>
-        <div class="settings-btn" onclick="toggleTheme()">
-            <i class="fas fa-cog" id="theme-icon"></i>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="toggleTheme()">
+                <i class="fas fa-cog" id="theme-icon"></i>
+            </button>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">
-                <i class="fas fa-chart-pie me-2"></i>Analytics
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">
-                <i class="fas fa-users me-2"></i>User Details
-            </button>
-        </li>
-    </ul>
+    <!-- Navigation -->
+    <div class="nav-scroller">
+        <ul class="nav nav-pills shadow-sm" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#view-chart">
+                    <i class="fas fa-chart-pie me-2"></i>Analytics
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-table">
+                    <i class="fas fa-users me-2"></i>Users
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-inventory">
+                    <i class="fas fa-boxes me-2"></i>Inventory
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-forward">
+                    <i class="fas fa-chart-line me-2"></i>Forward
+                </button>
+            </li>
+        </ul>
+    </div>
 
     <div class="tab-content" id="pills-tabContent">
         <!-- Analytics View -->
         <div class="tab-pane fade show active" id="view-chart">
-            <div class="row g-3 mb-4 text-center">
+            <div class="row g-2 mb-3 text-center">
                 <div class="col-6">
-                    <div class="stat-card" style="border: 1.5px solid #0284c7">
+                    <div class="stat-card" style="border: 1px solid var(--accent)">
                         <span class="stat-label">Target</span>
-                        <span id="target-val" class="h2 fw-bold" style="color: #1a1a1a;">24,500</span>
+                        <span id="target-val" class="h3 fw-bold">24,500</span>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="stat-card">
                         <span class="stat-label">Achieved</span>
-                        <span id="achieved-val" class="h2 fw-bold text-info">0</span>
+                        <span id="achieved-val" class="h3 fw-bold text-info">0</span>
                     </div>
                 </div>
             </div>
-            <div class="stat-card p-4 shadow-lg">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h6 class="m-0 fw-bold">Contribution</h6>
-                    <select id="chart-dept-filter" class="form-select filter-select w-auto py-1 px-3" style="font-size: 0.75rem;" onchange="updateAnalytics()">
+            <div class="stat-card shadow-lg p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0 fw-bold small">Contribution</h6>
+                    <select id="chart-dept-filter" class="form-select w-auto py-1" style="font-size: 0.7rem;" onchange="updateAnalytics()">
                         <option value="all">All Depts</option>
                         <option value="GRN">GRN</option>
                         <option value="Picking">Picking</option>
+                        <option value="Packing">Packing</option>
                     </select>
                 </div>
-                <div style="position: relative; height: 300px;">
+                <div style="position: relative; height: 260px;">
                     <canvas id="mainChart"></canvas>
                 </div>
             </div>
@@ -265,55 +193,94 @@
 
         <!-- User Details View -->
         <div class="tab-pane fade" id="view-table">
+            <div class="row g-2 mb-2">
+                <div class="col-6"><select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()"><option value="all">All Bldgs</option><option value="3">Building 3</option><option value="5">Building 5</option></select></div>
+                <div class="col-6"><select id="dept-filter" class="form-select filter-select" onchange="applyWebFilters()"><option value="all">All Depts</option><option value="GRN">GRN</option><option value="Picking">Picking</option><option value="Packing">Packing</option></select></div>
+            </div>
+            <div class="active-filter-summary mb-3 shadow-sm">
+                <span id="summary-bldg">BUILDING: ALL</span><span class="opacity-25">|</span><span id="summary-dept">DEPT: ALL</span>
+            </div>
             <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <select id="bldg-filter" class="form-select filter-select" onchange="applyWebFilters()">
-                        <option value="all">All Buildings</option>
-                        <option value="bldg3">Building 3</option>
-                        <option value="bldg5">Building 5</option>
+                <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Actors</span><span id="total-actors-count" class="fw-bold h5 mb-0">0</span></div></div>
+                <div class="col-6"><div class="stat-card p-2 text-center" style="background: rgba(0,0,0,0.02);"><span class="stat-label">Total Quantity</span><span id="total-qty-sum" class="fw-bold h5 mb-0 text-info">0</span></div></div>
+            </div>
+            <div class="table-container"><table class="table table-hover text-center mb-0"><thead id="user-table-head"><tr><th class="ps-3 text-start">Actor</th><th>Qty</th><th class="pe-3 text-end">Contribution</th></tr></thead><tbody id="user-table-body"></tbody></table></div>
+        </div>
+
+        <!-- Forward Dashboard View -->
+        <div class="tab-pane fade" id="view-forward">
+            <div class="forward-section-header shadow-sm" id="forward-building-title">Building - 05</div>
+            
+            <div class="row g-2 mb-3">
+                 <div class="col-6">
+                    <select class="form-select filter-select" id="forward-bldg-select" onchange="document.getElementById('forward-building-title').innerText='Building - 0'+this.value">
+                        <option value="5">Building-05</option>
+                        <option value="3">Building-03</option>
                     </select>
-                </div>
-                <div class="col-6">
-                    <select id="dept-filter" class="form-select filter-select" onchange="applyWebFilters()">
-                        <option value="all">All Depts</option>
-                        <option value="GRN">GRN</option>
-                        <option value="Picking">Picking</option>
-                    </select>
-                </div>
+                 </div>
+                 <div class="col-6">
+                    <div class="active-filter-summary h-100">Forward Tracking</div>
+                 </div>
             </div>
 
-            <div class="active-filter-summary mb-4 shadow-sm">
-                <span id="summary-bldg" class="text-truncate">BUILDING: ALL</span>
-                <span class="opacity-25">|</span>
-                <span id="summary-dept" class="text-truncate">DEPT: ALL</span>
-            </div>
-
-            <div class="row g-3 mb-4">
-                <div class="col-6">
-                    <div class="stat-card p-3 text-center" style="background: #f1f5f9; border: none;">
-                        <span class="stat-label">Total Actors</span>
-                        <span id="total-actors-count" class="fw-bold h4 mb-0">0</span>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-card p-3 text-center" style="background: #f1f5f9; border: none;">
-                        <span class="stat-label">Total Quantity</span>
-                        <span id="total-qty-sum" class="fw-bold h4 mb-0" style="color: #0284c7;">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="table table-hover text-center" id="user-table">
+            <!-- Table 1: Today's SLA Pending -->
+            <div class="forward-table-title">Today's SLA Orders Pending</div>
+            <div class="table-container mb-4 shadow-sm" style="overflow-x: auto;">
+                <table class="table table-bordered table-forward text-center mb-0" style="min-width: 600px;">
                     <thead>
                         <tr>
-                            <th class="text-start ps-4">Actor</th>
-                            <th class="text-end" onclick="toggleSort()" style="cursor:pointer">Qty <i class="fas fa-sort small ms-1"></i></th>
-                            <th class="text-end pe-4">Contribution</th>
+                            <th style="width: 100px;">Channel</th>
+                            <th>Release Pending</th>
+                            <th>Pick Pending</th>
+                            <th>Pack Pending</th>
+                            <th>Manifest Pending</th>
+                            <th>Manifest Done</th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body"></tbody>
+                    <tbody id="sla-pending-body"></tbody>
                 </table>
+            </div>
+
+            <!-- Table 2: Total Orders -->
+            <div class="forward-table-title">Total Orders</div>
+            <div class="table-container mb-4 shadow-sm" style="overflow-x: auto;">
+                <table class="table table-bordered table-forward text-center mb-0" style="min-width: 600px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Channel</th>
+                            <th>Release Pending</th>
+                            <th>Pick Pending</th>
+                            <th>Pack Pending</th>
+                            <th>Manifest Pending</th>
+                            <th>Manifest Done</th>
+                        </tr>
+                    </thead>
+                    <tbody id="total-orders-body"></tbody>
+                </table>
+            </div>
+
+            <div class="row justify-content-end">
+                <div class="col-10 col-md-5">
+                    <div class="table-container border-2 border-primary">
+                        <table class="table table-sm table-forward mb-0">
+                            <tbody>
+                                <tr><td class="text-start ps-3 fw-bold">EXECUTED ORDERS</td><td class="text-end pe-3 fw-bold" id="executed-count">1,240</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold">TODAY'S SLA PENDING</td><td class="text-end pe-3 fw-bold" id="sla-pending-count">450</td></tr>
+                                <tr><td class="text-start ps-3 fw-bold text-danger">SLA BREACHED</td><td class="text-end pe-3 fw-bold text-danger">12</td></tr>
+                                <tr class="bg-total"><td class="text-start ps-3">TOTAL ORDERS</td><td class="text-end pe-3">1,702</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory View -->
+        <div class="tab-pane fade" id="view-inventory">
+            <div class="stat-card text-center py-5">
+                <i class="fas fa-boxes fa-3x text-muted mb-3 opacity-25"></i>
+                <h6 class="fw-bold">Inventory Syncing...</h6>
+                <p class="text-muted small">Warehouse stock updates will appear here.</p>
             </div>
         </div>
     </div>
@@ -321,31 +288,17 @@
 
 <script>
     const firebaseConfig = { databaseURL: "https://productivity-tracker-e3538-default-rtdb.firebaseio.com" };
-    try { 
-        firebase.initializeApp(firebaseConfig); 
-    } catch (e) {
-        console.warn("Firebase config not available yet.");
-    }
+    try { firebase.initializeApp(firebaseConfig); } catch (e) {}
     
     const db = firebase.database();
-    let chart;
-    let rawData = [];
-    let sortAsc = false;
-    let currentGlobalAchievedTotal = 0;
-
-    const DEPARTMENT_TARGETS = { 'all': 24500, 'GRN': 15000, 'Picking': 9500 };
-
-    const mockData = [
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "anithadas", Qty: 1639 },
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "nikita.m", Qty: 1618 },
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "madhukumari", Qty: 1507 },
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "priti.p", Qty: 1486 },
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "sunilnahak", Qty: 1236 },
-        { Building: "WMS_ENTOMA_B3", Department: "Picking", Actor: "tituswail", Qty: 1126 },
-        { Building: "WMS_ENTOMA_B3", Department: "Picking", Actor: "ashok.marko", Qty: 984 },
-        { Building: "WMS_ENTOMA_B5", Department: "GRN", Actor: "jaya", Qty: 928 },
-        { Building: "WMS_ENTOMA_B3", Department: "Picking", Actor: "ranjith.dehury", Qty: 874 }
-    ];
+    let chart, rawData = [], sortAsc = false, globalAchieved = 0;
+    const DEPT_TARGETS = { 
+        'all': 24500, 
+        'GRN': 15000, 
+        'Picking': 9500,
+        'Packing': 12000 // Added Packing target
+    };
+    const CHANNELS = ["Myntra", "Flipkart", "Ajio", "Tatacliq", "Nykaa", "Cocoblu", "Lifestyle", "BG-Shopify"];
 
     function toggleTheme() {
         const isDark = document.body.classList.toggle('dark-mode');
@@ -353,33 +306,46 @@
         updateAnalytics(); 
     }
 
-    function updateLastUpdatedTime() {
-        const now = new Date();
-        document.getElementById('last-updated-time').innerText = now.toLocaleTimeString([], { 
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+    function updateLastUpdatedDisplay(serverTime) {
+        const displayDate = serverTime ? new Date(serverTime) : new Date();
+        document.getElementById('last-updated-time').innerText = displayDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    }
+
+    function initForwardTables() {
+        const containers = ['sla-pending-body', 'total-orders-body'];
+        containers.forEach(id => {
+            const body = document.getElementById(id);
+            if(!body) return;
+            body.innerHTML = "";
+            CHANNELS.forEach(ch => {
+                body.innerHTML += `<tr><td class="text-start ps-2 fw-bold">${ch}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`;
+            });
+            body.innerHTML += `<tr class="bg-total"><td class="text-start ps-2">TOTAL</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`;
         });
     }
 
     function initializeApp() {
+        initForwardTables();
         db.ref('detailed_productivity').on('value', (snapshot) => {
             const data = snapshot.val();
-            rawData = data ? Object.values(data) : [...mockData];
-            
-            // SERVER SYNC: Update timestamp only here
-            updateLastUpdatedTime(); 
-            
+            rawData = data ? Object.values(data) : [
+                { Building: "B5", Department: "GRN", Actor: "anithadas", Qty: 1639 },
+                { Building: "B5", Department: "GRN", Actor: "nikita.m", Qty: 1618 },
+                { Building: "B3", Department: "Picking", Actor: "tituswail", Qty: 1126 }
+            ];
+            updateLastUpdatedDisplay();
             processAndRender();
-        }, (err) => {
-            console.warn("Firebase Read Error", err);
-            rawData = [...mockData];
-            processAndRender();
+        });
+
+        db.ref('productivity').on('value', (s) => {
+            const val = s.val();
+            if (val && val.last_updated) updateLastUpdatedDisplay(val.last_updated);
         });
     }
 
     function processAndRender() {
         rawData.sort((a, b) => Number(b.Qty || 0) - Number(a.Qty || 0));
-        currentGlobalAchievedTotal = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
-        
+        globalAchieved = rawData.reduce((acc, r) => acc + Number(r.Qty || 0), 0);
         updateAnalytics(); 
         renderTable(rawData);
         applyWebFilters(); 
@@ -387,106 +353,74 @@
 
     function renderTable(data) {
         const tableBody = document.getElementById('user-table-body');
+        if(!tableBody) return;
         tableBody.innerHTML = "";
         data.forEach((row) => {
             const qty = Number(row.Qty || 0);
-            const contribution = currentGlobalAchievedTotal > 0 ? ((qty / currentGlobalAchievedTotal) * 100).toFixed(1) : 0;
+            const contribution = globalAchieved > 0 ? ((qty / globalAchieved) * 100).toFixed(1) : 0;
             tableBody.innerHTML += `
                 <tr class="user-row" data-bldg="${row.Building || ''}" data-dept="${row.Department || ''}" data-qty="${qty}">
-                    <td class="text-start ps-4 py-3 fw-bold">${row.Actor || 'N/A'}</td>
-                    <td class="text-end fw-bold" style="color: #0284c7;">${qty.toLocaleString()}</td>
-                    <td class="text-end pe-4 text-contribution">${contribution}%</td>
+                    <td class="text-start ps-3 py-3 fw-bold">${row.Actor || 'N/A'}</td>
+                    <td class="fw-bold" style="color: var(--accent);">${qty.toLocaleString()}</td>
+                    <td class="text-end pe-3 fw-bold">${contribution}%</td>
                 </tr>`;
         });
     }
 
     function applyWebFilters() {
-        const bSelect = document.getElementById('bldg-filter');
-        const dSelect = document.getElementById('dept-filter');
-        const bldgVal = bSelect.value.toLowerCase();
-        const deptVal = dSelect.value.toLowerCase();
+        const bldgVal = document.getElementById('bldg-filter').value.toLowerCase();
+        const deptVal = document.getElementById('dept-filter').value.toLowerCase();
         const rows = document.querySelectorAll('.user-row');
-
         let vCount = 0, vQty = 0;
         rows.forEach(row => {
             const rBldg = String(row.getAttribute('data-bldg')).toLowerCase();
             const rDept = String(row.getAttribute('data-dept')).toLowerCase();
-            
-            const bMatch = bldgVal === 'all' || rBldg.includes(bldgVal.replace('building', '').replace('bldg', '').trim());
+            const bMatch = bldgVal === 'all' || rBldg.includes(bldgVal);
             const dMatch = deptVal === 'all' || rDept === deptVal;
-            
-            if (bMatch && dMatch) {
-                row.style.display = "";
-                vCount++;
-                vQty += Number(row.getAttribute('data-qty'));
-            } else {
-                row.style.display = "none";
-            }
+            if (bMatch && dMatch) { row.style.display = ""; vCount++; vQty += Number(row.getAttribute('data-qty')); }
+            else { row.style.display = "none"; }
         });
-
-        document.getElementById('total-actors-count').innerText = vCount.toLocaleString();
-        document.getElementById('total-qty-sum').innerText = vQty.toLocaleString();
-        document.getElementById('summary-bldg').innerText = `BUILDING: ${bSelect.options[bSelect.selectedIndex].text.toUpperCase()}`;
-        document.getElementById('summary-dept').innerText = `DEPT: ${dSelect.options[dSelect.selectedIndex].text.toUpperCase()}`;
+        const actorEl = document.getElementById('total-actors-count');
+        const qtyEl = document.getElementById('total-qty-sum');
+        if(actorEl) actorEl.innerText = vCount.toLocaleString();
+        if(qtyEl) qtyEl.innerText = vQty.toLocaleString();
+        
+        const bldgText = document.getElementById('bldg-filter').options[document.getElementById('bldg-filter').selectedIndex].text;
+        const deptText = document.getElementById('dept-filter').options[document.getElementById('dept-filter').selectedIndex].text;
+        document.getElementById('summary-bldg').innerText = `BUILDING: ${bldgText.toUpperCase()}`;
+        document.getElementById('summary-dept').innerText = `DEPT: ${deptText.toUpperCase()}`;
     }
 
     function updateAnalytics() {
         const deptFilter = document.getElementById('chart-dept-filter').value;
         let b3Filtered = 0, b5Filtered = 0;
-
         rawData.forEach(r => {
-            const rDept = String(r.Department || "").toLowerCase();
-            const fDept = deptFilter.toLowerCase();
-            if (fDept === 'all' || rDept === fDept) {
-                const bldg = String(r.Building || "").toLowerCase();
-                const qty = Number(r.Qty || 0);
-                if (bldg.includes('3')) b3Filtered += qty;
-                else if (bldg.includes('5')) b5Filtered += qty;
+            if (deptFilter === 'all' || (r.Department || "").toLowerCase() === deptFilter.toLowerCase()) {
+                const bldg = (r.Building || "").toLowerCase();
+                if (bldg.includes('3')) b3Filtered += r.Qty; else if (bldg.includes('5')) b5Filtered += r.Qty;
             }
         });
-
-        const achieved = b3Filtered + b5Filtered;
-        const target = DEPARTMENT_TARGETS[deptFilter] || 24500;
-
-        document.getElementById('achieved-val').innerText = achieved.toLocaleString();
-        document.getElementById('target-val').innerText = target.toLocaleString();
-        
-        updateChart(b3Filtered, b5Filtered, target);
-    }
-
-    function toggleSort() {
-        sortAsc = !sortAsc;
-        rawData.sort((a, b) => sortAsc ? Number(a.Qty || 0) - Number(b.Qty || 0) : Number(b.Qty || 0) - Number(a.Qty || 0));
-        renderTable(rawData);
-        applyWebFilters();
+        const currentAchieved = b3Filtered + b5Filtered;
+        const achievedEl = document.getElementById('achieved-val');
+        const targetEl = document.getElementById('target-val');
+        if(achievedEl) achievedEl.innerText = currentAchieved.toLocaleString();
+        if(targetEl) targetEl.innerText = (DEPT_TARGETS[deptFilter] || 24500).toLocaleString();
+        updateChart(b3Filtered, b5Filtered, DEPT_TARGETS[deptFilter] || 24500);
     }
 
     function updateChart(b3, b5, target) {
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        const achieved = b3 + b5;
-        const remaining = Math.max(0, target - achieved);
-        const labelColor = getComputedStyle(document.body).getPropertyValue('--text-muted').trim();
-
+        const canvas = document.getElementById('mainChart');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const achieved = b3 + b5, remaining = Math.max(0, target - achieved);
         if (chart) chart.destroy();
         chart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Bldg 3', 'Bldg 5', 'Remaining'],
-                datasets: [{
-                    data: [b3, b5, remaining],
-                    backgroundColor: ['#38bdf8', '#818cf8', '#f1f5f9'],
-                    hoverOffset: 12,
-                    borderWidth: 0,
-                    borderRadius: 5
-                }]
+                datasets: [{ data: [b3, b5, remaining], backgroundColor: ['#38bdf8', '#818cf8', '#cbd5e1'], hoverOffset: 12, borderWidth: 0, borderRadius: 5 }]
             },
-            options: { 
-                maintainAspectRatio: false,
-                cutout: '75%', 
-                plugins: { 
-                    legend: { position: 'bottom', labels: { color: labelColor, padding: 25, usePointStyle: true, font: { size: 11, weight: '700' } } }
-                } 
-            }
+            options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } } }
         });
     }
 
