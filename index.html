@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Productivity Hub — MIS</title>
+<style>
+/* ── Inline SVG icon system ── */
+.ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico svg{width:1em;height:1em;fill:currentColor;display:block}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:        #eef2f7;
+  --bg2:       #e4eaf3;
+  --surf:      #ffffff;
+  --surf2:     #f6f8fb;
+  --surf3:     #edf0f5;
+  --a1:        #2563eb;   /* blue */
+  --a2:        #7c3aed;   /* violet */
+  --a3:        #0891b2;   /* cyan */
+  --ok:        #059669;
+  --warn:      #d97706;
+  --danger:    #dc2626;
+  --info:      #0284c7;
+  --txt:       #0f172a;
+  --txt2:      #475569;
+  --txt3:      #94a3b8;
+  --border:    rgba(15,23,42,0.08);
+  --border2:   rgba(15,23,42,0.12);
+  --sh:        0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.06);
+  --sh2:       0 2px 8px rgba(0,0,0,.06), 0 12px 32px rgba(0,0,0,.08);
+  --r:         16px;
+  --r2:        10px;
+  --nav:       64px;
+  --safe:      env(safe-area-inset-bottom,0px);
+  --transition: 0.28s cubic-bezier(.4,0,.2,1);
+}
+body.dark {
+  --bg:        #09101e;
+  --bg2:       #0d1627;
+  --surf:      #111d2e;
+  --surf2:     #162236;
+  --surf3:     #1c2d42;
+  --a1:        #3b82f6;
+  --a2:        #8b5cf6;
+  --a3:        #06b6d4;
+  --txt:       #f0f6ff;
+  --txt2:      #94a3b8;
+  --txt3:      #475569;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.11);
+  --sh:        0 1px 2px rgba(0,0,0,.2), 0 4px 12px rgba(0,0,0,.3);
+  --sh2:       0 2px 8px rgba(0,0,0,.25), 0 12px 32px rgba(0,0,0,.35);
+}
+
+/* ═══════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:'Sora',system-ui,sans-serif;
+  min-height:100dvh;
+  padding-bottom:calc(var(--nav) + var(--safe) + 12px);
+  transition:background var(--transition), color var(--transition);
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+select{font-family:inherit}
+
+/* ═══════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════ */
+.topbar{
+  position:sticky;top:0;z-index:200;
+  background:var(--surf);
+  border-bottom:1px solid var(--border);
+  box-shadow:var(--sh);
+  padding:0 16px;
+  height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+}
+.topbar-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-icon{
+  width:42px;height:42px;border-radius:13px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--a1) 0%,var(--a2) 100%);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:1.2rem;
+  box-shadow:0 4px 14px rgba(37,99,235,.45), inset 0 1px 0 rgba(255,255,255,.25);
+  position:relative;overflow:hidden;
+}
+.brand-icon::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.15) 0%,transparent 60%);
+}
+.brand-text{min-width:0}
+.brand-name{
+  display:block;font-size:0.7rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--a1);line-height:1;
+}
+.brand-sub{display:block;font-size:0.6rem;color:var(--txt3);font-weight:600;margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.clock-chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surf2);border:1px solid var(--border2);
+  padding:5px 11px;border-radius:20px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.62rem;font-weight:700;color:var(--txt2);
+  white-space:nowrap;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--ok);flex-shrink:0;
+  box-shadow:0 0 0 2px rgba(5,150,105,.2);
+  animation:livepulse 2s infinite;
+}
+@keyframes livepulse{
+  0%,100%{box-shadow:0 0 0 2px rgba(5,150,105,.2)}
+  50%{box-shadow:0 0 0 5px rgba(5,150,105,.05)}
+}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;border:1px solid var(--border2);
+  background:var(--surf2);color:var(--txt2);font-size:0.85rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;
+}
+.icon-btn:hover{border-color:var(--a1);color:var(--a1);background:var(--surf3)}
+.icon-btn:active{transform:scale(.9)}
+
+/* ═══════════════════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════════════════ */
+.bottomnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  height:calc(var(--nav) + var(--safe));
+  padding-bottom:var(--safe);
+  background:var(--surf);
+  border-top:1px solid var(--border);
+  box-shadow:0 -2px 20px rgba(0,0,0,.08);
+  display:flex;
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;border:none;background:none;color:var(--txt3);
+  font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  position:relative;transition:color .2s;padding:0 2px;
+}
+.nav-btn i{font-size:1.15rem;transition:transform .25s}
+.nav-btn .nav-pip{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:0;height:3px;background:linear-gradient(90deg,var(--a1),var(--a2));
+  border-radius:0 0 4px 4px;transition:width .3s cubic-bezier(.4,0,.2,1);
+}
+.nav-btn.active{color:var(--a1)}
+.nav-btn.active i{transform:translateY(-3px) scale(1.1)}
+.nav-btn.active .nav-pip{width:36px}
+
+/* ═══════════════════════════════════════════
+   PAGES
+═══════════════════════════════════════════ */
+.page{display:none;padding:14px;animation:pageIn .25s ease both}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:640px){
+  .page{max-width:740px;margin:0 auto;padding:20px}
+}
+
+/* ═══════════════════════════════════════════
+   HERO BANNER  (analytics top)
+═══════════════════════════════════════════ */
+.hero{
+  background:linear-gradient(135deg,var(--a1) 0%,var(--a2) 100%);
+  border-radius:var(--r);
+  padding:20px 18px 18px;
+  margin-bottom:14px;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(37,99,235,.3);
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-label{font-size:0.62rem;font-weight:700;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px}
+.hero-val{font-size:2.4rem;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1;letter-spacing:-1px}
+.hero-sub{font-size:0.72rem;color:rgba(255,255,255,.7);margin-top:4px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.18);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:4px 10px;border-radius:20px;
+  font-size:0.62rem;font-weight:700;margin-top:10px;
+}
+.hero-meta{
+  position:absolute;top:18px;right:18px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
+}
+.hero-chip{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);
+  color:#fff;padding:4px 10px;border-radius:8px;
+  font-size:0.6rem;font-weight:700;text-align:right;
+}
+.hero-chip span{display:block;font-size:0.85rem;font-family:'JetBrains Mono',monospace;font-weight:700}
+
+/* ═══════════════════════════════════════════
+   STAT CARDS
+═══════════════════════════════════════════ */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(min-width:640px){.stat-grid{grid-template-columns:repeat(3,1fr)}}
+.scard{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px;
+  box-shadow:var(--sh);position:relative;overflow:hidden;
+  transition:box-shadow .2s,transform .2s;
+}
+.scard:active{transform:scale(.98)}
+.scard-glow{
+  position:absolute;top:-30px;right:-30px;
+  width:80px;height:80px;border-radius:50%;
+  background:var(--gc,rgba(37,99,235,.08));
+  filter:blur(16px);pointer-events:none;
+}
+.scard-icon{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ic,rgba(37,99,235,.12));
+  color:var(--a1);font-size:1.1rem;margin-bottom:12px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
+}
+.scard-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);display:block;margin-bottom:4px}
+.scard-val{font-size:1.45rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--vc,var(--txt));line-height:1}
+.scard-trend{font-size:0.6rem;font-weight:700;color:var(--txt3);margin-top:4px;display:flex;align-items:center;gap:3px}
+.trend-up{color:var(--ok)} .trend-dn{color:var(--danger)}
+
+/* ═══════════════════════════════════════════
+   CARD (generic)
+═══════════════════════════════════════════ */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh)}
+.cp{padding:16px}
+
+/* ═══════════════════════════════════════════
+   CHART
+═══════════════════════════════════════════ */
+.chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
+.chart-title{font-size:0.88rem;font-weight:800;color:var(--txt)}
+.chart-area{position:relative;height:230px}
+@media(min-width:640px){.chart-area{height:290px}}
+
+/* PROGRESS */
+.progress-block{margin-top:16px}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.prog-label{font-size:0.7rem;font-weight:700;color:var(--txt2)}
+.prog-pct{font-size:0.7rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--a1)}
+.prog-track{height:9px;background:var(--surf3);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .8s cubic-bezier(.4,0,.2,1)}
+.prog-segs{display:flex;gap:6px;margin-top:10px}
+.seg{flex:1;text-align:center;padding:8px 6px;background:var(--surf2);border-radius:8px;border:1px solid var(--border)}
+.seg-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-bottom:4px}
+.seg-n{font-size:0.75rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--txt);display:block}
+.seg-l{font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt3)}
+
+/* ═══════════════════════════════════════════
+   FILTER ROW
+═══════════════════════════════════════════ */
+.frow{display:flex;gap:8px;margin-bottom:12px}
+.frow .fsel{flex:1}
+.fsel{
+  height:44px;padding:0 30px 0 12px;
+  background:var(--surf);color:var(--txt);
+  border:1.5px solid var(--border2);border-radius:var(--r2);
+  font-size:0.78rem;font-weight:700;font-family:'Sora',sans-serif;
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color .2s;
+}
+.fsel:focus{outline:none;border-color:var(--a1)}
+.fsel option{background:var(--surf);color:var(--txt)}
+
+/* FILTER BADGE */
+.fbadge{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(124,58,237,.06));
+  border:1px solid rgba(37,99,235,.18);
+  border-radius:var(--r2);padding:9px 14px;
+  margin-bottom:12px;
+  font-size:0.68rem;font-weight:800;color:var(--a1);
+}
+.fbadge-sep{width:1px;height:14px;background:rgba(37,99,235,.2)}
+
+/* ═══════════════════════════════════════════
+   MINI STATS (users tab)
+═══════════════════════════════════════════ */
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.mini-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);
+  padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh);
+}
+.mini-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.9rem}
+.mini-card .lbl{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3);display:block;margin-bottom:2px}
+.mini-card .vl{font-size:1.15rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--txt)}
+
+/* ═══════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════ */
+.twrap{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tscroll::-webkit-scrollbar{display:none}
+table{width:100%;border-collapse:collapse;font-size:0.8rem}
+thead th{
+  background:var(--surf2);color:var(--a1);
+  font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.9px;
+  padding:11px 10px;border-bottom:1.5px solid var(--border2);
+  white-space:nowrap;cursor:pointer;user-select:none;
+}
+thead th:hover{background:var(--surf3)}
+tbody td{
+  padding:12px 10px;border-bottom:1px solid var(--border);
+  font-weight:600;vertical-align:middle;
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--surf2)}
+.tfoot-row td{
+  background:linear-gradient(90deg,rgba(37,99,235,.06),rgba(124,58,237,.04));
+  font-weight:800;color:var(--a1);border-top:1.5px solid rgba(37,99,235,.15);
+}
+
+/* actor avatar */
+.actor-cell{display:flex;align-items:center;gap:9px}
+.avatar{
+  width:30px;height:30px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;font-weight:800;color:#fff;
+}
+.actor-name{font-weight:700;font-size:0.82rem;color:var(--txt)}
+.actor-dept{font-size:0.58rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px}
+
+/* dept badge */
+.dbadge{
+  display:inline-flex;align-items:center;
+  padding:3px 8px;border-radius:6px;
+  font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+}
+
+/* qty bar */
+.qty-cell{display:flex;align-items:center;gap:8px}
+.qty-bar-bg{flex:1;height:4px;background:var(--surf3);border-radius:4px;min-width:36px;overflow:hidden}
+.qty-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--a1),var(--a3))}
+.qty-num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.78rem;color:var(--a1);min-width:38px;text-align:right}
+
+/* ═══════════════════════════════════════════
+   FORWARD
+═══════════════════════════════════════════ */
+.fwd-hero{
+  border-radius:var(--r);overflow:hidden;margin-bottom:16px;
+  background:linear-gradient(120deg,var(--a1),var(--a3));
+  padding:16px 18px;
+  display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 4px 20px rgba(8,145,178,.25);
+}
+.fwd-hero-title{font-size:0.95rem;font-weight:800;color:#fff}
+.fwd-hero-sub{font-size:0.65rem;color:rgba(255,255,255,.7);margin-top:3px}
+.live-badge{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  padding:5px 11px;border-radius:20px;color:#fff;
+  font-size:0.62rem;font-weight:700;white-space:nowrap;
+}
+.slabel{
+  display:flex;align-items:center;gap:8px;
+  font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.9px;
+  color:var(--txt2);margin-bottom:10px;margin-top:18px;
+}
+.slabel::before{content:'';width:3px;height:14px;border-radius:4px;background:linear-gradient(180deg,var(--a1),var(--a2));flex-shrink:0}
+.slabel:first-of-type{margin-top:0}
+
+/* summary table */
+.sumtable{width:100%}
+.sumtable tr{transition:background .15s}
+.sumtable tr:hover td{background:var(--surf2)}
+.sumtable td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:0.82rem;font-weight:600}
+.sumtable tr:last-child td{border-bottom:none}
+.sumtable .sum-total td{background:linear-gradient(90deg,rgba(37,99,235,.06),rgba(124,58,237,.04));font-weight:800;font-size:0.85rem}
+.sum-icon{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;margin-right:8px;vertical-align:middle}
+
+/* ═══════════════════════════════════════════
+   INVENTORY EMPTY
+═══════════════════════════════════════════ */
+.empty-page{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:56px 24px;min-height:40vh;
+}
+.empty-icon-wrap{
+  width:80px;height:80px;border-radius:24px;
+  background:var(--surf3);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:var(--txt3);margin-bottom:20px;
+  box-shadow:var(--sh);
+}
+.empty-title{font-size:1rem;font-weight:800;margin-bottom:8px}
+.empty-sub{font-size:0.78rem;color:var(--txt2);line-height:1.65;max-width:280px;margin-bottom:20px}
+.pill-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 22px;border-radius:99px;border:none;
+  background:linear-gradient(135deg,var(--a1),var(--a2));
+  color:#fff;font-size:0.8rem;font-weight:700;
+  box-shadow:0 4px 14px rgba(37,99,235,.3);
+  transition:transform .2s,box-shadow .2s;font-family:'Sora',sans-serif;
+}
+.pill-btn:active{transform:scale(.96);box-shadow:0 2px 8px rgba(37,99,235,.25)}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+.ts{text-align:start!important} .te{text-align:end!important} .tc{text-align:center!important}
+.psl{padding-left:16px!important} .psr{padding-right:16px!important}
+.mb{margin-bottom:14px}
+.col-ok{color:var(--ok)} .col-warn{color:var(--warn)} .col-danger{color:var(--danger)}
+.col-a1{color:var(--a1)} .col-info{color:var(--info)}
+.fw8{font-weight:800} .fw7{font-weight:700}
+.mono{font-family:'JetBrains Mono',monospace}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(37,99,235,.2);border-top-color:var(--a1);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gap-mt{margin-top:8px}
+
+/* ═══════════════════════════════════════════
+   CHANNEL ICONS
+═══════════════════════════════════════════ */
+.ch-cell{display:flex;align-items:center;gap:9px}
+.ch-icon{
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:900;color:#fff;letter-spacing:0;
+  font-family:'Sora',sans-serif;
+}
+.ch-name{font-weight:700;font-size:0.8rem;color:var(--txt)}
+
+/* DEPT PILL */
+.dept-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:99px;
+  font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+}
+
+/* TABLE HEADER ICONS */
+.th-ico{margin-right:5px;opacity:.7}
+
+/* RANK BADGE */
+.rank-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:6px;
+  font-size:0.6rem;font-weight:800;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;
+}
+.rank-1{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 2px 6px rgba(245,158,11,.4)}
+.rank-2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
+.rank-3{background:linear-gradient(135deg,#b45309,#92400e);color:#fff}
+.rank-n{background:var(--surf3);color:var(--txt3)}
+
+/* STATUS DOTS in fwd table */
+.val-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;padding:3px 7px;border-radius:6px;
+  font-size:0.72rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+}
+.vc-warn{background:rgba(217,119,6,.1);color:var(--warn)}
+.vc-ok{background:rgba(5,150,105,.1);color:var(--ok)}
+.vc-info{background:rgba(8,145,178,.12);color:var(--a3)}
+.vc-neu{background:var(--surf2);color:var(--txt2)}
+</style>
+</head>
+<body>
+
+<!-- ══ TOP BAR ══════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M240.5 224H352c17.7 0 32 14.3 32 32s-14.3 32-32 32H240.5l34.8 90.2c5.8 15.1-1.7 32-16.8 37.8s-32-1.7-37.8-16.8L171.5 288H64c-17.7 0-32-14.3-32-32s14.3-32 32-32H171.5l-49-127.2C116.7 81.4 124.2 64 139.3 64s28.9 8.6 34.7 22.8L240.5 224z"/></svg></i></div>
+    <div class="brand-text">
+      <span class="brand-name">Productivity Hub</span>
+      <span class="brand-sub">Management Information System</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="clock-chip">
+      <span class="live-dot"></span>
+      <span id="clock">--:--</span>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+      <span id="theme-icon" style="display:flex;align-items:center;justify-content:center;font-size:1rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em"><path d="M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<!-- ══ PAGES ═════════════════════════════════ -->
+<main>
+
+  <!-- ─── ANALYTICS ─────────────────────────── -->
+  <section class="page active" id="page-analytics">
+
+    <!-- Hero banner -->
+    <div class="hero">
+      <div>
+        <div class="hero-label"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:5px"><path d="M349.4 44.6c5.9-13.7 1.5-29.7-10.6-38.5s-28.6-8-39.9 1.8l-256 224c-10 8.8-13.6 22.9-8.9 35.3S50.7 288 64 288H175.3L98.6 467.4c-5.9 13.7-1.5 29.7 10.6 38.5s28.6 8 39.9-1.8l256-224c10-8.8 13.6-22.9 8.9-35.3s-17.7-20.8-31-20.8H271.7L349.4 44.6z"/></svg></i>Total Achieved Today</div>
+        <div class="hero-val" id="hero-achieved">7,300</div>
+        <div class="hero-sub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:5px;opacity:.7"><path d="M264.5 5.2c14.9-6.9 32.1-6.9 47 0l218.6 101c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 149.8C37.4 145.8 32 137.3 32 128s5.4-17.9 13.9-21.8L264.5 5.2zM476.9 209.6l53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 277.8C37.4 273.8 32 265.3 32 256s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0l152-70.2zm-152 198.2l152-70.2 53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 405.8C37.4 401.8 32 393.3 32 384s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0z"/></svg></i>Across all departments &amp; buildings</div>
+        <div class="hero-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-416a160 160 0 1 1 0 320 160 160 0 1 1 0-320zm0 80a80 80 0 1 0 0 160 80 80 0 1 0 0-160zm0 48a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/></svg></i> <span id="hero-pct">48.7%</span> of daily target</div>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-chip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:4px;opacity:.7"><path d="M48 24C48 10.7 37.3 0 24 0S0 10.7 0 24V64 350.5 400v88c0 13.3 10.7 24 24 24s24-10.7 24-24V388l80.3-20.1c41.1-10.3 84.6-5.5 122.5 13.4c44.2 22.1 95.5 24.8 141.7 7.4l34.7-13c12.5-4.7 20.8-16.6 20.8-30V66.1c0-23-24.2-38-44.8-27.7l-9.6 4.8c-46.3 23.2-100.8 23.2-147.1 0c-35.1-17.6-75.4-22-113.5-12.5L48 109V24z"/></svg></i>Target<span id="hero-target">15,000</span></div>
+        <div class="hero-chip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:4px;opacity:.7"><path d="M151.6 469.6C145.5 476.2 137 480 128 480s-17.5-3.8-23.6-10.4l-88-96c-11.9-13-11.1-33.3 2-45.2s33.3-11.1 45.2 2L96 397.7V64c0-17.7 14.3-32 32-32s32 14.3 32 32V397.7l32.4-35.4c11.9-13 32.2-13.9 45.2-2s13.9 32.2 2 45.2l-88 64zm248-221.5l112-104c12.8-11.9 12.8-32.8 0-44.7L399.6 99.4c-12.8-11.9-33.6-11.9-46.4 0l-112 104c-12.8 11.9-12.8 32.8 0 44.7l112 104c12.8 11.9 33.6 11.9 46.4 0z"/></svg></i>Gap<span id="hero-gap" style="color:#fde68a">7,700</span></div>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="scard">
+        <div class="scard-glow" style="--gc:rgba(37,99,235,.14)"></div>
+        <div class="scard-icon" style="--ic:rgba(37,99,235,.15);color:var(--a1);font-size:1.2rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zm64 128h64v64H128V128zm96 0h64v64H224V128zm96 0h64v64H320V128zm96 0h64v64H416V128zM128 256h64v64H128V256zm96 0h64v64H224V256zm96 0h64v64H320V256zm96 0h64v64H416V256zM128 384h64v64H128V384zm96 0h64v64H224V384zm96 0h64v64H320V384zm96 0h64v64H416V384z"/></svg></i></div>
+        <span class="scard-label">Building 03</span>
+        <span class="scard-val" id="b3-val" style="--vc:var(--a1)">0</span>
+        <div class="scard-trend"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M384 160c-17.7 0-32-14.3-32-32s14.3-32 32-32H544c17.7 0 32 14.3 32 32V288c0 17.7-14.3 32-32 32s-32-14.3-32-32V205.3L342.6 374.6c-12.5 12.5-32.8 12.5-45.3 0L192 269.3 54.6 406.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160c12.5-12.5 32.8-12.5 45.3 0L320 306.7 466.7 160H384z"/></svg></i> units picked</div>
+      </div>
+      <div class="scard">
+        <div class="scard-glow" style="--gc:rgba(124,58,237,.14)"></div>
+        <div class="scard-icon" style="--ic:rgba(124,58,237,.15);color:var(--a2);font-size:1.2rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M0 448c0 17.7 14.3 32 32 32H64c17.7 0 32-14.3 32-32V304H0V448zM0 176V288H96V176c0-17.7-14.3-32-32-32H32c-17.7 0-32 14.3-32 32zm128 0V448c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V176c0-17.7-14.3-32-32-32H160c-17.7 0-32 14.3-32 32zM352 64c0-17.7-14.3-32-32-32H288c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32h32c17.7 0 32-14.3 32-32V64zm32 384c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V176c0-17.7-14.3-32-32-32H416c-17.7 0-32 14.3-32 32V448zm160-272v-32c0-17.7-14.3-32-32-32h-32c-17.7 0-32 14.3-32 32v32h96z"/></svg></i></div>
+        <span class="scard-label">Building 05</span>
+        <span class="scard-val" id="b5-val" style="--vc:var(--a2)">0</span>
+        <div class="scard-trend"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M384 160c-17.7 0-32-14.3-32-32s14.3-32 32-32H544c17.7 0 32 14.3 32 32V288c0 17.7-14.3 32-32 32s-32-14.3-32-32V205.3L342.6 374.6c-12.5 12.5-32.8 12.5-45.3 0L192 269.3 54.6 406.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160c12.5-12.5 32.8-12.5 45.3 0L320 306.7 466.7 160H384z"/></svg></i> units packed</div>
+      </div>
+      <div class="scard" style="grid-column:1/-1">
+        <div class="scard-glow" style="--gc:rgba(5,150,105,.12)"></div>
+        <div class="scard-icon" style="--ic:rgba(5,150,105,.15);color:var(--ok);font-size:1.2rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg></i></div>
+        <span class="scard-label">Dept Filter — Progress</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px">
+          <span class="scard-val" id="dept-progress-val" style="--vc:var(--ok)">0%</span>
+          <select class="fsel" id="chart-dept-filter" onchange="updateAnalytics()" style="max-width:135px;height:36px;font-size:0.72rem">
+            <option value="all">All Depts</option>
+            <option value="GRN">GRN</option>
+            <option value="Picking">Picking</option>
+            <option value="Packing">Packing</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart card -->
+    <div class="card cp mb">
+      <div class="chart-hd">
+        <span class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;color:var(--a1);margin-right:7px"><path d="M304 240V16.6c0-9 7-16.6 16-16.6C443.7 0 544 100.3 544 224c0 9-7.6 16-16.6 16H304zM32 272C32 150.7 122.1 50.3 239 34.3c9.2-1.3 17 5.1 17 14.4V288L412.5 444.5c6.7 6.7 6.2 17.7-1.5 23.1C371.8 495.6 323.8 512 272 512C139.5 512 32 404.6 32 272zm526.4 16c9.3 0 16.6 7.8 15.4 17c-7.7 54.9-34.2 103.1-72.9 138.1c-6.9 6.3-17.9 5.8-24.2-1.6L320 288H558.4z"/></svg></i>Building Contribution</span>
+      </div>
+      <div class="chart-area"><canvas id="mainChart"></canvas></div>
+      <div class="progress-block">
+        <div class="prog-row">
+          <span class="prog-label"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:5px;color:var(--a1)"><path d="M512 256C512 397.4 397.4 512 256 512S0 397.4 0 256S114.6 0 256 0S512 114.6 512 256zM256 96c-13.3 0-24 10.7-24 24s10.7 24 24 24s24-10.7 24-24s-10.7-24-24-24zm-32 224a32 32 0 1 0 64 0 32 32 0 1 0 -64 0zm-56-32c13.3 0 24-10.7 24-24s-10.7-24-24-24s-24 10.7-24 24s10.7 24 24 24zm216-24c0-13.3-10.7-24-24-24s-24 10.7-24 24s10.7 24 24 24s24-10.7 24-24zm-73.5-86.6l-80 80c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l80-80c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0z"/></svg></i>Progress to Target</span>
+          <span class="prog-pct" id="progress-pct-bar">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="prog-segs" id="prog-segs">
+          <div class="seg">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;color:var(--a1);font-size:0.75rem;margin-bottom:4px;display:block"><path d="M0 488V171.3c0-26.2 15.9-49.9 40.2-61.6L308.1 4.8c7.6-3.4 16.2-3.4 23.8 0L599.8 109.7c24.3 11.6 40.2 35.4 40.2 61.6V488c0 13.3-10.7 24-24 24H504c-13.3 0-24-10.7-24-24V312c0-13.3-10.7-24-24-24H184c-13.3 0-24 10.7-24 24V488c0 13.3-10.7 24-24 24H24C10.7 512 0 501.3 0 488z"/></svg></i>
+            <span class="seg-n" id="seg-b3">0</span>
+            <span class="seg-l">Bldg 03</span>
+          </div>
+          <div class="seg">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;color:var(--a2);font-size:0.75rem;margin-bottom:4px;display:block"><path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h88V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h88c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM64 112c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112z"/></svg></i>
+            <span class="seg-n" id="seg-b5">0</span>
+            <span class="seg-l">Bldg 05</span>
+          </div>
+          <div class="seg">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;color:var(--txt3);font-size:0.75rem;margin-bottom:4px;display:block"><path d="M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64V75c0 42.4 16.9 83.1 46.9 113.1L146.7 256 78.9 323.9C48.9 353.9 32 394.6 32 437v11c-17.7 0-32 14.3-32 32s14.3 32 32 32H352c17.7 0 32-14.3 32-32s-14.3-32-32-32V437c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.9-67.9C335.1 158.1 352 117.4 352 75V64c17.7 0 32-14.3 32-32S369.7 0 352 0H32zM96 75V64H288V75c0 25.5-10.1 49.9-28.1 67.9L192 210.7l-67.9-67.9C106.1 124.9 96 100.5 96 75z"/></svg></i>
+            <span class="seg-n" id="seg-gap">0</span>
+            <span class="seg-l">Remaining</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─── USER PERFORMANCE ───────────────────── -->
+  <section class="page" id="page-users">
+    <div class="frow">
+      <select class="fsel" id="bldg-filter" onchange="applyFilters()">
+        <option value="all">🏢 All Buildings</option>
+        <option value="3">🏭 Building 03</option>
+        <option value="5">🏗️ Building 05</option>
+      </select>
+      <select class="fsel" id="dept-filter" onchange="applyFilters()">
+        <option value="all">⚡ All Depts</option>
+        <option value="GRN">📦 GRN</option>
+        <option value="Picking">🤏 Picking</option>
+        <option value="Packing">📫 Packing</option>
+      </select>
+    </div>
+    <div class="fbadge">
+      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:5px"><path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h88V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h88c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM64 112c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112z"/></svg></i><span id="fb-bldg">ALL</span></span>
+      <div class="fbadge-sep"></div>
+      <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:5px"><path d="M264.5 5.2c14.9-6.9 32.1-6.9 47 0l218.6 101c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 149.8C37.4 145.8 32 137.3 32 128s5.4-17.9 13.9-21.8L264.5 5.2zM476.9 209.6l53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 277.8C37.4 273.8 32 265.3 32 256s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0l152-70.2zm-152 198.2l152-70.2 53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 405.8C37.4 401.8 32 393.3 32 384s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0z"/></svg></i><span id="fb-dept">ALL</span></span>
+    </div>
+    <div class="mini-grid">
+      <div class="mini-card">
+        <div class="mini-ico" style="background:rgba(37,99,235,.1);color:var(--a1)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3zm371-101.4L505 205.4c-9.4-9.4-24.6-9.4-33.9 0l-80 80c-9.4 9.4-9.4 24.6 0 33.9l80 80c9.4 9.4 24.6 9.4 33.9 0l46.1-46.1 90.3 90.3c9.4 9.4 24.6 9.4 33.9 0l32-32c9.4-9.4 9.4-24.6 0-33.9L549.3 250.6z"/></svg></i></div>
+        <div><span class="lbl">Actors</span><span class="vl" id="cnt-actors">0</span></div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-ico" style="background:rgba(8,145,178,.1);color:var(--a3)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M58.9 42.1c3-6.1 9.3-9.9 16.1-9.6l17.7 .7c7.7 .3 14.6 5.1 17.3 12.4l83.5 229.9L58.9 42.1zM82.6 96l48.1 132.5L199 96H82.6zM199 96l-68.2 132.5H316.5L248.4 96H199zM316.5 228.5L248.4 96h68.2l131.2 132.5H316.5zM447.8 96l131.2 132.5H461.9L393.8 96h54zm17.7-53.4l17.7-.7c6.8-.3 13.1 3.4 16.1 9.6L665.1 275.3c6.2 12.5 7.9 26.6 5 40l-9 44.8c-2.9 14.4-16.1 24.7-30.9 24.9l-160 2c-14.8.2-28.2-9.7-31.4-24.1L376.8 214.8l88.7-172.2zM576 373.8L486.6 375l21.5 98.2 68.7-86L576 373.8zM354.3 512H169.7c-14.2 0-26.8-9.4-30.6-23.1L100 348.5c-3.3-11.9 5.7-23.9 18-23.9l304 0c12.4 0 21.4 12.1 17.9 24.1L401 488.9c-3.7 13.7-16.4 23.1-30.7 23.1H354.3z"/></svg></i></div>
+        <div><span class="lbl">Total Units</span><span class="vl" id="cnt-qty">0</span></div>
+      </div>
+    </div>
+    <div class="twrap">
+      <div class="tscroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="ts psl" onclick="sortTable('Actor')" style="min-width:170px">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/></svg></i>Actor <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;opacity:.35;margin-left:3px"><path d="M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8H32c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.3l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8H288c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z"/></svg></i>
+              </th>
+              <th onclick="sortTable('Qty')" style="min-width:150px">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></i>Units <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;opacity:.35;margin-left:3px"><path d="M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8H32c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.3l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8H288c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z"/></svg></i>
+              </th>
+              <th class="te psr" style="min-width:72px">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M374.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-320 320c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l320-320zM128 128A64 64 0 1 0 0 128a64 64 0 1 0 128 0zM256 384a64 64 0 1 0 128 0 64 64 0 1 0 -128 0z"/></svg></i>Share
+              </th>
+            </tr>
+          </thead>
+          <tbody id="user-tbody">
+            <tr><td colspan="3" class="tc" style="padding:28px;color:var(--txt3)">
+              <span class="spinner"></span> Loading…
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FORWARD OPS ───────────────────────── -->
+  <section class="page" id="page-forward">
+
+    <div class="fwd-hero">
+      <div>
+        <div class="fwd-hero-title" id="fwd-title">Building 05 — Forward Ops</div>
+        <div class="fwd-hero-sub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:5px"><path d="M0 48C0 21.5 21.5 0 48 0H368c26.5 0 48 21.5 48 48V96h50.7c17 0 33.3 6.7 45.3 18.7L589.3 192c12 12 18.7 28.3 18.7 45.3V256v32 64c17.7 0 32 14.3 32 32s-14.3 32-32 32H576c0 53-43 96-96 96s-96-43-96-96H256c0 53-43 96-96 96s-96-43-96-96H48c-26.5 0-48-21.5-48-48V48zM416 256H544V237.3L466.7 160H416v96zM160 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm368-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/></svg></i>Shipment pipeline status</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <div class="live-badge"><span class="live-dot"></span> Live</div>
+        <select class="fsel" id="fwd-bldg" onchange="updateFwdTitle()" style="max-width:130px;height:34px;font-size:0.7rem;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff">
+          <option value="5">Building 05</option>
+          <option value="3">Building 03</option>
+        </select>
+      </div>
+    </div>
+
+    <span class="slabel"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;color:var(--warn);margin-right:2px"><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C186.6 0 124 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></i>Today's SLA Orders Pending</span>
+    <div class="twrap mb">
+      <div class="tscroll">
+        <table>
+          <thead><tr>
+            <th class="ts psl" style="min-width:115px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M547.6 103.8L490.3 13.1C485.2 5 476.1 0 466.4 0H109.6C99.9 0 90.8 5 85.7 13.1L28.3 103.8c-29.6 46.8-3.4 111.9 51.9 119.4c4 .5 8.1 .8 12.1 .8c26.1 0 49.3-11.4 65.2-29c15.9 17.6 39.1 29 65.2 29c26.1 0 49.3-11.4 65.2-29c15.9 17.6 39.1 29 65.2 29c26.2 0 49.3-11.4 65.2-29c16 17.6 39.1 29 65.2 29c4.1 0 8.1-.3 12.1-.8c55.5-7.4 81.8-72.5 52.1-119.4zM499.7 254.9l-.1 0c-5.3 .7-10.7 1.1-16.2 1.1c-12.4 0-24.3-1.9-35.4-5.3V384H128V250.6c-11.2 3.5-23.2 5.4-35.6 5.4c-5.5 0-11-.4-16.3-1.1l-.1 0c-4.1-.6-8.1-1.3-12-2.3V384v64c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V384 252.6c-3.9 1-7.9 1.8-12.3 2.3z"/></svg></i>Channel</th>
+            <th class="tc" style="min-width:72px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M144 144c0-44.2 35.8-80 80-80c31.9 0 59.4 18.6 72.3 45.7c7.6 16 26.7 22.8 42.6 15.2s22.8-26.7 15.2-42.6C331 33.7 281.5 0 224 0C144.5 0 80 64.5 80 144v48H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V256c0-35.3-28.7-64-64-64H144V144zm32 256a32 32 0 1 1 96 0 32 32 0 1 1 -96 0z"/></svg></i>Release</th>
+            <th class="tc" style="min-width:68px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M128 40c0-22.1 17.9-40 40-40s40 17.9 40 40V188.2c8.5-7.6 19.7-12.2 32-12.2c20.6 0 38.2 13 45 31.2c8.8-9.8 21.6-16 35.8-16c21.8 0 40.3 14.5 45.8 34.5c5.8-3.1 12.5-4.8 19.5-4.8c23.7 0 42.9 19.2 42.9 42.9V336c0 79.5-64.5 144-144 144H176c-17.8 0-35.1-5.5-49.5-15.7l-48.5-34.6c-24.2-17.3-30-50.7-12.7-74.9c10.1-14.1 25.6-22.4 42-22.7V40zM128 352.4c0 9.5 3.4 18.7 9.6 25.9L137.6 378.3c8.8 10.3 8.8 25.6 0 35.9c-8.8 10.3-23.4 10.3-32.3 0l-9.6-11.2c-19-22.2-29.7-50.4-29.7-79.6V264c0-4.4-3.6-8-8-8s-8 3.6-8 8v96c0 13.3-10.7 24-24 24s-24-10.7-24-24V264c0-30.9 25.1-56 56-56H128v144.4z"/></svg></i>Pick</th>
+            <th class="tc" style="min-width:68px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M58.9 42.1c3-6.1 9.3-9.9 16.1-9.6l17.7 .7c7.7 .3 14.6 5.1 17.3 12.4l83.5 229.9L58.9 42.1zM82.6 96l48.1 132.5L199 96H82.6zM199 96l-68.2 132.5H316.5L248.4 96H199zM316.5 228.5L248.4 96h68.2l131.2 132.5H316.5zM447.8 96l131.2 132.5H461.9L393.8 96h54zm17.7-53.4l17.7-.7c6.8-.3 13.1 3.4 16.1 9.6L665.1 275.3c6.2 12.5 7.9 26.6 5 40l-9 44.8c-2.9 14.4-16.1 24.7-30.9 24.9l-160 2c-14.8.2-28.2-9.7-31.4-24.1L376.8 214.8l88.7-172.2zM576 373.8L486.6 375l21.5 98.2 68.7-86L576 373.8zM354.3 512H169.7c-14.2 0-26.8-9.4-30.6-23.1L100 348.5c-3.3-11.9 5.7-23.9 18-23.9l304 0c12.4 0 21.4 12.1 17.9 24.1L401 488.9c-3.7 13.7-16.4 23.1-30.7 23.1H354.3z"/></svg></i>Pack</th>
+            <th class="tc" style="min-width:78px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM80 64h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16zm16 224H96c-8.8 0-16-7.2-16-16s7.2-16 16-16h-.3c8.8 0 16 7.2 16 16zm48-16h32c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16zm80-16c8.8 0 16 7.2 16 16s-7.2 16-16 16H208c-8.8 0-16-7.2-16-16s7.2-16 16-16h16zm48 16h32c8.8 0 16 7.2 16 16s-7.2 16-16 16H272c-8.8 0-16-7.2-16-16s7.2-16 16-16zm32-64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H304zm0-64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H304z"/></svg></i>Manifest</th>
+            <th class="tc" style="min-width:75px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg></i>Done</th>
+          </tr></thead>
+          <tbody id="sla-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <span class="slabel"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;color:var(--a2);margin-right:2px"><path d="M264.5 5.2c14.9-6.9 32.1-6.9 47 0l218.6 101c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 149.8C37.4 145.8 32 137.3 32 128s5.4-17.9 13.9-21.8L264.5 5.2zM476.9 209.6l53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 277.8C37.4 273.8 32 265.3 32 256s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0l152-70.2zm-152 198.2l152-70.2 53.2 24.6c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0L45.9 405.8C37.4 401.8 32 393.3 32 384s5.4-17.9 13.9-21.8l53.2-24.6 152 70.2c23.4 10.8 50.4 10.8 73.8 0z"/></svg></i>Total Operational Backlog</span>
+    <div class="twrap mb">
+      <div class="tscroll">
+        <table>
+          <thead><tr>
+            <th class="ts psl" style="min-width:115px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M547.6 103.8L490.3 13.1C485.2 5 476.1 0 466.4 0H109.6C99.9 0 90.8 5 85.7 13.1L28.3 103.8c-29.6 46.8-3.4 111.9 51.9 119.4c4 .5 8.1 .8 12.1 .8c26.1 0 49.3-11.4 65.2-29c15.9 17.6 39.1 29 65.2 29c26.1 0 49.3-11.4 65.2-29c15.9 17.6 39.1 29 65.2 29c26.2 0 49.3-11.4 65.2-29c16 17.6 39.1 29 65.2 29c4.1 0 8.1-.3 12.1-.8c55.5-7.4 81.8-72.5 52.1-119.4zM499.7 254.9l-.1 0c-5.3 .7-10.7 1.1-16.2 1.1c-12.4 0-24.3-1.9-35.4-5.3V384H128V250.6c-11.2 3.5-23.2 5.4-35.6 5.4c-5.5 0-11-.4-16.3-1.1l-.1 0c-4.1-.6-8.1-1.3-12-2.3V384v64c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V384 252.6c-3.9 1-7.9 1.8-12.3 2.3z"/></svg></i>Channel</th>
+            <th class="tc" style="min-width:72px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M144 144c0-44.2 35.8-80 80-80c31.9 0 59.4 18.6 72.3 45.7c7.6 16 26.7 22.8 42.6 15.2s22.8-26.7 15.2-42.6C331 33.7 281.5 0 224 0C144.5 0 80 64.5 80 144v48H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V256c0-35.3-28.7-64-64-64H144V144zm32 256a32 32 0 1 1 96 0 32 32 0 1 1 -96 0z"/></svg></i>Release</th>
+            <th class="tc" style="min-width:68px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M128 40c0-22.1 17.9-40 40-40s40 17.9 40 40V188.2c8.5-7.6 19.7-12.2 32-12.2c20.6 0 38.2 13 45 31.2c8.8-9.8 21.6-16 35.8-16c21.8 0 40.3 14.5 45.8 34.5c5.8-3.1 12.5-4.8 19.5-4.8c23.7 0 42.9 19.2 42.9 42.9V336c0 79.5-64.5 144-144 144H176c-17.8 0-35.1-5.5-49.5-15.7l-48.5-34.6c-24.2-17.3-30-50.7-12.7-74.9c10.1-14.1 25.6-22.4 42-22.7V40zM128 352.4c0 9.5 3.4 18.7 9.6 25.9L137.6 378.3c8.8 10.3 8.8 25.6 0 35.9c-8.8 10.3-23.4 10.3-32.3 0l-9.6-11.2c-19-22.2-29.7-50.4-29.7-79.6V264c0-4.4-3.6-8-8-8s-8 3.6-8 8v96c0 13.3-10.7 24-24 24s-24-10.7-24-24V264c0-30.9 25.1-56 56-56H128v144.4z"/></svg></i>Pick</th>
+            <th class="tc" style="min-width:68px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M58.9 42.1c3-6.1 9.3-9.9 16.1-9.6l17.7 .7c7.7 .3 14.6 5.1 17.3 12.4l83.5 229.9L58.9 42.1zM82.6 96l48.1 132.5L199 96H82.6zM199 96l-68.2 132.5H316.5L248.4 96H199zM316.5 228.5L248.4 96h68.2l131.2 132.5H316.5zM447.8 96l131.2 132.5H461.9L393.8 96h54zm17.7-53.4l17.7-.7c6.8-.3 13.1 3.4 16.1 9.6L665.1 275.3c6.2 12.5 7.9 26.6 5 40l-9 44.8c-2.9 14.4-16.1 24.7-30.9 24.9l-160 2c-14.8.2-28.2-9.7-31.4-24.1L376.8 214.8l88.7-172.2zM576 373.8L486.6 375l21.5 98.2 68.7-86L576 373.8zM354.3 512H169.7c-14.2 0-26.8-9.4-30.6-23.1L100 348.5c-3.3-11.9 5.7-23.9 18-23.9l304 0c12.4 0 21.4 12.1 17.9 24.1L401 488.9c-3.7 13.7-16.4 23.1-30.7 23.1H354.3z"/></svg></i>Pack</th>
+            <th class="tc" style="min-width:78px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM80 64h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16zm16 224H96c-8.8 0-16-7.2-16-16s7.2-16 16-16h-.3c8.8 0 16 7.2 16 16zm48-16h32c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16zm80-16c8.8 0 16 7.2 16 16s-7.2 16-16 16H208c-8.8 0-16-7.2-16-16s7.2-16 16-16h16zm48 16h32c8.8 0 16 7.2 16 16s-7.2 16-16 16H272c-8.8 0-16-7.2-16-16s7.2-16 16-16zm32-64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H304zm0-64c8.8 0 16 7.2 16 16s-7.2 16-16 16H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H304z"/></svg></i>Manifest</th>
+            <th class="tc" style="min-width:75px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg></i>Done</th>
+          </tr></thead>
+          <tbody id="backlog-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <span class="slabel"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;color:var(--a1);margin-right:2px"><path d="M32 32c17.7 0 32 14.3 32 32V400c0 8.8 7.2 16 16 16H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64C0 46.3 14.3 32 32 32zm96 96c0-17.7 14.3-32 32-32l192 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32zm32 64H288c17.7 0 32 14.3 32 32s-14.3 32-32 32H160c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 96H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H160c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg></i>Daily Summary</span>
+    <div class="twrap">
+      <table class="sumtable">
+        <tbody>
+          <tr>
+            <td class="psl"><span class="sum-icon" style="background:rgba(37,99,235,.1);color:var(--a1)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M48 24C48 10.7 37.3 0 24 0S0 10.7 0 24V64 350.5 400v88c0 13.3 10.7 24 24 24s24-10.7 24-24V388l80.3-20.1c41.1-10.3 84.6-5.5 122.5 13.4c44.2 22.1 95.5 24.8 141.7 7.4l34.7-13c12.5-4.7 20.8-16.6 20.8-30V66.1c0-23-24.2-38-44.8-27.7l-9.6 4.8c-46.3 23.2-100.8 23.2-147.1 0c-35.1-17.6-75.4-22-113.5-12.5L48 109V24z"/></svg></i></span>Daily Target</td>
+            <td class="te psr mono col-a1 fw8" id="fwd-target">15,000</td>
+          </tr>
+          <tr>
+            <td class="psl"><span class="sum-icon" style="background:rgba(5,150,105,.1);color:var(--ok)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M342.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 196.7l-45.3-45.3c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l68 68c12.5 12.5 32.8 12.5 45.3 0l128-128zm96 128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 324.7 141.3 274c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l68 68c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3z"/></svg></i></span>Executed Today</td>
+            <td class="te psr mono col-ok fw8" id="fwd-executed">3,240</td>
+          </tr>
+          <tr>
+            <td class="psl"><span class="sum-icon" style="background:rgba(217,119,6,.1);color:var(--warn)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120V256c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2V120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/></svg></i></span>SLA Pending (Active)</td>
+            <td class="te psr mono fw7" id="fwd-sla-pend">128</td>
+          </tr>
+          <tr>
+            <td class="psl"><span class="sum-icon" style="background:rgba(8,145,178,.1);color:var(--a3)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M121 32C91.6 32 65.5 48.8 53.9 75L4.8 184.3c-.1 .2-.2 .5-.2 .7C1.6 191.9 0 199 0 206.3V400c0 44.2 35.8 80 80 80H432c44.2 0 80-35.8 80-80V206.3c0-7.3-1.6-14.4-4.6-21.1c0-.2-.1-.4-.2-.7L458.1 75C446.5 48.8 420.4 32 391 32H121zm34.4 112l-27.4 64H384l-27.4-64H155.4zm168.5 160h116.5L512 400c0 8.8-7.2 16-16 16H16c-8.8 0-16-7.2-16-16l0-96H71.6l90.5 72.4c7.3 5.8 16.3 8.9 25.6 8.9h136.7c9.3 0 18.3-3.2 25.6-8.9L440.4 304z"/></svg></i></span>Non-SLA Pending</td>
+            <td class="te psr mono fw7" id="fwd-norm-pend">412</td>
+          </tr>
+          <tr>
+            <td class="psl col-danger"><span class="sum-icon" style="background:rgba(220,38,38,.1);color:var(--danger)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg></i></span>SLA Breached</td>
+            <td class="te psr mono col-danger fw8" id="fwd-breached">17</td>
+          </tr>
+          <tr class="sum-total">
+            <td class="psl fw8"><span class="sum-icon" style="background:rgba(37,99,235,.12);color:var(--a1)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M340 64H212.9L153.1 249.6l-60-185.6H66.8L128 338l-128 92.5L46.1 448H320l20-64H131.9l73-52.5-60.6-169.9 38.7-129.6H340V64z"/></svg></i></span>Grand Total Orders</td>
+            <td class="te psr mono fw8 col-a1" id="fwd-total">3,797</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── INVENTORY ─────────────────────────── -->
+  <section class="page" id="page-inventory">
+    <div class="card cp">
+      <div class="empty-page">
+        <div class="empty-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 0h128c17.7 0 32 14.3 32 32V96H224V32c0-17.7 14.3-32 32-32zM224 96H416l-32 32c-6 6-14.1 9.4-22.6 9.4H278.6c-8.5 0-16.6-3.4-22.6-9.4L224 96zM0 192c0-17.7 14.3-32 32-32H288v64H0V192zm0 64H288v64H0V256zm0 96H288v64H32c-17.7 0-32-14.3-32-32V352zm352-96H640v64H352V256zm0-64H640v64H352V192zm0 160H640v64c0 17.7-14.3 32-32 32H352V352zM608 128c17.7 0 32 14.3 32 32v32H352V160c0-17.7 14.3-32 32-32H608z"/></svg></i></div>
+        <div class="empty-title">Inventory System Offline</div>
+        <p class="empty-sub">Real-time stock sync is being optimised for the next release. Warehouse modules will appear here automatically once connected.</p>
+        <button class="pill-btn" onclick="location.reload()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg></i> Retry Connection
+        </button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ BOTTOM NAV ══════════════════════════════ -->
+<nav class="bottomnav">
+  <button class="nav-btn active" onclick="switchTab('analytics',this)">
+    <span class="nav-pip"></span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M304 240V16.6c0-9 7-16.6 16-16.6C443.7 0 544 100.3 544 224c0 9-7.6 16-16.6 16H304zM32 272C32 150.7 122.1 50.3 239 34.3c9.2-1.3 17 5.1 17 14.4V288L412.5 444.5c6.7 6.7 6.2 17.7-1.5 23.1C371.8 495.6 323.8 512 272 512C139.5 512 32 404.6 32 272zm526.4 16c9.3 0 16.6 7.8 15.4 17c-7.7 54.9-34.2 103.1-72.9 138.1c-6.9 6.3-17.9 5.8-24.2-1.6L320 288H558.4z"/></svg></i><span>Analytics</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('users',this)">
+    <span class="nav-pip"></span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M144 160A80 80 0 1 0 144 0a80 80 0 1 0 0 160zm368 0A80 80 0 1 0 512 0a80 80 0 1 0 0 160zM0 298.7C0 310.4 9.6 320 21.3 320H234.7c.2 0 .4 0 .7 0c-26.6-23.5-43.3-57.8-43.3-96c0-7.6 .7-15 1.9-22.3c-13.6-6.3-28.7-9.7-44.6-9.7H106.7C47.8 192 0 239.8 0 298.7zM405.3 320H618.7c11.8 0 21.3-9.6 21.3-21.3C640 239.8 592.2 192 533.3 192H490.7c-15.9 0-31 3.5-44.6 9.7c1.3 7.2 1.9 14.7 1.9 22.3c0 38.2-16.8 72.5-43.3 96c.2 0 .4 0 .7 0zM320 352c-35.3 0-64-28.7-64-64s28.7-64 64-64s64 28.7 64 64s-28.7 64-64 64zm-80 32c-44.2 0-80 35.8-80 80c0 26.5 21.5 48 48 48H432c26.5 0 48-21.5 48-48c0-44.2-35.8-80-80-80H240z"/></svg></i><span>Users</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('forward',this)">
+    <span class="nav-pip"></span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M0 48C0 21.5 21.5 0 48 0H368c26.5 0 48 21.5 48 48V96h50.7c17 0 33.3 6.7 45.3 18.7L589.3 192c12 12 18.7 28.3 18.7 45.3V256v32 64c17.7 0 32 14.3 32 32s-14.3 32-32 32H576c0 53-43 96-96 96s-96-43-96-96H256c0 53-43 96-96 96s-96-43-96-96H48c-26.5 0-48-21.5-48-48V48zM416 256H544V237.3L466.7 160H416v96zM160 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm368-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/></svg></i><span>Forward</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('inventory',this)">
+    <span class="nav-pip"></span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 0h128c17.7 0 32 14.3 32 32V96H224V32c0-17.7 14.3-32 32-32zM224 96H416l-32 32c-6 6-14.1 9.4-22.6 9.4H278.6c-8.5 0-16.6-3.4-22.6-9.4L224 96zM0 192c0-17.7 14.3-32 32-32H288v64H0V192zm0 64H288v64H0V256zm0 96H288v64H32c-17.7 0-32-14.3-32-32V352zm352-96H640v64H352V256zm0-64H640v64H352V192zm0 160H640v64c0 17.7-14.3 32-32 32H352V352zM608 128c17.7 0 32 14.3 32 32v32H352V160c0-17.7 14.3-32 32-32H608z"/></svg></i><span>Inventory</span>
+  </button>
+</nav>
+
+<script>
+/* ─── DATA ─────────────────────────────────── */
+const TARGETS = {all:15000,GRN:4000,Picking:6000,Packing:5000};
+const CHANNELS = ["Myntra","Flipkart","Ajio","Tatacliq","Nykaa","Cocoblu","Lifestyle","BG-Shopify"];
+const DEPT_SVG={
+  'fa-seedling':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.7em;height:.7em;fill:currentColor;display:inline-block;vertical-align:-.1em;margin-right:3px"><path d="M512 32c0 113.6-84.6 207.5-194.2 222c-7.1-53.4-30.6-101.6-65.3-139.3C290.8 46.3 364 0 448 0h32c17.7 0 32 14.3 32 32zM0 96C0 78.3 14.3 64 32 64H64c123.7 0 224 100.3 224 224v32V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V320C224 200.7 124.1 104.7 5.2 99.5C2.1 98.4 0 95.4 0 92V96z"/></svg>',
+  'fa-hand-pointer':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:.7em;height:.7em;fill:currentColor;display:inline-block;vertical-align:-.1em;margin-right:3px"><path d="M128 40c0-22.1 17.9-40 40-40s40 17.9 40 40V188.2c8.5-7.6 19.7-12.2 32-12.2c20.6 0 38.2 13 45 31.2c8.8-9.8 21.6-16 35.8-16c21.8 0 40.3 14.5 45.8 34.5c5.8-3.1 12.5-4.8 19.5-4.8c23.7 0 42.9 19.2 42.9 42.9V336c0 79.5-64.5 144-144 144H176c-17.8 0-35.1-5.5-49.5-15.7l-48.5-34.6c-24.2-17.3-30-50.7-12.7-74.9c10.1-14.1 25.6-22.4 42-22.7V40z"/></svg>',
+  'fa-box-open':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:.7em;height:.7em;fill:currentColor;display:inline-block;vertical-align:-.1em;margin-right:3px"><path d="M58.9 42.1c3-6.1 9.3-9.9 16.1-9.6l17.7 .7c7.7 .3 14.6 5.1 17.3 12.4l83.5 229.9L58.9 42.1zM199 96l-68.2 132.5H316.5L248.4 96H199zM447.8 96l131.2 132.5H461.9L393.8 96h54zm17.7-53.4l17.7-.7c6.8-.3 13.1 3.4 16.1 9.6L665.1 275.3c6.2 12.5 7.9 26.6 5 40l-9 44.8c-2.9 14.4-16.1 24.7-30.9 24.9l-160 2c-14.8.2-28.2-9.7-31.4-24.1L376.8 214.8l88.7-172.2z"/></svg>',
+  'fa-circle':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.7em;height:.7em;fill:currentColor;display:inline-block;vertical-align:-.1em;margin-right:3px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512z"/></svg>',
+};
+const AVATAR_COLORS = ['#3b82f6','#8b5cf6','#0891b2','#059669','#d97706','#dc2626','#0284c7','#7c3aed'];
+
+let chart, rawData=[], sortAsc=false, sortCol='Qty', globalQty=0;
+
+/* ─── CLOCK ────────────────────────────────── */
+function initClock(){
+  const el=document.getElementById('clock');
+  const tick=()=>{el.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})};
+  tick(); setInterval(tick,1000);
+}
+
+/* ─── THEME ────────────────────────────────── */
+const SVG_MOON='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em"><path d="M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"/></svg>';
+const SVG_SUN='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em"><path d="M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM352 256a96 96 0 1 0 -192 0 96 96 0 1 0 192 0z"/></svg>';
+function toggleTheme(){
+  const dark=document.body.classList.toggle('dark');
+  document.getElementById('theme-icon').innerHTML=dark?SVG_SUN:SVG_MOON;
+  updateAnalytics();
+}
+
+/* ─── TABS ─────────────────────────────────── */
+function switchTab(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='analytics') updateAnalytics();
+}
+
+/* ─── FORWARD ──────────────────────────────── */
+function updateFwdTitle(){
+  const v=document.getElementById('fwd-bldg').value;
+  document.getElementById('fwd-title').textContent=`Building 0${v} — Forward Ops`;
+}
+
+function buildFwdRows(bodyId){
+  const body=document.getElementById(bodyId);
+  const r=()=>Math.floor(Math.random()*220+10);
+  const CH_ICONS={
+    "Myntra":    {bg:"#ff3f6c",label:"MN"},
+    "Flipkart":  {bg:"#2874f0",label:"FK"},
+    "Ajio":      {bg:"#e63950",label:"AJ"},
+    "Tatacliq":  {bg:"#6c2d8a",label:"TC"},
+    "Nykaa":     {bg:"#fc2779",label:"NK"},
+    "Cocoblu":   {bg:"#0066cc",label:"CB"},
+    "Lifestyle": {bg:"#d4820a",label:"LS"},
+    "BG-Shopify":{bg:"#96bf48",label:"SH"},
+  };
+  body.innerHTML=CHANNELS.map(ch=>{
+    const ic=CH_ICONS[ch]||{bg:"#64748b",label:ch.slice(0,2).toUpperCase()};
+    const v1=r(),v2=r(),v3=r(),v4=r(),v5=r()+80;
+    return `<tr>
+      <td class="psl">
+        <div class="ch-cell">
+          <div class="ch-icon" style="background:${ic.bg}">${ic.label}</div>
+          <span class="ch-name">${ch}</span>
+        </div>
+      </td>
+      <td class="tc"><span class="val-chip vc-warn">${v1}</span></td>
+      <td class="tc"><span class="val-chip vc-neu">${v2}</span></td>
+      <td class="tc"><span class="val-chip vc-neu">${v3}</span></td>
+      <td class="tc"><span class="val-chip vc-warn">${v4}</span></td>
+      <td class="tc"><span class="val-chip vc-ok">${v5}</span></td>
+    </tr>`;
+  }).join('') +
+  `<tr class="tfoot-row">
+    <td class="psl"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;margin-right:6px;opacity:.6"><path d="M340 64H212.9L153.1 249.6l-60-185.6H66.8L128 338l-128 92.5L46.1 448H320l20-64H131.9l73-52.5-60.6-169.9 38.7-129.6H340V64z"/></svg></i>TOTAL</td>
+    <td class="tc">0</td><td class="tc">0</td>
+    <td class="tc">0</td><td class="tc">0</td>
+    <td class="tc">0</td>
+  </tr>`;
+  const rows=body.querySelectorAll('tr:not(.tfoot-row)');
+  const foot=body.querySelector('.tfoot-row');
+  const tots=[0,0,0,0,0];
+  rows.forEach(row=>{
+    row.querySelectorAll('td').forEach((td,i)=>{if(i>0)tots[i-1]+=parseInt(td.textContent)||0});
+  });
+  foot.querySelectorAll('td').forEach((td,i)=>{if(i>0)td.textContent=tots[i-1].toLocaleString()});
+}
+
+/* ─── SORT ─────────────────────────────────── */
+function sortTable(col){
+  if(sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=(col==='Actor')}
+  renderTable(rawData);
+  applyFilters();
+}
+
+/* ─── RENDER TABLE ─────────────────────────── */
+const DEPT_ICONS={GRN:'fa-seedling',Picking:'fa-hand-pointer',Packing:'fa-box-open'};
+const DEPT_PILL_STYLE={
+  GRN:     'background:rgba(5,150,105,.12);color:#059669',
+  Picking: 'background:rgba(37,99,235,.12);color:#2563eb',
+  Packing: 'background:rgba(124,58,237,.12);color:#7c3aed',
+};
+function renderTable(data){
+  const body=document.getElementById('user-tbody');
+  if(!data.length){body.innerHTML=`<tr><td colspan="3" class="tc" style="padding:28px;color:var(--txt3)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;display:block;font-size:1.5rem;margin-bottom:8px"><path d="M121 32C91.6 32 65.5 48.8 53.9 75L4.8 184.3c-.1 .2-.2 .5-.2 .7C1.6 191.9 0 199 0 206.3V400c0 44.2 35.8 80 80 80H432c44.2 0 80-35.8 80-80V206.3c0-7.3-1.6-14.4-4.6-21.1c0-.2-.1-.4-.2-.7L458.1 75C446.5 48.8 420.4 32 391 32H121zm34.4 112l-27.4 64H384l-27.4-64H155.4zm168.5 160h116.5L512 400c0 8.8-7.2 16-16 16H16c-8.8 0-16-7.2-16-16l0-96H71.6l90.5 72.4c7.3 5.8 16.3 8.9 25.6 8.9h136.7c9.3 0 18.3-3.2 25.6-8.9L440.4 304z"/></svg></i>No matching records</td></tr>`;return}
+  const maxQty=Math.max(...data.map(r=>Number(r.Qty||0)),1);
+  data.sort((a,b)=>{
+    const va=a[sortCol]||0,vb=b[sortCol]||0;
+    if(sortCol==='Actor') return sortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+    return sortAsc?Number(va)-Number(vb):Number(vb)-Number(va);
+  });
+  body.innerHTML=data.map((row,i)=>{
+    const qty=Number(row.Qty||0);
+    const contr=globalQty>0?((qty/globalQty)*100).toFixed(1):'0.0';
+    const initials=(row.Actor||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const color=AVATAR_COLORS[i%AVATAR_COLORS.length];
+    const dept=row.Department||'';
+    const dicon=DEPT_ICONS[dept]||'fa-circle';
+    const dpill=DEPT_PILL_STYLE[dept]||'background:var(--surf3);color:var(--txt3)';
+    const barW=Math.round((qty/maxQty)*100);
+    const rankClass=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    const rankIcon=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
+    return `<tr class="user-row" data-bldg="${row.Building||''}" data-dept="${dept}" data-qty="${qty}">
+      <td class="psl">
+        <div class="actor-cell">
+          <div class="rank-badge ${rankClass}">${i<3?rankIcon:i+1}</div>
+          <div class="avatar" style="background:${color}">${initials}</div>
+          <div>
+            <div class="actor-name">${row.Actor||'N/A'}</div>
+            <span class="dept-pill" style="${dpill}">${DEPT_SVG[dicon]||''}${dept}</span>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="qty-cell">
+          <div class="qty-bar-bg"><div class="qty-bar-fill" style="width:${barW}%"></div></div>
+          <span class="qty-num">${qty.toLocaleString()}</span>
+        </div>
+      </td>
+      <td class="te psr">
+        <span style="font-size:0.75rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--txt2)">${contr}%</span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── FILTERS ──────────────────────────────── */
+function applyFilters(){
+  const bv=document.getElementById('bldg-filter').value.toLowerCase();
+  const dv=document.getElementById('dept-filter').value.toLowerCase();
+  const rows=document.querySelectorAll('.user-row');
+  let cnt=0,qty=0;
+  rows.forEach(row=>{
+    const show=(bv==='all'||String(row.dataset.bldg).toLowerCase().includes(bv))&&
+               (dv==='all'||String(row.dataset.dept).toLowerCase()===dv);
+    row.style.display=show?'':'none';
+    if(show){cnt++;qty+=Number(row.dataset.qty)}
+  });
+  document.getElementById('cnt-actors').textContent=cnt.toLocaleString();
+  document.getElementById('cnt-qty').textContent=qty.toLocaleString();
+  const bSel=document.getElementById('bldg-filter');
+  const dSel=document.getElementById('dept-filter');
+  document.getElementById('fb-bldg').textContent=bSel.options[bSel.selectedIndex].text.toUpperCase();
+  document.getElementById('fb-dept').textContent=dSel.options[dSel.selectedIndex].text.toUpperCase();
+}
+
+/* ─── ANALYTICS ────────────────────────────── */
+function updateAnalytics(){
+  const f=document.getElementById('chart-dept-filter').value;
+  let b3=0,b5=0;
+  rawData.forEach(r=>{
+    if(f==='all'||(r.Department||'').toLowerCase()===f.toLowerCase()){
+      const b=(r.Building||'').toLowerCase();
+      if(b.includes('3')) b3+=Number(r.Qty||0);
+      else if(b.includes('5')) b5+=Number(r.Qty||0);
+    }
+  });
+  const target=TARGETS[f]||TARGETS.all;
+  const achieved=b3+b5;
+  const gap=Math.max(0,target-achieved);
+  const pct=target>0?Math.min(100,(achieved/target*100)).toFixed(1):0;
+
+  // hero
+  document.getElementById('hero-achieved').textContent=achieved.toLocaleString();
+  document.getElementById('hero-target').textContent=target.toLocaleString();
+  document.getElementById('hero-gap').textContent=gap.toLocaleString();
+  document.getElementById('hero-pct').textContent=pct+'%';
+  document.getElementById('dept-progress-val').textContent=pct+'%';
+  // stat cards
+  document.getElementById('b3-val').textContent=b3.toLocaleString();
+  document.getElementById('b5-val').textContent=b5.toLocaleString();
+  // progress bar
+  document.getElementById('progress-pct-bar').textContent=pct+'%';
+  document.getElementById('progress-fill').style.width=pct+'%';
+  // segments
+  document.getElementById('seg-b3').textContent=b3.toLocaleString();
+  document.getElementById('seg-b5').textContent=b5.toLocaleString();
+  document.getElementById('seg-gap').textContent=gap.toLocaleString();
+
+  buildChart(b3,b5,gap);
+}
+
+function buildChart(b3,b5,gap){
+  const canvas=document.getElementById('mainChart');
+  if(!canvas) return;
+  const dark=document.body.classList.contains('dark');
+  const tc=dark?'#94a3b8':'#64748b';
+  if(chart) chart.destroy();
+  chart=new Chart(canvas.getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels:['Building 03','Building 05','Remaining'],
+      datasets:[{
+        data:[b3,b5,gap],
+        backgroundColor:['#3b82f6','#8b5cf6',dark?'#1c2d42':'#e4eaf3'],
+        hoverBackgroundColor:['#2563eb','#7c3aed',dark?'#243449':'#dce3ef'],
+        hoverOffset:14,borderWidth:0,borderRadius:8,spacing:3
+      }]
+    },
+    options:{
+      maintainAspectRatio:false,cutout:'80%',
+      plugins:{
+        legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:18,color:tc,font:{weight:'700',size:11,family:"'Sora',sans-serif"}}},
+        tooltip:{
+          backgroundColor:dark?'#111d2e':'#fff',
+          titleColor:dark?'#f0f6ff':'#0f172a',
+          bodyColor:tc,
+          borderColor:dark?'rgba(255,255,255,.08)':'rgba(15,23,42,.08)',
+          borderWidth:1,padding:12,cornerRadius:10,
+          callbacks:{label:ctx=>`  ${ctx.label}: ${Number(ctx.parsed).toLocaleString()}`}
+        }
+      },
+      animation:{animateRotate:true,duration:700}
+    }
+  });
+}
+
+/* ─── INIT DATA ────────────────────────────── */
+function initData(){
+  rawData=[
+    {Actor:"John Doe",      Qty:1200, Building:"B3", Department:"Picking"},
+    {Actor:"Jane Smith",    Qty:1500, Building:"B5", Department:"Packing"},
+    {Actor:"Mike Ross",     Qty:800,  Building:"B3", Department:"GRN"},
+    {Actor:"Harvey Specter",Qty:2000, Building:"B5", Department:"Picking"},
+    {Actor:"Donna Paulsen", Qty:1800, Building:"B3", Department:"Packing"},
+  ];
+  globalQty=rawData.reduce((a,r)=>a+Number(r.Qty||0),0);
+  renderTable(rawData);
+  applyFilters();
+  updateAnalytics();
+  buildFwdRows('sla-body');
+  buildFwdRows('backlog-body');
+}
+
+window.onload=()=>{initClock();initData()};
+</script>
+</body>
+</html>
