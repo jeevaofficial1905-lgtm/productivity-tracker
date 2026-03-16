@@ -84,7 +84,7 @@ select{font-family:inherit}
   border-bottom:1px solid var(--border);
   box-shadow:var(--sh);
   padding:0 16px;
-  height:58px;
+  min-height:58px;
   display:flex;align-items:center;justify-content:space-between;
   gap:12px;
 }
@@ -128,14 +128,14 @@ select{font-family:inherit}
   to{opacity:1;transform:translateY(0) scale(1)}
 }
 
-.brand-text{min-width:0}
+.brand-text{min-width:0;overflow:hidden}
 .brand-name{
   display:block;font-size:0.7rem;font-weight:800;
   text-transform:uppercase;letter-spacing:1.5px;
   color:var(--a1);line-height:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.brand-sub{display:block;font-size:0.6rem;color:var(--txt3);font-weight:600;margin-top:2px}
-.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.brand-sub{display:block;font-size:0.6rem;color:var(--txt3);font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .clock-chip{
   display:flex;align-items:center;gap:6px;
   background:var(--surf2);border:1px solid var(--border2);
@@ -143,7 +143,7 @@ select{font-family:inherit}
   font-family:'JetBrains Mono',monospace;
   font-size:0.62rem;font-weight:700;color:var(--txt2);
   white-space:nowrap;transition:border-color .3s;
-  max-width:190px;overflow:hidden;
+  max-width:160px;overflow:hidden;
 }
 .clock-chip.has-data{border-color:rgba(5,150,105,.3);color:var(--txt)}
 .live-dot{
@@ -207,25 +207,29 @@ select{font-family:inherit}
   .page{max-width:740px;margin:0 auto;padding:20px}
 }
 
-/* ═══════════════════════════════════════════
-   MOBILE OVERRIDES
-═══════════════════════════════════════════ */
-
-/* Mini grid — single col on tiny screens */
-@media(max-width:380px){
-  .mini-grid{grid-template-columns:1fr}
+/* Mobile status bar — shown below topbar on small screens */
+.mobile-status-bar{
+  display:none;
+  align-items:center;gap:6px;
+  padding:5px 16px;
+  background:var(--surf2);border-bottom:1px solid var(--border);
+  font-size:0.6rem;font-weight:700;color:var(--txt3);
+  font-family:'JetBrains Mono',monospace;
+}
+.mobile-status-bar.has-data{color:var(--txt);border-bottom-color:rgba(5,150,105,.2)}
+@media(max-width:480px){
+  .mobile-status-bar{display:flex}
 }
 
-/* Topbar — shrink on very small screens */
-@media(max-width:380px){
-  .brand-icon{width:36px;height:36px;border-radius:10px}
-  .brand-name{font-size:0.6rem;letter-spacing:.8px}
+/* Topbar — single line on all phones */
+@media(max-width:480px){
   .brand-sub{display:none}
-  .clock-chip{max-width:110px;font-size:0.52rem;padding:4px 7px}
-  .icon-btn{width:32px;height:32px;border-radius:8px}
-}
-@media(max-width:320px){
+  .brand-name{font-size:0.65rem;letter-spacing:1px}
+  .brand-icon{width:36px;height:36px;border-radius:10px}
   .clock-chip{display:none}
+  .icon-btn{width:32px;height:32px;border-radius:8px}
+  .user-chip{max-width:90px}
+  .topbar-right{gap:5px}
 }
 
 /* Hero — prevent overlap on narrow screens */
@@ -978,6 +982,11 @@ tbody tr:hover{background:var(--surf2)}
     </button>
   </div>
 </header>
+<!-- Mobile data status bar -->
+<div id="mobile-status-bar" class="mobile-status-bar">
+  <span class="live-dot" id="mobile-live-dot"></span>
+  <span id="mobile-status-text">No data loaded</span>
+</div>
 
 <!-- ══ PAGES ═════════════════════════════════ -->
 <main>
@@ -1659,6 +1668,16 @@ function refreshLastUpdatedChip(){
   chip.title = Object.entries(uploadTimestamps)
     .map(([d,t])=>`${d}: ${t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}`)
     .join('\n');
+
+  // Sync mobile status bar
+  const mbar = document.getElementById('mobile-status-bar');
+  const mtxt = document.getElementById('mobile-status-text');
+  const mdot = document.getElementById('mobile-live-dot');
+  if(mbar && mtxt){
+    mtxt.textContent = `${dept} · ${timeStr}`;
+    mbar.classList.add('has-data');
+    if(mdot) mdot.style.background='var(--ok)';
+  }
 }
 
 function initClock(){ /* clock replaced by last-updated chip */ }
