@@ -2024,11 +2024,151 @@ function showStatus(type,cls,msg){
   }
 }
 /* ─── PICKING CSV PARSER ────────────────────── */
-function parseItemAuditCSV(text){
-  const lines = text.trim().split('\n').filter(l=>l.trim());
-  if(lines.length < 2) return [];
+/* ─── WEB WORKER PARSER ─────────────────────
+   Runs CSV parsing off the main thread so UI
+   never freezes on large files               */
+function createParserWorker(){
+  const workerCode = `
+    function splitCSVRow(row){
+      const result=[]; let cur='', inQ=false;
+      for(let i=0;i<row.length;i++){
+        const ch=row[i];
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){result.push(cur.trim());cur='';}
+        else cur+=ch;
+      }
+      result.push(cur.trim());
+      return result;
+    }
 
-  // Parse headers — handle quoted CSV
+    function parsePickingCSV(text){
+      const lines = text.split('\\n');
+      const headers = splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+      const iLoc  = headers.findIndex(h=>h.includes('fulfillment')||h.includes('location'));
+      const iAct  = headers.findIndex(h=>h.includes('action'));
+      const iActor= headers.findIndex(h=>h.includes('actor'));
+      const iDesc = headers.findIndex(h=>h.includes('description')||h.includes('desc'));
+      const iItem = headers.findIndex(h=>h.includes('item id')||h==='item id'||h.includes('itemid'));
+      if(iLoc<0||iAct<0||iActor<0||iDesc<0)
+        return {error:'Missing columns: '+headers.join(', ')};
+      const actorMap={};
+      let totalRows=0, filteredRows=0;
+      for(let i=1;i<lines.length;i++){
+        const line=lines[i].trim(); if(!line) continue;
+        totalRows++;
+        const cols=splitCSVRow(line).map(c=>c.replace(/^"|"$/g,'').trim());
+        const loc  =(cols[iLoc]  ||'').toLowerCase();
+        const action=(cols[iAct] ||'').toLowerCase().trim();
+        const actor=(cols[iActor]||'').trim();
+        const desc =(cols[iDesc] ||'').toUpperCase();
+        const isB3=loc.includes('bldg3')||loc.includes('bldg_3')||loc==='wms_entoma_bldg3';
+        const isB5=loc.includes('bldg5')||loc.includes('bldg_5')||loc==='wms_entoma_bldg5';
+        if(!isB3&&!isB5) continue;
+        if(action!=='picked') continue;
+        if(!desc.includes('BATCH_PICKING')) continue;
+        if(!actor) continue;
+        filteredRows++;
+        if(!actorMap[actor]) actorMap[actor]={b3:0,b5:0};
+        if(isB3) actorMap[actor].b3++; else actorMap[actor].b5++;
+      }
+      const data=Object.entries(actorMap).map(([name,c])=>({
+        Actor:name, B3:c.b3, B5:c.b5, Qty:c.b3+c.b5,
+        Building:c.b3>c.b5?'B3':'B5', Department:'Picking'
+      }));
+      return {data, totalRows, filteredRows};
+    }
+
+    function parsePackingRows(text){
+      const lines=text.split('\\n');
+      const headers=splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+      const iLoc  =headers.findIndex(h=>h.includes('fulfillment')||h.includes('location'));
+      const iAct  =headers.findIndex(h=>h.includes('action'));
+      const iActor=headers.findIndex(h=>h.includes('actor'));
+      const iDesc =headers.findIndex(h=>h.includes('description')||h.includes('desc'));
+      const actorMap={};
+      for(let i=1;i<lines.length;i++){
+        const line=lines[i].trim(); if(!line) continue;
+        const cols=splitCSVRow(line).map(c=>c.replace(/^"|"$/g,'').trim());
+        const loc  =(cols[iLoc]  ||'').toLowerCase();
+        const action=(cols[iAct] ||'').toLowerCase().trim();
+        const actor=(cols[iActor]||'').trim();
+        const fullDesc=cols.slice(iDesc).join(',');
+        const isB3=loc.includes('bldg3')||loc.includes('bldg_3')||loc==='wms_entoma_bldg3';
+        const isB5=loc.includes('bldg5')||loc.includes('bldg_5')||loc==='wms_entoma_bldg5';
+        if(!isB3&&!isB5) continue;
+        if(action!=='packed') continue;
+        if(!actor) continue;
+        const match=fullDesc.match(/Associated order ID\\s*:\\s*(\\d+)/i);
+        if(!match) continue;
+        if(!actorMap[actor]) actorMap[actor]={b3:0,b5:0,subOrders:[]};
+        if(isB3) actorMap[actor].b3++; else actorMap[actor].b5++;
+        actorMap[actor].subOrders.push({id:match[1],bldg:isB3?'B3':'B5'});
+      }
+      return actorMap;
+    }
+
+    function parseGrnRows(text){
+      const lines=text.split('\\n');
+      const headers=splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+      const iLoc  =headers.findIndex(h=>h.includes('fulfillment')||h.includes('location'));
+      const iAct  =headers.findIndex(h=>h.includes('action'));
+      const iActor=headers.findIndex(h=>h.includes('actor'));
+      const iDesc =headers.findIndex(h=>h.includes('description')||h.includes('desc'));
+      const actorMap={};
+      for(let i=1;i<lines.length;i++){
+        const line=lines[i].trim(); if(!line) continue;
+        const cols=splitCSVRow(line).map(c=>c.replace(/^"|"$/g,'').trim());
+        const loc  =(cols[iLoc]  ||'').toLowerCase();
+        const action=(cols[iAct] ||'').toLowerCase().trim();
+        const actor=(cols[iActor]||'').trim();
+        const fullDesc=cols.slice(iDesc).join(',');
+        const isB3=loc.includes('bldg3')||loc.includes('bldg_3')||loc==='wms_entoma_bldg3';
+        const isB5=loc.includes('bldg5')||loc.includes('bldg_5')||loc==='wms_entoma_bldg5';
+        if(!isB3&&!isB5) continue;
+        if(action.toLowerCase()!=='grn') continue;
+        if(!actor) continue;
+        if(/Associated Return Order ID/i.test(fullDesc)) continue;
+        const gateMatch=fullDesc.match(/Gate Entry ID\\s*:\\s*(\\d+)/i);
+        if(!gateMatch) continue;
+        if(!actorMap[actor]) actorMap[actor]={b3:0,b5:0,gateIds:[]};
+        if(isB3) actorMap[actor].b3++; else actorMap[actor].b5++;
+        actorMap[actor].gateIds.push(gateMatch[1]);
+      }
+      return actorMap;
+    }
+
+    self.onmessage = function(e){
+      const {type, text} = e.data;
+      try {
+        if(type==='picking'){
+          const result = parsePickingCSV(text);
+          self.postMessage({type:'picking', result});
+        } else if(type==='packing'){
+          const result = parsePackingRows(text);
+          self.postMessage({type:'packing', result});
+        } else if(type==='grn'){
+          const result = parseGrnRows(text);
+          self.postMessage({type:'grn', result});
+        }
+      } catch(err){
+        self.postMessage({type:'error', message:err.message});
+      }
+    };
+  `;
+  const blob = new Blob([workerCode], {type:'application/javascript'});
+  return new Worker(URL.createObjectURL(blob));
+}
+
+let _parserWorker = null;
+function getParserWorker(){
+  if(!_parserWorker) _parserWorker = createParserWorker();
+  return _parserWorker;
+}
+
+function parseItemAuditCSV(text){
+  // Legacy sync fallback — no longer called directly for large files
+  // Kept for compatibility
+  const lines = text.split('\n');
   function splitCSVRow(row){
     const result=[]; let cur='', inQ=false;
     for(let i=0;i<row.length;i++){
@@ -2040,58 +2180,35 @@ function parseItemAuditCSV(text){
     result.push(cur.trim());
     return result;
   }
-
-  const headers = splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
-
-  // Detect column indices
-  const iLoc  = headers.findIndex(h=>h.includes('fulfillment') || h.includes('location'));
-  const iItem = headers.findIndex(h=>h.includes('item id') || h==='item id' || h.includes('itemid'));
-  const iAct  = headers.findIndex(h=>h.includes('action'));
-  const iActor= headers.findIndex(h=>h.includes('actor'));
-  const iDesc = headers.findIndex(h=>h.includes('description') || h.includes('desc'));
-
-  if(iLoc<0||iItem<0||iAct<0||iActor<0||iDesc<0){
-    return {error:`Missing columns. Found: ${headers.join(', ')}`};
-  }
-
-  // Filter & aggregate
-  const actorMap = {}; // { name: { b3:0, b5:0 } }
-  let totalRows=0, filteredRows=0;
-
+  const headers=splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+  const iLoc=headers.findIndex(h=>h.includes('fulfillment')||h.includes('location'));
+  const iAct=headers.findIndex(h=>h.includes('action'));
+  const iActor=headers.findIndex(h=>h.includes('actor'));
+  const iDesc=headers.findIndex(h=>h.includes('description')||h.includes('desc'));
+  if(iLoc<0||iAct<0||iActor<0||iDesc<0) return {error:'Missing columns: '+headers.join(', ')};
+  const actorMap={}; let totalRows=0, filteredRows=0;
   for(let i=1;i<lines.length;i++){
-    const cols = splitCSVRow(lines[i]).map(c=>c.replace(/^"|"$/g,'').trim());
-    totalRows++;
-
-    const loc   = (cols[iLoc]  ||'').toLowerCase();
-    const action= (cols[iAct]  ||'').toLowerCase();
-    const desc  = (cols[iDesc] ||'').toUpperCase();
-    const actor = (cols[iActor]||'').trim();
-
-    // Apply all three filters
-    const isB3 = loc.includes('bldg3') || loc.includes('bldg_3') || loc.includes('building3') || loc === 'wms_entoma_bldg3';
-    const isB5 = loc.includes('bldg5') || loc.includes('bldg_5') || loc.includes('building5') || loc === 'wms_entoma_bldg5';
-    if(!isB3 && !isB5) continue;
-    if(action !== 'picked') continue;
+    const line=lines[i].trim(); if(!line) continue; totalRows++;
+    const cols=splitCSVRow(line).map(c=>c.replace(/^"|"$/g,'').trim());
+    const loc=(cols[iLoc]||'').toLowerCase();
+    const action=(cols[iAct]||'').toLowerCase().trim();
+    const actor=(cols[iActor]||'').trim();
+    const desc=(cols[iDesc]||'').toUpperCase();
+    const isB3=loc.includes('bldg3')||loc.includes('bldg_3')||loc==='wms_entoma_bldg3';
+    const isB5=loc.includes('bldg5')||loc.includes('bldg_5')||loc==='wms_entoma_bldg5';
+    if(!isB3&&!isB5) continue;
+    if(action!=='picked') continue;
     if(!desc.includes('BATCH_PICKING')) continue;
     if(!actor) continue;
-
     filteredRows++;
     if(!actorMap[actor]) actorMap[actor]={b3:0,b5:0};
-    if(isB3) actorMap[actor].b3++;
-    else     actorMap[actor].b5++;
+    if(isB3) actorMap[actor].b3++; else actorMap[actor].b5++;
   }
-
-  // Build rawData array
-  const result = Object.entries(actorMap).map(([name,counts])=>({
-    Actor:      name,
-    B3:         counts.b3,
-    B5:         counts.b5,
-    Qty:        counts.b3 + counts.b5,
-    Building:   counts.b3 > counts.b5 ? 'B3' : 'B5', // dominant building
-    Department: 'Picking',
+  const data=Object.entries(actorMap).map(([name,c])=>({
+    Actor:name,B3:c.b3,B5:c.b5,Qty:c.b3+c.b5,
+    Building:c.b3>c.b5?'B3':'B5',Department:'Picking'
   }));
-
-  return { data: result, totalRows, filteredRows };
+  return {data,totalRows,filteredRows};
 }
 
 function importFile(type){
@@ -2106,33 +2223,66 @@ function importFile(type){
     const dataRows=lines.length>1?lines.length-1:lines.length;
 
     if(type==='productivity'){
-      itemAuditRawText = text; // store for packing re-process
+      itemAuditRawText = text;
       showStatus(type,'info','⏳ Parsing picking data…');
-      setTimeout(()=>{
-        const result = parseItemAuditCSV(text);
-        if(result.error){
-          showStatus(type,'err','✕ '+result.error);
+      const worker = getParserWorker();
+      worker.onmessage = function(e){
+        if(e.data.type==='error'){
+          showStatus(type,'err','✕ '+e.data.message);
           btn.textContent='Import Data';btn.disabled=false;
           return;
         }
-        rawData = result.data;
-        globalQty = rawData.reduce((a,r)=>a+r.Qty,0);
-        renderTable(rawData);
-        applyFilters();
-        updateAnalytics();
-        setLastUpdated('Picking');
-        addUploadLog('Productivity (Picking)',file.name,result.filteredRows,`${result.filteredRows} of ${result.totalRows} rows`);
-        showStatus(type,'ok',`✓ ${rawData.length} pickers · ${result.filteredRows.toLocaleString()} picks from ${result.totalRows.toLocaleString()} rows`);
-        btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
-        btn.disabled=false;
-        // Re-process packing and GRN if lookup already loaded
-        setTimeout(()=>{ processPacking(); processGrn(); saveToFirebase(); }, 0);
-      }, 50);
+        if(e.data.type==='picking'){
+          const result = e.data.result;
+          if(result.error){
+            showStatus(type,'err','✕ '+result.error);
+            btn.textContent='Import Data';btn.disabled=false;
+            return;
+          }
+          rawData = result.data;
+          globalQty = rawData.reduce((a,r)=>a+r.Qty,0);
+          renderTable(rawData);
+          applyFilters();
+          updateAnalytics();
+          setLastUpdated('Picking');
+          addUploadLog('Productivity (Picking)',file.name,result.filteredRows,`${result.filteredRows} of ${result.totalRows} rows`);
+          showStatus(type,'ok',`✓ ${rawData.length} pickers · ${result.filteredRows.toLocaleString()} picks from ${result.totalRows.toLocaleString()} rows`);
+          btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+          btn.disabled=false;
+          // Re-process packing and GRN if lookup already loaded
+          setTimeout(()=>{ processPacking(); processGrn(); saveToFirebase(); }, 0);
+        }
+      };
+      worker.postMessage({type:'picking', text});
       return;
     }
 
     if(type==='packed'){
       showStatus(type,'info','⏳ Parsing packed orders…');
+      const worker = getParserWorker();
+      worker.onmessage = function(e){
+        if(e.data.type==='error'){
+          showStatus(type,'err','✕ '+e.data.message);
+          btn.textContent='Import Data';btn.disabled=false;
+          return;
+        }
+        if(e.data.type==='packed_details'){
+          const result = e.data.result;
+          if(result.error){
+            showStatus(type,'err','✕ '+result.error);
+            btn.textContent='Import Data';btn.disabled=false;
+            return;
+          }
+          packedOrderLookup = result.lookup;
+          processPacking();
+          addUploadLog('Packed Order Details',file.name,result.count,`${result.count} sub-orders mapped`);
+          showStatus(type,'ok',`✓ ${result.count.toLocaleString()} sub-orders mapped to sales channels`);
+          btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+          btn.disabled=false;
+          saveToFirebase();
+        }
+      };
+      // Use existing sync parser for packed order details (smaller file)
       setTimeout(()=>{
         const result = parsePackedOrderDetails(text);
         if(result.error){
