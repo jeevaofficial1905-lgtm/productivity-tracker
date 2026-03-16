@@ -91,16 +91,42 @@ select{font-family:inherit}
 .topbar-brand{display:flex;align-items:center;gap:10px;min-width:0}
 .brand-icon{
   width:42px;height:42px;border-radius:13px;flex-shrink:0;
-  background:linear-gradient(135deg,var(--a1) 0%,var(--a2) 100%);
+  background:#ffffff;
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-size:1.2rem;
-  box-shadow:0 4px 14px rgba(37,99,235,.45), inset 0 1px 0 rgba(255,255,255,.25);
-  position:relative;overflow:hidden;
+  box-shadow:0 4px 14px rgba(37,99,235,.25), inset 0 1px 0 rgba(255,255,255,.25);
+  position:relative;overflow:visible;
+  cursor:pointer;-webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:box-shadow .3s;
+}
+.brand-icon.pressing{
+  box-shadow:0 0 0 5px rgba(245,158,11,.4), 0 4px 14px rgba(37,99,235,.4);
 }
 .brand-icon::after{
-  content:'';position:absolute;inset:0;
+  content:'';position:absolute;inset:0;border-radius:13px;
   background:linear-gradient(180deg,rgba(255,255,255,.15) 0%,transparent 60%);
+  pointer-events:none;
 }
+/* Spinning progress ring on long-press */
+.brand-icon .lp-ring{
+  position:absolute;inset:-5px;border-radius:18px;
+  border:2.5px solid transparent;
+  border-top-color:#f59e0b;border-right-color:#f59e0b;
+  opacity:0;pointer-events:none;z-index:10;
+  transition:opacity .1s;
+}
+.brand-icon.pressing .lp-ring{
+  opacity:1;
+  animation:lpSpin 1.5s linear forwards;
+}
+@keyframes lpSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* Slide-in when Master tab becomes visible */
+@keyframes navTabIn{
+  from{opacity:0;transform:translateY(10px) scale(.8)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
 .brand-text{min-width:0}
 .brand-name{
   display:block;font-size:0.7rem;font-weight:800;
@@ -115,11 +141,17 @@ select{font-family:inherit}
   padding:5px 11px;border-radius:20px;
   font-family:'JetBrains Mono',monospace;
   font-size:0.62rem;font-weight:700;color:var(--txt2);
-  white-space:nowrap;
+  white-space:nowrap;transition:border-color .3s;
+  max-width:190px;overflow:hidden;
 }
+.clock-chip.has-data{border-color:rgba(5,150,105,.3);color:var(--txt)}
 .live-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:var(--ok);flex-shrink:0;
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+  background:var(--txt3);
+  box-shadow:0 0 0 2px rgba(100,116,139,.15);
+}
+.clock-chip.has-data .live-dot{
+  background:var(--ok);
   box-shadow:0 0 0 2px rgba(5,150,105,.2);
   animation:livepulse 2s infinite;
 }
@@ -435,7 +467,8 @@ tbody tr:hover{background:var(--surf2)}
 /* ═══════════════════════════════════════════
    MASTER NAV BUTTON (distinct gold accent)
 ═══════════════════════════════════════════ */
-.nav-master{position:relative}
+.nav-master{position:relative;display:none}
+.nav-master.visible{display:flex;animation:navTabIn .35s cubic-bezier(.34,1.56,.64,1) both}
 .nav-master svg{color:#f59e0b}
 .nav-master.active{color:#f59e0b!important}
 .nav-master.active .nav-pip{background:linear-gradient(90deg,#f59e0b,#d97706)!important}
@@ -651,23 +684,203 @@ tbody tr:hover{background:var(--surf2)}
 .vc-ok{background:rgba(5,150,105,.1);color:var(--ok)}
 .vc-info{background:rgba(8,145,178,.12);color:var(--a3)}
 .vc-neu{background:var(--surf2);color:var(--txt2)}
+
+/* ── SECTION DIVIDER ── */
+.section-divider{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 8px;gap:10px;flex-wrap:wrap;
+}
+.section-divider-label{
+  font-size:0.78rem;font-weight:800;color:var(--txt);
+  display:flex;align-items:center;letter-spacing:-.2px;
+}
+.pack-no-data{
+  font-size:0.65rem;font-weight:700;color:var(--txt3);
+  background:var(--surf2);border:1px solid var(--border);
+  padding:3px 9px;border-radius:10px;
+}
+.pack-has-data{
+  font-size:0.65rem;font-weight:700;color:var(--ok);
+  background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.2);
+  padding:3px 9px;border-radius:10px;
+}
+
+/* ── TARGET FORM ── */
+.target-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 10px}
+.tg-section{background:var(--surf2);border-radius:var(--r2);padding:12px;border:1px solid var(--border)}
+.tg-bldg-label{font-size:0.7rem;font-weight:900;letter-spacing:.5px;padding:3px 8px;border-radius:6px;margin-bottom:10px;display:inline-block}
+.tg-b3{background:rgba(37,99,235,.12);color:#2563eb}
+.tg-b5{background:rgba(124,58,237,.12);color:#7c3aed}
+.tg-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.tg-row:last-child{margin-bottom:0}
+.tg-label{font-size:0.72rem;font-weight:700;color:var(--txt2);flex-shrink:0}
+.tg-input{
+  width:90px;height:34px;padding:0 10px;text-align:right;
+  background:var(--surf);color:var(--txt);
+  border:1.5px solid var(--border2);border-radius:8px;
+  font-size:0.82rem;font-family:'JetBrains Mono',monospace;font-weight:700;
+  outline:none;transition:border-color .2s;
+}
+.tg-input:focus{border-color:var(--a1)}
+.tg-overall-row{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surf2);border-radius:var(--r2);
+  padding:10px 14px;border:1px solid var(--border);margin-bottom:12px;
+}
+.tg-overall{width:110px;font-size:0.9rem}
+.tg-auto-btn{
+  margin-left:auto;height:34px;padding:0 12px;border-radius:8px;
+  background:var(--surf3);border:1.5px solid var(--border2);
+  font-size:0.72rem;font-weight:800;color:var(--txt2);cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.tg-auto-btn:hover{border-color:var(--a1);color:var(--a1)}
+.tg-save-btn{
+  width:100%;height:44px;border-radius:var(--r2);border:none;
+  background:linear-gradient(135deg,#059669,#10b981);color:#fff;
+  font-size:0.88rem;font-weight:700;font-family:'Sora',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:opacity .2s,transform .15s;box-shadow:0 4px 12px rgba(5,150,105,.3);
+}
+.tg-save-btn:active{transform:scale(.98)}
+
+/* ═══════════════════════════════════════════
+   LOGIN SPLASH
+═══════════════════════════════════════════ */
+#login-splash{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+  transition:opacity .4s ease,transform .4s ease;
+}
+#login-splash.fade-out{opacity:0;transform:scale(.97);pointer-events:none}
+.splash-logo{
+  width:64px;height:64px;border-radius:20px;
+  background:#ffffff;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+  box-shadow:0 4px 20px rgba(37,99,235,.2);
+}
+.splash-title{font-size:1.3rem;font-weight:800;color:var(--txt);letter-spacing:-.5px;margin-bottom:4px}
+.splash-sub{font-size:0.75rem;color:var(--txt2);font-weight:600;margin-bottom:36px}
+.role-cards{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px}
+.role-card{
+  background:var(--surf);border:2px solid var(--border2);
+  border-radius:var(--r);padding:18px 20px;
+  display:flex;align-items:center;gap:16px;
+  cursor:pointer;transition:all .2s;box-shadow:var(--sh);
+  -webkit-tap-highlight-color:transparent;
+}
+.role-card:hover{border-color:var(--a1);box-shadow:var(--sh2);transform:translateY(-2px)}
+.role-card:active{transform:scale(.98)}
+.role-card.admin-card:hover{border-color:#f59e0b}
+.role-icon{
+  width:48px;height:48px;border-radius:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.role-user-icon{background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(8,145,178,.12));color:var(--a1)}
+.role-admin-icon{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(217,119,6,.15));color:#d97706}
+.role-name{font-size:0.95rem;font-weight:800;color:var(--txt);display:block}
+.role-desc{font-size:0.68rem;color:var(--txt2);font-weight:600;margin-top:2px;display:block}
+.role-arrow{color:var(--txt3);flex-shrink:0;transition:transform .2s,color .2s}
+.role-card:hover .role-arrow{transform:translateX(4px);color:var(--a1)}
+.role-card.admin-card:hover .role-arrow{color:#f59e0b}
+/* Name step */
+.name-step{width:100%;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.name-step-back{
+  align-self:flex-start;display:flex;align-items:center;gap:6px;
+  font-size:0.72rem;font-weight:700;color:var(--txt2);
+  cursor:pointer;background:none;border:none;padding:0;
+  -webkit-tap-highlight-color:transparent;transition:color .15s;
+}
+.name-step-back:hover{color:var(--a1)}
+.name-step-title{font-size:1rem;font-weight:800;color:var(--txt);text-align:center}
+.name-step-sub{font-size:0.72rem;color:var(--txt2);text-align:center;margin-bottom:4px}
+.name-input{
+  width:100%;height:50px;padding:0 16px;
+  background:var(--surf);color:var(--txt);
+  border:1.5px solid var(--border2);border-radius:var(--r2);
+  font-size:0.95rem;font-family:'Sora',sans-serif;font-weight:600;
+  outline:none;transition:border-color .2s;
+}
+.name-input:focus{border-color:var(--a1)}
+.name-input.admin-mode:focus{border-color:#f59e0b}
+.name-enter-btn{
+  width:100%;height:50px;border-radius:var(--r2);border:none;
+  font-size:0.9rem;font-weight:700;font-family:'Sora',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .2s,transform .15s;
+}
+.name-enter-btn:active{transform:scale(.97)}
+.btn-user{background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.btn-admin{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 4px 14px rgba(245,158,11,.35)}
+/* Topbar user chip */
+.user-chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surf2);border:1px solid var(--border2);
+  padding:4px 10px 4px 5px;border-radius:20px;
+  font-size:0.62rem;font-weight:700;color:var(--txt2);
+  max-width:120px;cursor:pointer;transition:border-color .2s;
+  overflow:hidden;
+}
+.user-chip:hover{border-color:var(--a1)}
+.user-avatar-sm{
+  width:22px;height:22px;border-radius:7px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.55rem;font-weight:800;color:#fff;
+}
+.user-chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px}
 </style>
 </head>
 <body>
 
-<!-- ══ TOP BAR ══════════════════════════════ -->
+<!-- ══ LOGIN SPLASH ══════════════════════════ -->
+<div id="login-splash">
+
+  <!-- Single step: Name entry only -->
+  <div id="step-role" style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div class="splash-logo" style="background:#fff;border-radius:14px;padding:6px">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAsADgDASIAAhEBAxEB/8QAGgABAQEAAwEAAAAAAAAAAAAAAAIGAwQHCP/EAC8QAAEDAQQJAgcBAAAAAAAAAAABAgMEBQYREgcTMUNic5PC0SFRCBQiQVJhgaH/xAAYAQADAQEAAAAAAAAAAAAAAAAAAQMEAv/EACIRAAEFAAEDBQAAAAAAAAAAAAEAAgMEETEhobEFEmGBkf/aAAwDAQACEQMRAD8A+x6iTVR4omLlXBqfs62Vy+r5ZFX9OVE/w5a3c8ztUxmk+/8AZ1xKGllq6SerqKtXpBDGqNRcuGZXOXYn1J9l2mitXksyCKIa48BTlkbE0vecAWuyccvUd5GTjl6jvJ4ddv4gYJq7U2/Yny0D34NmpZM2rav5Ndtw90X+HuZpvemWaDg2dubx8/ilXtRWATGdxTk45eo7yMnHL1HeSgYVdTk45eo7yCgCFdbueZ2qYXSPcuqvTeO6toxVFKynsesWaoimRV1rFfE7KiYKmyNU9fc3VbueZ2qQWq2JK0gkjPUb3GeCuJYmyt9ruFgNLOj5l7LuU9nWNHZ1nVEdY2Z0rocuLEY9qtxamO1yL/DfgHUlqSWNsTjobufeb4SbE1ji8Dqc7IADOqIAAQrrdzzO1SC63c8ztUgQTKAAaSAAEIAAQv/Z" style="width:2rem;height:2rem;object-fit:contain">
+    </div>
+    <div class="splash-title">Productivity Hub</div>
+    <div class="splash-sub">Enter your name to continue</div>
+    <div class="name-step" style="margin-top:8px">
+      <input type="text" class="name-input" id="login-name-input" placeholder="Your full name" maxlength="40"
+             oninput="validateNameInput()" onkeydown="if(event.key==='Enter')submitLogin()">
+      <div id="name-input-err" style="font-size:0.68rem;font-weight:700;color:var(--danger);align-self:flex-start;display:none">Please enter your name</div>
+      <button class="name-enter-btn btn-user" id="login-enter-btn" onclick="submitLogin()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.9em;height:.9em;fill:currentColor"><path d="M217.9 105.9L340.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L217.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1L32 320c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM352 416l64 0c17.7 0 32-14.3 32-32l0-256c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l64 0c53 0 96 43 96 96l0 256c0 53-43 96-96 96l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
+        Enter Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 2: hidden, kept for JS compat -->
+  <div id="step-name" style="display:none"></div>
+
+</div>
 <header class="topbar">
   <div class="topbar-brand">
-    <div class="brand-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M240.5 224H352c17.7 0 32 14.3 32 32s-14.3 32-32 32H240.5l34.8 90.2c5.8 15.1-1.7 32-16.8 37.8s-32-1.7-37.8-16.8L171.5 288H64c-17.7 0-32-14.3-32-32s14.3-32 32-32H171.5l-49-127.2C116.7 81.4 124.2 64 139.3 64s28.9 8.6 34.7 22.8L240.5 224z"/></svg></i></div>
+    <div class="brand-icon" id="brand-icon-btn"
+         onmousedown="lpStart()" onmouseup="lpCancel()" onmouseleave="lpCancel()"
+         ontouchstart="lpStart()" ontouchend="lpCancel()" ontouchcancel="lpCancel()">
+      <div class="lp-ring"></div>
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAsADgDASIAAhEBAxEB/8QAGgABAQEAAwEAAAAAAAAAAAAAAAIGAwQHCP/EAC8QAAEDAQQJAgcBAAAAAAAAAAABAgMEBQYREgcTMUNic5PC0SFRCBQiQVJhgaH/xAAYAQADAQEAAAAAAAAAAAAAAAAAAQMEAv/EACIRAAEFAAEDBQAAAAAAAAAAAAEAAgMEETEhobEFEmGBkf/aAAwDAQACEQMRAD8A+x6iTVR4omLlXBqfs62Vy+r5ZFX9OVE/w5a3c8ztUxmk+/8AZ1xKGllq6SerqKtXpBDGqNRcuGZXOXYn1J9l2mitXksyCKIa48BTlkbE0vecAWuyccvUd5GTjl6jvJ4ddv4gYJq7U2/Yny0D34NmpZM2rav5Ndtw90X+HuZpvemWaDg2dubx8/ilXtRWATGdxTk45eo7yMnHL1HeSgYVdTk45eo7yCgCFdbueZ2qYXSPcuqvTeO6toxVFKynsesWaoimRV1rFfE7KiYKmyNU9fc3VbueZ2qQWq2JK0gkjPUb3GeCuJYmyt9ruFgNLOj5l7LuU9nWNHZ1nVEdY2Z0rocuLEY9qtxamO1yL/DfgHUlqSWNsTjobufeb4SbE1ji8Dqc7IADOqIAAQrrdzzO1SC63c8ztUgQTKAAaSAAEIAAQv/Z" style="width:1.5rem;height:1.5rem;object-fit:contain;border-radius:4px">
+    </div>
     <div class="brand-text">
       <span class="brand-name">Productivity Hub</span>
       <span class="brand-sub">Management Information System</span>
     </div>
   </div>
   <div class="topbar-right">
-    <div class="clock-chip">
-      <span class="live-dot"></span>
-      <span id="clock">--:--</span>
+    <div id="topbar-user-chip" class="user-chip" onclick="showLogoutConfirm()" style="display:none">
+      <div class="user-avatar-sm" id="chip-avatar"></div>
+      <span class="user-chip-name" id="chip-name"></span>
+    </div>
+    <div class="clock-chip" id="last-updated-chip" title="Last data upload time">
+      <span class="live-dot" id="live-dot-indicator"></span>
+      <span id="last-updated-text">No data loaded</span>
     </div>
     <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
       <span id="theme-icon" style="display:flex;align-items:center;justify-content:center;font-size:1rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em"><path d="M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"/></svg></span>
@@ -697,23 +910,7 @@ tbody tr:hover{background:var(--surf2)}
 
     <!-- Stat cards -->
     <div class="stat-grid">
-      <div class="scard">
-        <div class="scard-glow" style="--gc:rgba(37,99,235,.14)"></div>
-        <div class="scard-icon" style="--ic:rgba(37,99,235,.15);color:var(--a1);font-size:1.2rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zm64 128h64v64H128V128zm96 0h64v64H224V128zm96 0h64v64H320V128zm96 0h64v64H416V128zM128 256h64v64H128V256zm96 0h64v64H224V256zm96 0h64v64H320V256zm96 0h64v64H416V256zM128 384h64v64H128V384zm96 0h64v64H224V384zm96 0h64v64H320V384zm96 0h64v64H416V384z"/></svg></i></div>
-        <span class="scard-label">Building 03</span>
-        <span class="scard-val" id="b3-val" style="--vc:var(--a1)">0</span>
-        <div class="scard-trend"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M384 160c-17.7 0-32-14.3-32-32s14.3-32 32-32H544c17.7 0 32 14.3 32 32V288c0 17.7-14.3 32-32 32s-32-14.3-32-32V205.3L342.6 374.6c-12.5 12.5-32.8 12.5-45.3 0L192 269.3 54.6 406.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160c12.5-12.5 32.8-12.5 45.3 0L320 306.7 466.7 160H384z"/></svg></i> units picked</div>
-      </div>
-      <div class="scard">
-        <div class="scard-glow" style="--gc:rgba(124,58,237,.14)"></div>
-        <div class="scard-icon" style="--ic:rgba(124,58,237,.15);color:var(--a2);font-size:1.2rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M0 448c0 17.7 14.3 32 32 32H64c17.7 0 32-14.3 32-32V304H0V448zM0 176V288H96V176c0-17.7-14.3-32-32-32H32c-17.7 0-32 14.3-32 32zm128 0V448c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V176c0-17.7-14.3-32-32-32H160c-17.7 0-32 14.3-32 32zM352 64c0-17.7-14.3-32-32-32H288c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32h32c17.7 0 32-14.3 32-32V64zm32 384c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V176c0-17.7-14.3-32-32-32H416c-17.7 0-32 14.3-32 32V448zm160-272v-32c0-17.7-14.3-32-32-32h-32c-17.7 0-32 14.3-32 32v32h96z"/></svg></i></div>
-        <span class="scard-label">Building 05</span>
-        <span class="scard-val" id="b5-val" style="--vc:var(--a2)">0</span>
-        <div class="scard-trend"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M384 160c-17.7 0-32-14.3-32-32s14.3-32 32-32H544c17.7 0 32 14.3 32 32V288c0 17.7-14.3 32-32 32s-32-14.3-32-32V205.3L342.6 374.6c-12.5 12.5-32.8 12.5-45.3 0L192 269.3 54.6 406.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160c12.5-12.5 32.8-12.5 45.3 0L320 306.7 466.7 160H384z"/></svg></i> units packed</div>
-      </div>
       <div class="scard" style="grid-column:1/-1">
-        <div class="scard-glow" style="--gc:rgba(5,150,105,.12)"></div>
-        <div class="scard-icon" style="--ic:rgba(5,150,105,.15);color:var(--ok);font-size:1.2rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg></i></div>
         <span class="scard-label">Dept Filter — Progress</span>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px">
           <span class="scard-val" id="dept-progress-val" style="--vc:var(--ok)">0%</span>
@@ -796,29 +993,94 @@ tbody tr:hover{background:var(--surf2)}
         <table>
           <thead>
             <tr>
-              <th class="ts psl" onclick="sortTable('Actor')" style="min-width:170px">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/></svg></i>Actor <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;opacity:.35;margin-left:3px"><path d="M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8H32c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.3l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8H288c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z"/></svg></i>
+              <th class="ts psl" onclick="sortTable('Actor')" style="min-width:160px">
+                Actor
               </th>
-              <th onclick="sortTable('Qty')" style="min-width:150px">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></i>Units <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;opacity:.35;margin-left:3px"><path d="M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8H32c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.3l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8H288c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z"/></svg></i>
+              <th class="tc" id="pick-th-b3" onclick="sortTable('B3')" style="min-width:72px;color:#3b82f6;cursor:pointer">
+                B3 ↕
               </th>
-              <th class="te psr" style="min-width:72px">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;"><path d="M374.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-320 320c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l320-320zM128 128A64 64 0 1 0 0 128a64 64 0 1 0 128 0zM256 384a64 64 0 1 0 128 0 64 64 0 1 0 -128 0z"/></svg></i>Share
+              <th class="tc" id="pick-th-b5" onclick="sortTable('B5')" style="min-width:72px;color:#8b5cf6;cursor:pointer">
+                B5 ↕
               </th>
+              <th onclick="sortTable('Qty')" style="min-width:140px;cursor:pointer">
+                Total Picks ↕
+              </th>
+              <th class="te psr" style="min-width:72px">Share%</th>
             </tr>
           </thead>
           <tbody id="user-tbody">
-            <tr><td colspan="3" class="tc" style="padding:28px;color:var(--txt3)">
+            <tr><td colspan="5" class="tc" style="padding:28px;color:var(--txt3)">
               <span class="spinner"></span> Loading…
             </td></tr>
           </tbody>
         </table>
       </div>
     </div>
-  </section>
 
-  <!-- ─── FORWARD OPS ───────────────────────── -->
-  <section class="page" id="page-forward">
+    <!-- ── PACKING SECTION ─────────────────────── -->
+    <div class="section-divider">
+      <div class="section-divider-label">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:.8em;height:.8em;fill:currentColor;margin-right:5px"><path d="M50.7 58.5L0 160H208V32H93.7C75.5 32 58.6 43 50.7 58.5zM240 160H448L397.3 58.5C389.4 43 372.5 32 354.3 32H240V160zm208 32H0V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V192z"/></svg>
+        Packing Performance
+      </div>
+      <span id="pack-status-badge" class="pack-no-data">No packing data — upload in Master tab</span>
+    </div>
+    <div class="twrap">
+      <div class="tscroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="ts psl" onclick="sortPackTable('Actor')" style="min-width:160px;cursor:pointer">Actor</th>
+              <th class="tc" id="pack-th-b3" onclick="sortPackTable('B3')" style="min-width:72px;color:#3b82f6;cursor:pointer">B3 ↕</th>
+              <th class="tc" id="pack-th-b5" onclick="sortPackTable('B5')" style="min-width:72px;color:#8b5cf6;cursor:pointer">B5 ↕</th>
+              <th class="tc" onclick="sortPackTable('Qty')" style="min-width:140px;cursor:pointer">Total Packed ↕</th>
+              <th class="te psr" style="min-width:72px">Share%</th>
+            </tr>
+          </thead>
+          <tbody id="pack-tbody">
+            <tr><td colspan="5" class="tc" style="padding:20px;color:var(--txt3);font-size:0.78rem">Upload Packed Order Details in Master tab</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- ── GRN SECTION ───────────────────────── -->
+    <div class="section-divider">
+      <div class="section-divider-label">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:.8em;height:.8em;fill:currentColor;margin-right:5px"><path d="M0 48C0 21.5 21.5 0 48 0H368c26.5 0 48 21.5 48 48V96h50.7c17 0 33.3 6.7 45.3 18.7L589.3 192c12 12 18.7 28.3 18.7 45.3V256v32 64c17.7 0 32 14.3 32 32s-14.3 32-32 32H576c0 53-43 96-96 96s-96-43-96-96H256c0 53-43 96-96 96s-96-43-96-96H48c-26.5 0-48-21.5-48-48V48zM416 256H544V237.3L466.7 160H416v96zM160 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm368-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/></svg>
+        GRN Performance
+      </div>
+      <span id="grn-status-badge" class="pack-no-data">No GRN data — upload in Master tab</span>
+    </div>
+    <div class="twrap">
+      <div class="tscroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="ts psl" onclick="sortGrnTable('Actor')" style="min-width:160px;cursor:pointer">Actor</th>
+              <th class="tc" id="grn-th-b3" onclick="sortGrnTable('B3')" style="min-width:72px;color:#3b82f6;cursor:pointer">B3 ↕</th>
+              <th class="tc" id="grn-th-b5" onclick="sortGrnTable('B5')" style="min-width:72px;color:#8b5cf6;cursor:pointer">B5 ↕</th>
+              <th class="tc" onclick="sortGrnTable('Qty')" style="min-width:140px;cursor:pointer">Total GRN ↕</th>
+              <th class="te psr" style="min-width:72px">Share%</th>
+            </tr>
+          </thead>
+          <tbody id="grn-tbody">
+            <tr><td colspan="5" class="tc" style="padding:20px;color:var(--txt3);font-size:0.78rem">Upload GRN SKU Level Report in Master tab</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <section class="page" id="page-forward" style="position:relative">
+
+    <!-- Under Development Overlay -->
+    <div style="position:absolute;inset:0;z-index:50;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden">
+      <div style="transform:rotate(-35deg);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0.13;user-select:none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:80px;height:80px;fill:var(--txt)"><path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>
+        <div style="font-size:2.8rem;font-weight:900;color:var(--txt);letter-spacing:-1px;text-align:center;line-height:1.1">UNDER<br>DEVELOPMENT</div>
+        <div style="font-size:1.2rem;font-weight:800;color:var(--txt);letter-spacing:2px;text-align:center">COMING SOON</div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:80px;height:80px;fill:var(--txt)"><path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>
+      </div>
+    </div>
 
     <div class="fwd-hero">
       <div>
@@ -995,7 +1257,7 @@ tbody tr:hover{background:var(--surf2)}
           <div class="drop-zone" id="dz-productivity" onclick="document.getElementById('fi-productivity').click()" ondragover="dzDragOver(event,this)" ondragleave="dzDragLeave(this)" ondrop="dzDrop(event,this,'productivity')">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:2rem;height:2rem;fill:currentColor;color:var(--txt3);margin-bottom:10px"><path d="M288 109.3V352c0 17.7-14.3 32-32 32s-32-14.3-32-32V109.3l-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352H192c0 35.3 28.7 64 64 64s64-28.7 64-64H448c35.3 0 64 28.7 64 64v32c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V416c0-35.3 28.7-64 64-64z"/></svg>
             <div class="dz-text">Drop CSV here or <span class="dz-link">browse</span></div>
-            <div class="dz-hint">Accepts .csv — max 10 MB</div>
+            <div class="dz-hint">Accepts .csv files of any size</div>
           </div>
           <input type="file" id="fi-productivity" accept=".csv" style="display:none" onchange="fileSelected(this,'productivity')">
           <div class="uc-file-info" id="ufi-productivity" style="display:none"></div>
@@ -1023,7 +1285,7 @@ tbody tr:hover{background:var(--surf2)}
           <div class="drop-zone" id="dz-forward" onclick="document.getElementById('fi-forward').click()" ondragover="dzDragOver(event,this)" ondragleave="dzDragLeave(this)" ondrop="dzDrop(event,this,'forward')">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:2rem;height:2rem;fill:currentColor;color:var(--txt3);margin-bottom:10px"><path d="M288 109.3V352c0 17.7-14.3 32-32 32s-32-14.3-32-32V109.3l-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352H192c0 35.3 28.7 64 64 64s64-28.7 64-64H448c35.3 0 64 28.7 64 64v32c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V416c0-35.3 28.7-64 64-64z"/></svg>
             <div class="dz-text">Drop CSV here or <span class="dz-link">browse</span></div>
-            <div class="dz-hint">Accepts .csv — max 10 MB</div>
+            <div class="dz-hint">Accepts .csv files of any size</div>
           </div>
           <input type="file" id="fi-forward" accept=".csv" style="display:none" onchange="fileSelected(this,'forward')">
           <div class="uc-file-info" id="ufi-forward" style="display:none"></div>
@@ -1037,7 +1299,61 @@ tbody tr:hover{background:var(--surf2)}
           <div class="uc-status" id="us-forward"></div>
         </div>
 
-        <!-- Targets Config -->
+        <!-- Packed Order Details CSV -->
+        <div class="upload-card" id="uc-packed">
+          <div class="uc-header">
+            <div class="uc-icon" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1.1rem;height:1.1rem;fill:#fff"><path d="M50.7 58.5L0 160H208V32H93.7C75.5 32 58.6 43 50.7 58.5zM240 160H448L397.3 58.5C389.4 43 372.5 32 354.3 32H240V160zm208 32H0V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V192z"/></svg>
+            </div>
+            <div>
+              <div class="uc-title">Packed Order Details</div>
+              <div class="uc-sub">Maps Sub Order ID → Sales Channel</div>
+            </div>
+          </div>
+          <div class="drop-zone" id="dz-packed" onclick="document.getElementById('fi-packed').click()" ondragover="dzDragOver(event,this)" ondragleave="dzDragLeave(this)" ondrop="dzDrop(event,this,'packed')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:2rem;height:2rem;fill:currentColor;color:var(--txt3);margin-bottom:10px"><path d="M288 109.3V352c0 17.7-14.3 32-32 32s-32-14.3-32-32V109.3l-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352H192c0 35.3 28.7 64 64 64s64-28.7 64-64H448c35.3 0 64 28.7 64 64v32c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V416c0-35.3 28.7-64 64-64z"/></svg>
+            <div class="dz-text">Drop CSV here or <span class="dz-link">browse</span></div>
+            <div class="dz-hint">Accepts .csv files of any size</div>
+          </div>
+          <input type="file" id="fi-packed" accept=".csv" style="display:none" onchange="fileSelected(this,'packed')">
+          <div class="uc-file-info" id="ufi-packed" style="display:none"></div>
+          <div class="uc-actions" id="ua-packed" style="display:none">
+            <button class="uc-btn-secondary" onclick="clearUpload('packed')">Remove</button>
+            <button class="uc-btn-primary" onclick="importFile('packed')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+              Import Data
+            </button>
+          </div>
+          <div class="uc-status" id="us-packed"></div>
+        </div>
+
+        <!-- GRN SKU Level Report -->
+        <div class="upload-card" id="uc-grn">
+          <div class="uc-header">
+            <div class="uc-icon" style="background:linear-gradient(135deg,#059669,#10b981)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1.1rem;height:1.1rem;fill:#fff"><path d="M0 48C0 21.5 21.5 0 48 0H368c26.5 0 48 21.5 48 48V96h50.7c17 0 33.3 6.7 45.3 18.7L589.3 192c12 12 18.7 28.3 18.7 45.3V256v32 64c17.7 0 32 14.3 32 32s-14.3 32-32 32H576c0 53-43 96-96 96s-96-43-96-96H256c0 53-43 96-96 96s-96-43-96-96H48c-26.5 0-48-21.5-48-48V48zM416 256H544V237.3L466.7 160H416v96zM160 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm368-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/></svg>
+            </div>
+            <div>
+              <div class="uc-title">GRN SKU Level Report</div>
+              <div class="uc-sub">Maps Gate Entry ID — excludes return orders</div>
+            </div>
+          </div>
+          <div class="drop-zone" id="dz-grn" onclick="document.getElementById('fi-grn').click()" ondragover="dzDragOver(event,this)" ondragleave="dzDragLeave(this)" ondrop="dzDrop(event,this,'grn')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:2rem;height:2rem;fill:currentColor;color:var(--txt3);margin-bottom:10px"><path d="M288 109.3V352c0 17.7-14.3 32-32 32s-32-14.3-32-32V109.3l-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352H192c0 35.3 28.7 64 64 64s64-28.7 64-64H448c35.3 0 64 28.7 64 64v32c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V416c0-35.3 28.7-64 64-64z"/></svg>
+            <div class="dz-text">Drop CSV here or <span class="dz-link">browse</span></div>
+            <div class="dz-hint">Accepts .csv files of any size</div>
+          </div>
+          <input type="file" id="fi-grn" accept=".csv" style="display:none" onchange="fileSelected(this,'grn')">
+          <div class="uc-file-info" id="ufi-grn" style="display:none"></div>
+          <div class="uc-actions" id="ua-grn" style="display:none">
+            <button class="uc-btn-secondary" onclick="clearUpload('grn')">Remove</button>
+            <button class="uc-btn-primary" onclick="importFile('grn')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+              Import Data
+            </button>
+          </div>
+          <div class="uc-status" id="us-grn"></div>
+        </div>
         <div class="upload-card" id="uc-targets">
           <div class="uc-header">
             <div class="uc-icon" style="background:linear-gradient(135deg,#059669,#10b981)">
@@ -1045,23 +1361,60 @@ tbody tr:hover{background:var(--surf2)}
             </div>
             <div>
               <div class="uc-title">Daily Targets</div>
-              <div class="uc-sub">Dept-wise target configuration CSV</div>
+              <div class="uc-sub">Set targets by building &amp; department</div>
             </div>
           </div>
-          <div class="drop-zone" id="dz-targets" onclick="document.getElementById('fi-targets').click()" ondragover="dzDragOver(event,this)" ondragleave="dzDragLeave(this)" ondrop="dzDrop(event,this,'targets')">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:2rem;height:2rem;fill:currentColor;color:var(--txt3);margin-bottom:10px"><path d="M288 109.3V352c0 17.7-14.3 32-32 32s-32-14.3-32-32V109.3l-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352H192c0 35.3 28.7 64 64 64s64-28.7 64-64H448c35.3 0 64 28.7 64 64v32c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V416c0-35.3 28.7-64 64-64z"/></svg>
-            <div class="dz-text">Drop CSV here or <span class="dz-link">browse</span></div>
-            <div class="dz-hint">Accepts .csv — max 10 MB</div>
+
+          <!-- Target input grid -->
+          <div class="target-grid">
+
+            <!-- B3 -->
+            <div class="tg-section">
+              <div class="tg-bldg-label tg-b3">Building 03</div>
+              <div class="tg-row">
+                <label class="tg-label">Picking</label>
+                <input type="number" class="tg-input" id="tgt-b3-picking" value="6000" min="0">
+              </div>
+              <div class="tg-row">
+                <label class="tg-label">Packing</label>
+                <input type="number" class="tg-input" id="tgt-b3-packing" value="5000" min="0">
+              </div>
+              <div class="tg-row">
+                <label class="tg-label">GRN</label>
+                <input type="number" class="tg-input" id="tgt-b3-grn" value="4000" min="0">
+              </div>
+            </div>
+
+            <!-- B5 -->
+            <div class="tg-section">
+              <div class="tg-bldg-label tg-b5">Building 05</div>
+              <div class="tg-row">
+                <label class="tg-label">Picking</label>
+                <input type="number" class="tg-input" id="tgt-b5-picking" value="6000" min="0">
+              </div>
+              <div class="tg-row">
+                <label class="tg-label">Packing</label>
+                <input type="number" class="tg-input" id="tgt-b5-packing" value="5000" min="0">
+              </div>
+              <div class="tg-row">
+                <label class="tg-label">GRN</label>
+                <input type="number" class="tg-input" id="tgt-b5-grn" value="4000" min="0">
+              </div>
+            </div>
+
           </div>
-          <input type="file" id="fi-targets" accept=".csv" style="display:none" onchange="fileSelected(this,'targets')">
-          <div class="uc-file-info" id="ufi-targets" style="display:none"></div>
-          <div class="uc-actions" id="ua-targets" style="display:none">
-            <button class="uc-btn-secondary" onclick="clearUpload('targets')">Remove</button>
-            <button class="uc-btn-primary" onclick="importFile('targets')">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
-              Import Data
-            </button>
+
+          <!-- Overall target (auto-sum + manual override) -->
+          <div class="tg-overall-row">
+            <label class="tg-label" style="font-weight:800;color:var(--txt)">Overall Target</label>
+            <input type="number" class="tg-input tg-overall" id="tgt-overall" value="15000" min="0">
+            <button class="tg-auto-btn" onclick="autoSumTargets()" title="Auto-sum all fields">∑ Auto</button>
           </div>
+
+          <button class="tg-save-btn" onclick="saveTargets()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:6px"><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7C340 38.7 323.7 32 306.7 32H64zm0 96c0-17.7 14.3-32 32-32H288c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V128zM224 288a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>
+            Save Targets
+          </button>
           <div class="uc-status" id="us-targets"></div>
         </div>
 
@@ -1079,7 +1432,7 @@ tbody tr:hover{background:var(--surf2)}
           <div class="drop-zone" id="dz-userlist" onclick="document.getElementById('fi-userlist').click()" ondragover="dzDragOver(event,this)" ondragleave="dzDragLeave(this)" ondrop="dzDrop(event,this,'userlist')">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:2rem;height:2rem;fill:currentColor;color:var(--txt3);margin-bottom:10px"><path d="M288 109.3V352c0 17.7-14.3 32-32 32s-32-14.3-32-32V109.3l-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352H192c0 35.3 28.7 64 64 64s64-28.7 64-64H448c35.3 0 64 28.7 64 64v32c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V416c0-35.3 28.7-64 64-64z"/></svg>
             <div class="dz-text">Drop CSV here or <span class="dz-link">browse</span></div>
-            <div class="dz-hint">Accepts .csv — max 10 MB</div>
+            <div class="dz-hint">Accepts .csv files of any size</div>
           </div>
           <input type="file" id="fi-userlist" accept=".csv" style="display:none" onchange="fileSelected(this,'userlist')">
           <div class="uc-file-info" id="ufi-userlist" style="display:none"></div>
@@ -1172,13 +1525,53 @@ const DEPT_SVG={
 const AVATAR_COLORS = ['#3b82f6','#8b5cf6','#0891b2','#059669','#d97706','#dc2626','#0284c7','#7c3aed'];
 
 let chart, rawData=[], sortAsc=false, sortCol='Qty', globalQty=0;
+let packData=[], packSortAsc=false, packSortCol='Qty', packGlobalQty=0;
+let packedOrderLookup={}; // { subOrderId → salesChannel }
+let itemAuditRawText='';  // store raw Item Audit text for re-processing packing
+let grnData=[], grnSortAsc=false, grnSortCol='Qty', grnGlobalQty=0;
+let grnSkuLookup=new Set(); // valid Gate Entry IDs (non-return)
 
-/* ─── CLOCK ────────────────────────────────── */
-function initClock(){
-  const el=document.getElementById('clock');
-  const tick=()=>{el.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})};
-  tick(); setInterval(tick,1000);
+/* ─── LAST UPDATED TRACKER ─────────────────── */
+const uploadTimestamps = {}; // { dept: Date }
+
+function setLastUpdated(dept){
+  uploadTimestamps[dept] = new Date();
+  refreshLastUpdatedChip();
 }
+
+function refreshLastUpdatedChip(){
+  const chip = document.getElementById('last-updated-chip');
+  const txt  = document.getElementById('last-updated-text');
+  if(!Object.keys(uploadTimestamps).length){
+    txt.textContent = 'No data loaded';
+    chip.classList.remove('has-data');
+    return;
+  }
+
+  // Use active analytics filter if set, else show latest upload
+  const filterEl = document.getElementById('chart-dept-filter');
+  const activeDept = filterEl ? filterEl.value : 'all';
+
+  let dept, time;
+  if(activeDept !== 'all' && uploadTimestamps[activeDept]){
+    // Show timestamp for the selected department
+    dept = activeDept;
+    time = uploadTimestamps[activeDept];
+  } else {
+    // Show most recently uploaded
+    [dept, time] = Object.entries(uploadTimestamps).sort((a,b)=>b[1]-a[1])[0];
+  }
+
+  const timeStr = time.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:true});
+  txt.textContent = `${dept} · ${timeStr}`;
+  chip.classList.add('has-data');
+  chip.title = Object.entries(uploadTimestamps)
+    .map(([d,t])=>`${d}: ${t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}`)
+    .join('\n');
+}
+
+function initClock(){ /* clock replaced by last-updated chip */ }
+
 
 /* ─── THEME ────────────────────────────────── */
 const SVG_MOON='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em"><path d="M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"/></svg>';
@@ -1256,7 +1649,137 @@ function buildFwdRows(bodyId){
   foot.querySelectorAll('td').forEach((td,i)=>{if(i>0)td.textContent=tots[i-1].toLocaleString()});
 }
 
-/* ─── MASTER / PIN ─────────────────────────── */
+/* ─── LOGIN ─────────────────────────────────── */
+let currentRole = null;
+const AVATAR_BG_COLORS = ['#3b82f6','#8b5cf6','#0891b2','#059669','#d97706','#dc2626','#0284c7','#7c3aed'];
+
+function selectRole(role){
+  currentRole = role;
+  document.getElementById('step-role').style.display = 'none';
+  const nameStep = document.getElementById('step-name');
+  nameStep.style.display = 'flex';
+
+  const icon = document.getElementById('name-role-icon');
+  const title = document.getElementById('name-step-title');
+  const sub = document.getElementById('name-step-sub');
+  const btn = document.getElementById('login-enter-btn');
+  const inp = document.getElementById('login-name-input');
+
+  if(role === 'admin'){
+    icon.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)';
+    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1.2rem;height:1.2rem;fill:#fff"><path d="M144 144c0-44.2 35.8-80 80-80c31.9 0 59.4 18.6 72.3 45.7c7.6 16 26.7 22.8 42.6 15.2s22.8-26.7 15.2-42.6C331 33.7 281.5 0 224 0C144.5 0 80 64.5 80 144v48H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V256c0-35.3-28.7-64-64-64H144V144zm32 256a32 32 0 1 1 96 0 32 32 0 1 1 -96 0z"/></svg>';
+    title.textContent = 'Admin Login';
+    sub.textContent = 'Enter your name to continue';
+    btn.className = 'name-enter-btn btn-admin';
+    inp.className = 'name-input admin-mode';
+  } else {
+    icon.style.background = 'linear-gradient(135deg,var(--a1),var(--a2))';
+    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:1.2rem;height:1.2rem;fill:#fff"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>';
+    title.textContent = 'Welcome';
+    sub.textContent = 'Enter your name to continue';
+    btn.className = 'name-enter-btn btn-user';
+    inp.className = 'name-input';
+  }
+  inp.value = '';
+  inp.focus();
+}
+
+function backToRoles(){
+  document.getElementById('step-name').style.display = 'none';
+  document.getElementById('step-role').style.display = 'flex';
+  document.getElementById('name-input-err').style.display = 'none';
+  currentRole = null;
+}
+
+function validateNameInput(){
+  const v = document.getElementById('login-name-input').value.trim();
+  document.getElementById('name-input-err').style.display = v ? 'none' : 'none';
+}
+
+function submitLogin(){
+  const name = document.getElementById('login-name-input').value.trim();
+  if(!name){
+    document.getElementById('name-input-err').style.display = 'block';
+    document.getElementById('login-name-input').focus();
+    return;
+  }
+
+  // Set up topbar chip
+  const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const color = AVATAR_BG_COLORS[name.charCodeAt(0) % AVATAR_BG_COLORS.length];
+  const chipAvatar = document.getElementById('chip-avatar');
+  chipAvatar.style.background = color;
+  chipAvatar.textContent = initials;
+  document.getElementById('chip-name').textContent = name;
+  document.getElementById('topbar-user-chip').style.display = 'flex';
+
+  // Master tab always hidden
+  document.querySelector('.nav-master').classList.remove('visible');
+
+  // Dismiss splash
+  const splash = document.getElementById('login-splash');
+  splash.classList.add('fade-out');
+  setTimeout(()=>{ splash.style.display='none'; }, 420);
+}
+
+function showLogoutConfirm(){
+  if(confirm('Log out and return to login screen?')){
+    logoutUser();
+  }
+}
+
+function logoutUser(){
+  // Reset state
+  currentRole = null;
+  adminUnlocked = false;
+  pinBuffer = ''; updatePinDots();
+
+  // Hide master tab, reset nav to analytics
+  const masterTab = document.querySelector('.nav-master');
+  masterTab.classList.remove('visible','active');
+  document.getElementById('master-panel').style.display = 'none';
+  document.getElementById('master-gate').style.display = 'flex';
+
+  // Hide user chip
+  document.getElementById('topbar-user-chip').style.display = 'none';
+
+  // Switch back to analytics tab
+  const analyticsBtn = document.querySelector('.nav-btn:first-child');
+  switchTab('analytics', analyticsBtn);
+
+  // Show splash again
+  const splash = document.getElementById('login-splash');
+  splash.style.display = 'flex';
+  splash.classList.remove('fade-out');
+  document.getElementById('step-name').style.display = 'none';
+  document.getElementById('step-role').style.display = 'flex';
+}
+
+
+let _lpTimer = null;
+function lpStart(){
+  const btn = document.getElementById('brand-icon-btn');
+  btn.classList.add('pressing');
+  _lpTimer = setTimeout(()=>{
+    btn.classList.remove('pressing');
+    revealMasterTab();
+  }, 1500);
+}
+function lpCancel(){
+  clearTimeout(_lpTimer);
+  document.getElementById('brand-icon-btn').classList.remove('pressing');
+}
+function revealMasterTab(){
+  const tab = document.querySelector('.nav-master');
+  if(tab.classList.contains('visible')) return; // already visible
+  tab.classList.add('visible');
+  // brief gold flash on brand icon
+  const btn = document.getElementById('brand-icon-btn');
+  btn.style.boxShadow = '0 0 0 6px rgba(245,158,11,.5), 0 4px 14px rgba(37,99,235,.4)';
+  setTimeout(()=>btn.style.boxShadow='', 600);
+}
+
+
 let ADMIN_PIN = '1234';
 let pinBuffer = '';
 let adminUnlocked = false;
@@ -1300,6 +1823,9 @@ function lockMaster(){
   document.getElementById('master-gate').style.display='flex';
   pinBuffer='';updatePinDots();
   document.getElementById('gate-error').style.display='none';
+  // Switch back to analytics (tab stays visible since admin is still logged in)
+  const analyticsBtn=document.querySelector('.nav-btn:first-child');
+  switchTab('analytics', analyticsBtn);
 }
 function changePin(){
   const p1=document.getElementById('new-pin-1').value.trim();
@@ -1314,12 +1840,34 @@ function changePin(){
   setTimeout(()=>msg.textContent='',3000);
 }
 
+/* ─── TARGETS FORM ──────────────────────────── */
+function autoSumTargets(){
+  const sum = ['b3-picking','b3-packing','b3-grn','b5-picking','b5-packing','b5-grn']
+    .reduce((a,id)=>a+(Number(document.getElementById('tgt-'+id).value)||0), 0);
+  document.getElementById('tgt-overall').value = sum;
+}
+function saveTargets(){
+  const get = id => Number(document.getElementById(id).value)||0;
+  TARGETS.Picking = get('tgt-b3-picking') + get('tgt-b5-picking');
+  TARGETS.Packing = get('tgt-b3-packing') + get('tgt-b5-packing');
+  TARGETS.GRN     = get('tgt-b3-grn')     + get('tgt-b5-grn');
+  TARGETS.all     = get('tgt-overall');
+  TARGETS.b3      = get('tgt-b3-picking') + get('tgt-b3-packing') + get('tgt-b3-grn');
+  TARGETS.b5      = get('tgt-b5-picking') + get('tgt-b5-packing') + get('tgt-b5-grn');
+  updateAnalytics();
+  const st = document.getElementById('us-targets');
+  st.innerHTML = `<span style="color:var(--ok);font-weight:700;font-size:0.78rem">✓ Targets saved — dashboard updated</span>`;
+  setTimeout(()=>st.innerHTML='', 3000);
+}
+
 /* ─── FILE UPLOAD ──────────────────────────── */
 const UPLOAD_LABELS={
   productivity:'Productivity Data',
   forward:'Forward Ops',
   targets:'Daily Targets',
   userlist:'User Master',
+  packed:'Packed Order Details',
+  grn:'GRN SKU Level Report',
 };
 function dzDragOver(e,el){e.preventDefault();el.classList.add('dragover')}
 function dzDragLeave(el){el.classList.remove('dragover')}
@@ -1335,9 +1883,7 @@ function handleFile(file,type){
   if(!file.name.toLowerCase().endsWith('.csv')){
     showStatus(type,'err','✕ Only CSV files are accepted.');return;
   }
-  if(file.size>10*1024*1024){
-    showStatus(type,'err','✕ File exceeds 10 MB limit.');return;
-  }
+  // No file size limit
   const info=document.getElementById('ufi-'+type);
   info.style.display='flex';
   const sizekb=(file.size/1024).toFixed(1);
@@ -1365,6 +1911,77 @@ function showStatus(type,cls,msg){
   el.className='uc-status'+(cls?' '+cls:'');
   el.textContent=msg;
 }
+/* ─── PICKING CSV PARSER ────────────────────── */
+function parseItemAuditCSV(text){
+  const lines = text.trim().split('\n').filter(l=>l.trim());
+  if(lines.length < 2) return [];
+
+  // Parse headers — handle quoted CSV
+  function splitCSVRow(row){
+    const result=[]; let cur='', inQ=false;
+    for(let i=0;i<row.length;i++){
+      const ch=row[i];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){result.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  const headers = splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+
+  // Detect column indices
+  const iLoc  = headers.findIndex(h=>h.includes('fulfillment') || h.includes('location'));
+  const iItem = headers.findIndex(h=>h.includes('item id') || h==='item id' || h.includes('itemid'));
+  const iAct  = headers.findIndex(h=>h.includes('action'));
+  const iActor= headers.findIndex(h=>h.includes('actor'));
+  const iDesc = headers.findIndex(h=>h.includes('description') || h.includes('desc'));
+
+  if(iLoc<0||iItem<0||iAct<0||iActor<0||iDesc<0){
+    return {error:`Missing columns. Found: ${headers.join(', ')}`};
+  }
+
+  // Filter & aggregate
+  const actorMap = {}; // { name: { b3:0, b5:0 } }
+  let totalRows=0, filteredRows=0;
+
+  for(let i=1;i<lines.length;i++){
+    const cols = splitCSVRow(lines[i]).map(c=>c.replace(/^"|"$/g,'').trim());
+    totalRows++;
+
+    const loc   = (cols[iLoc]  ||'').toLowerCase();
+    const action= (cols[iAct]  ||'').toLowerCase();
+    const desc  = (cols[iDesc] ||'').toUpperCase();
+    const actor = (cols[iActor]||'').trim();
+
+    // Apply all three filters
+    const isB3 = loc.includes('bldg3') || loc.includes('bldg_3') || loc.includes('building3') || loc === 'wms_entoma_bldg3';
+    const isB5 = loc.includes('bldg5') || loc.includes('bldg_5') || loc.includes('building5') || loc === 'wms_entoma_bldg5';
+    if(!isB3 && !isB5) continue;
+    if(action !== 'picked') continue;
+    if(!desc.includes('BATCH_PICKING')) continue;
+    if(!actor) continue;
+
+    filteredRows++;
+    if(!actorMap[actor]) actorMap[actor]={b3:0,b5:0};
+    if(isB3) actorMap[actor].b3++;
+    else     actorMap[actor].b5++;
+  }
+
+  // Build rawData array
+  const result = Object.entries(actorMap).map(([name,counts])=>({
+    Actor:      name,
+    B3:         counts.b3,
+    B5:         counts.b5,
+    Qty:        counts.b3 + counts.b5,
+    Building:   counts.b3 > counts.b5 ? 'B3' : 'B5', // dominant building
+    Department: 'Picking',
+  }));
+
+  return { data: result, totalRows, filteredRows };
+}
+
 function importFile(type){
   const file=window._uploadFiles&&window._uploadFiles[type];
   if(!file){showStatus(type,'err','No file selected.');return;}
@@ -1373,32 +1990,66 @@ function importFile(type){
   const reader=new FileReader();
   reader.onload=function(e){
     const text=e.target.result;
-    const rows=text.trim().split('\n').filter(r=>r.trim());
-    const dataRows=rows.length>1?rows.length-1:rows.length;
-    // parse CSV for productivity type and inject into rawData
+    const lines=text.trim().split('\n').filter(r=>r.trim());
+    const dataRows=lines.length>1?lines.length-1:lines.length;
+
     if(type==='productivity'){
-      try{
-        const headers=rows[0].split(',').map(h=>h.trim().toLowerCase());
-        const actorIdx=headers.findIndex(h=>h.includes('actor')||h.includes('name'));
-        const qtyIdx=headers.findIndex(h=>h.includes('qty')||h.includes('unit')||h.includes('count'));
-        const bldgIdx=headers.findIndex(h=>h.includes('bldg')||h.includes('building'));
-        const deptIdx=headers.findIndex(h=>h.includes('dept')||h.includes('department'));
-        if(actorIdx>=0&&qtyIdx>=0){
-          rawData=rows.slice(1).map(r=>{
-            const cols=r.split(',').map(c=>c.trim().replace(/^"|"$/g,''));
-            return{
-              Actor:cols[actorIdx]||'Unknown',
-              Qty:Number(cols[qtyIdx])||0,
-              Building:bldgIdx>=0?cols[bldgIdx]:'B3',
-              Department:deptIdx>=0?cols[deptIdx]:'Picking',
-            };
-          });
-          globalQty=rawData.reduce((a,r)=>a+r.Qty,0);
-          renderTable(rawData);applyFilters();updateAnalytics();
-        }
-      }catch(ex){}
+      itemAuditRawText = text; // store for packing re-process
+      const result = parseItemAuditCSV(text);
+      if(result.error){
+        showStatus(type,'err','✕ '+result.error);
+        btn.textContent='Import Data';btn.disabled=false;
+        return;
+      }
+      rawData = result.data;
+      globalQty = rawData.reduce((a,r)=>a+r.Qty,0);
+      renderTable(rawData);
+      applyFilters();
+      updateAnalytics();
+      setLastUpdated('Picking');
+      addUploadLog('Productivity (Picking)',file.name,result.filteredRows,`${result.filteredRows} of ${result.totalRows} rows`);
+      showStatus(type,'ok',`✓ ${rawData.length} pickers · ${result.filteredRows.toLocaleString()} picks from ${result.totalRows.toLocaleString()} rows`);
+      btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+      btn.disabled=false;
+      // Re-process packing and GRN if lookup already loaded
+      processPacking();
+      processGrn();
+      return;
     }
-    addUploadLog(UPLOAD_LABELS[type],file.name,dataRows,'Success');
+
+    // ── Packed Order Details ──────────────────
+    if(type==='packed'){
+      const result = parsePackedOrderDetails(text);
+      if(result.error){
+        showStatus(type,'err','✕ '+result.error);
+        btn.textContent='Import Data';btn.disabled=false;
+        return;
+      }
+      packedOrderLookup = result.lookup;
+      processPacking();
+      addUploadLog('Packed Order Details',file.name,result.count,`${result.count} sub-orders mapped`);
+      showStatus(type,'ok',`✓ ${result.count.toLocaleString()} sub-orders mapped to sales channels`);
+      btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+      btn.disabled=false;
+      return;
+    }
+
+    // ── GRN SKU Level Report ──────────────────
+    if(type==='grn'){
+      const result = parseGrnSkuReport(text);
+      if(result.error){
+        showStatus(type,'err','✕ '+result.error);
+        btn.textContent='Import Data';btn.disabled=false;
+        return;
+      }
+      grnSkuLookup = result.validIds;
+      processGrn();
+      addUploadLog('GRN SKU Level Report',file.name,result.count,`${result.count} valid gate entries`);
+      showStatus(type,'ok',`✓ ${result.count.toLocaleString()} gate entries loaded`);
+      btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+      btn.disabled=false;
+      return;
+    }
     showStatus(type,'ok',`✓ Imported ${dataRows.toLocaleString()} rows successfully.`);
     btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
     btn.disabled=false;
@@ -1440,38 +2091,36 @@ const DEPT_PILL_STYLE={
 };
 function renderTable(data){
   const body=document.getElementById('user-tbody');
-  if(!data.length){body.innerHTML=`<tr><td colspan="3" class="tc" style="padding:28px;color:var(--txt3)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-0.125em;flex-shrink:0;display:block;font-size:1.5rem;margin-bottom:8px"><path d="M121 32C91.6 32 65.5 48.8 53.9 75L4.8 184.3c-.1 .2-.2 .5-.2 .7C1.6 191.9 0 199 0 206.3V400c0 44.2 35.8 80 80 80H432c44.2 0 80-35.8 80-80V206.3c0-7.3-1.6-14.4-4.6-21.1c0-.2-.1-.4-.2-.7L458.1 75C446.5 48.8 420.4 32 391 32H121zm34.4 112l-27.4 64H384l-27.4-64H155.4zm168.5 160h116.5L512 400c0 8.8-7.2 16-16 16H16c-8.8 0-16-7.2-16-16l0-96H71.6l90.5 72.4c7.3 5.8 16.3 8.9 25.6 8.9h136.7c9.3 0 18.3-3.2 25.6-8.9L440.4 304z"/></svg></i>No matching records</td></tr>`;return}
-  const maxQty=Math.max(...data.map(r=>Number(r.Qty||0)),1);
-  data.sort((a,b)=>{
+  if(!data.length){
+    body.innerHTML=`<tr><td colspan="5" class="tc" style="padding:28px;color:var(--txt3)">No matching records</td></tr>`;
+    return;
+  }
+  const sorted=[...data].sort((a,b)=>{
     const va=a[sortCol]||0,vb=b[sortCol]||0;
     if(sortCol==='Actor') return sortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
     return sortAsc?Number(va)-Number(vb):Number(vb)-Number(va);
   });
-  body.innerHTML=data.map((row,i)=>{
-    const qty=Number(row.Qty||0);
-    const contr=globalQty>0?((qty/globalQty)*100).toFixed(1):'0.0';
+  const maxQty=Math.max(...sorted.map(r=>Number(r.Qty||0)),1);
+  body.innerHTML=sorted.map((row,i)=>{
+    const qty  = Number(row.Qty||0);
+    const b3   = Number(row.B3 ||0);
+    const b5   = Number(row.B5 ||0);
+    const contr= globalQty>0?((qty/globalQty)*100).toFixed(1):'0.0';
     const initials=(row.Actor||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const color=AVATAR_COLORS[i%AVATAR_COLORS.length];
-    const dept=row.Department||'';
-    const dicon=DEPT_ICONS[dept]||'fa-circle';
-    const dpill=DEPT_PILL_STYLE[dept]||'background:var(--surf3);color:var(--txt3)';
-    const barW=Math.round((qty/maxQty)*100);
-    const rankClass=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    const barW =Math.round((qty/maxQty)*100);
     const rankIcon=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
-    return `<tr class="user-row" data-bldg="${row.Building||''}" data-dept="${dept}" data-qty="${qty}">
+    const rankClass=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    return `<tr class="user-row" data-bldg="${row.Building||''}" data-dept="${row.Department||''}" data-qty="${qty}" data-b3="${b3}" data-b5="${b5}">
       <td class="psl">
         <div class="actor-cell">
-          <div class="rank-badge ${rankClass}">${i<3?rankIcon:i+1}</div>
-          <div class="avatar" style="background:${color}">${initials}</div>
-          <div>
-            <div class="actor-name">${row.Actor||'N/A'}</div>
-            <span class="dept-pill" style="${dpill}">${DEPT_SVG[dicon]||''}${dept}</span>
-          </div>
+          <div class="actor-name">${row.Actor||'N/A'}</div>
         </div>
       </td>
-      <td>
-        <div class="qty-cell">
-          <div class="qty-bar-bg"><div class="qty-bar-fill" style="width:${barW}%"></div></div>
+      <td class="tc" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.82rem;color:#3b82f6">${b3.toLocaleString()}</td>
+      <td class="tc" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.82rem;color:#8b5cf6">${b5.toLocaleString()}</td>
+      <td class="tc">
+        <div class="qty-cell" style="justify-content:center">
           <span class="qty-num">${qty.toLocaleString()}</span>
         </div>
       </td>
@@ -1486,34 +2135,143 @@ function renderTable(data){
 function applyFilters(){
   const bv=document.getElementById('bldg-filter').value.toLowerCase();
   const dv=document.getElementById('dept-filter').value.toLowerCase();
-  const rows=document.querySelectorAll('.user-row');
-  let cnt=0,qty=0;
-  rows.forEach(row=>{
-    const show=(bv==='all'||String(row.dataset.bldg).toLowerCase().includes(bv))&&
-               (dv==='all'||String(row.dataset.dept).toLowerCase()===dv);
+  let cnt=0, qty=0;
+
+  // Picking rows
+  document.querySelectorAll('.user-row').forEach(row=>{
+    const b3qty = Number(row.dataset.b3||0);
+    const b5qty = Number(row.dataset.b5||0);
+    const inB3 = b3qty > 0;
+    const inB5 = b5qty > 0;
+    const bMatch = bv==='all' || (bv.includes('3') && inB3) || (bv.includes('5') && inB5);
+    const dMatch = dv==='all'||dv==='picking'||String(row.dataset.dept).toLowerCase()===dv;
+    const show = bMatch && dMatch;
     row.style.display=show?'':'none';
-    if(show){cnt++;qty+=Number(row.dataset.qty)}
+    if(show){
+      cnt++;
+      const dispQty = bv.includes('3') ? b3qty : bv.includes('5') ? b5qty : Number(row.dataset.qty||0);
+      qty += dispQty;
+    }
   });
-  document.getElementById('cnt-actors').textContent=cnt.toLocaleString();
+
+  // Packing rows
+  document.querySelectorAll('.pack-row').forEach(row=>{
+    const b3qty = Number(row.dataset.b3||0);
+    const b5qty = Number(row.dataset.b5||0);
+    const inB3 = b3qty > 0;
+    const inB5 = b5qty > 0;
+    const bMatch = bv==='all' || (bv.includes('3') && inB3) || (bv.includes('5') && inB5);
+    const dMatch = dv==='all'||dv==='packing'||String(row.dataset.dept).toLowerCase()===dv;
+    const show = bMatch && dMatch;
+    row.style.display=show?'':'none';
+    if(show){
+      cnt++;
+      const dispQty = bv.includes('3') ? b3qty : bv.includes('5') ? b5qty : Number(row.dataset.qty||0);
+      qty += dispQty;
+    }
+  });
+
+  // GRN rows
+  document.querySelectorAll('.grn-row').forEach(row=>{
+    const b3qty = Number(row.dataset.b3||0);
+    const b5qty = Number(row.dataset.b5||0);
+    const bMatch = bv==='all' || (bv.includes('3') && b3qty>0) || (bv.includes('5') && b5qty>0);
+    const dMatch = dv==='all'||dv==='grn'||String(row.dataset.dept).toLowerCase()===dv;
+    const show = bMatch && dMatch;
+    row.style.display=show?'':'none';
+    if(show){
+      cnt++;
+      const dispQty = bv.includes('3') ? b3qty : bv.includes('5') ? b5qty : Number(row.dataset.qty||0);
+      qty += dispQty;
+    }
+  });
+
+  // Update Total and Share% cells to reflect filtered building qty
+  const pickVisible = [...document.querySelectorAll('.user-row')].filter(r=>r.style.display!=='none');
+  const packVisible = [...document.querySelectorAll('.pack-row')].filter(r=>r.style.display!=='none');
+
+  function updateRowQty(rows, globalQ){
+    // Recalculate filtered total for share%
+    const filteredTotal = rows.reduce((sum,r)=>{
+      const bq = bv.includes('3') ? Number(r.dataset.b3||0)
+               : bv.includes('5') ? Number(r.dataset.b5||0)
+               : Number(r.dataset.qty||0);
+      return sum + bq;
+    }, 0);
+    rows.forEach(row=>{
+      const dispQty = bv.includes('3') ? Number(row.dataset.b3||0)
+                    : bv.includes('5') ? Number(row.dataset.b5||0)
+                    : Number(row.dataset.qty||0);
+      const share = filteredTotal>0 ? ((dispQty/filteredTotal)*100).toFixed(1) : '0.0';
+      // Total cell = td[3], Share cell = td[4]
+      const cells = row.querySelectorAll('td');
+      if(cells[3]) cells[3].querySelector('span').textContent = dispQty.toLocaleString();
+      if(cells[4]) cells[4].querySelector('span').textContent = share+'%';
+    });
+  }
+  const grnVisible  = [...document.querySelectorAll('.grn-row')].filter(r=>r.style.display!=='none');
+  updateRowQty(pickVisible, globalQty);
+  updateRowQty(packVisible, packGlobalQty);
+  updateRowQty(grnVisible,  grnGlobalQty);
   document.getElementById('cnt-qty').textContent=qty.toLocaleString();
   const bSel=document.getElementById('bldg-filter');
   const dSel=document.getElementById('dept-filter');
   document.getElementById('fb-bldg').textContent=bSel.options[bSel.selectedIndex].text.toUpperCase();
   document.getElementById('fb-dept').textContent=dSel.options[dSel.selectedIndex].text.toUpperCase();
+
+  // Show/hide B3 and B5 columns based on building filter
+  const showB3 = bv==='all' || bv.includes('3');
+  const showB5 = bv==='all' || bv.includes('5');
+  const colVis = (id, show) => {
+    const el=document.getElementById(id);
+    if(el){ el.style.display=show?'':'none'; el.style.pointerEvents=show?'':'none'; }
+  };
+  colVis('pick-th-b3', showB3); colVis('pick-th-b5', showB5);
+  colVis('pack-th-b3', showB3); colVis('pack-th-b5', showB5);
+  colVis('grn-th-b3',  showB3); colVis('grn-th-b5',  showB5);
+  // Hide B3/B5 cells in each row
+  document.querySelectorAll('.user-row, .pack-row').forEach(row=>{
+    const cells = row.querySelectorAll('td');
+    if(cells[1]) cells[1].style.display = showB3?'':'none'; // B3
+    if(cells[2]) cells[2].style.display = showB5?'':'none'; // B5
+  });
 }
 
 /* ─── ANALYTICS ────────────────────────────── */
 function updateAnalytics(){
+  refreshLastUpdatedChip();
   const f=document.getElementById('chart-dept-filter').value;
   let b3=0,b5=0;
+
+  // Picking data
   rawData.forEach(r=>{
-    if(f==='all'||(r.Department||'').toLowerCase()===f.toLowerCase()){
+    if(f==='all'||f==='picking'||(r.Department||'').toLowerCase()===f.toLowerCase()){
       const b=(r.Building||'').toLowerCase();
       if(b.includes('3')) b3+=Number(r.Qty||0);
       else if(b.includes('5')) b5+=Number(r.Qty||0);
     }
   });
-  const target=TARGETS[f]||TARGETS.all;
+
+  // Packing data
+  packData.forEach(r=>{
+    if(f==='all'||f==='packing'||(r.Department||'').toLowerCase()===f.toLowerCase()){
+      const b=(r.Building||'').toLowerCase();
+      if(b.includes('3')) b3+=Number(r.Qty||0);
+      else if(b.includes('5')) b5+=Number(r.Qty||0);
+    }
+  });
+  // GRN data
+  grnData.forEach(r=>{
+    if(f==='all'||f==='grn'||(r.Department||'').toLowerCase()===f.toLowerCase()){
+      const b=(r.Building||'').toLowerCase();
+      if(b.includes('3')) b3+=Number(r.Qty||0);
+      else if(b.includes('5')) b5+=Number(r.Qty||0);
+    }
+  });
+
+  // Capitalise f for TARGETS key lookup (TARGETS uses Title case)
+  const tKey = f==='all'?'all': f.charAt(0).toUpperCase()+f.slice(1).toLowerCase();
+  const target = TARGETS[tKey]||TARGETS.all||0;
   const achieved=b3+b5;
   const gap=Math.max(0,target-achieved);
   const pct=target>0?Math.min(100,(achieved/target*100)).toFixed(1):0;
@@ -1524,9 +2282,7 @@ function updateAnalytics(){
   document.getElementById('hero-gap').textContent=gap.toLocaleString();
   document.getElementById('hero-pct').textContent=pct+'%';
   document.getElementById('dept-progress-val').textContent=pct+'%';
-  // stat cards
-  document.getElementById('b3-val').textContent=b3.toLocaleString();
-  document.getElementById('b5-val').textContent=b5.toLocaleString();
+  // stat cards removed (shown in hero section above chart)
   // progress bar
   document.getElementById('progress-pct-bar').textContent=pct+'%';
   document.getElementById('progress-fill').style.width=pct+'%';
@@ -1573,14 +2329,320 @@ function buildChart(b3,b5,gap){
   });
 }
 
+/* ─── PACKED ORDER DETAILS PARSER ──────────── */
+function parsePackedOrderDetails(text){
+  const lines = text.trim().split('\n').filter(l=>l.trim());
+  if(lines.length < 2) return {};
+
+  function splitCSVRow(row){
+    const result=[]; let cur='', inQ=false;
+    for(let i=0;i<row.length;i++){
+      const ch=row[i];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){result.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  const headers = splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+  const iSubOrder   = headers.findIndex(h=>h.includes('system sub order id') || h==='system sub order id');
+  const iChannel    = headers.findIndex(h=>h.includes('sales channel') || h==='sales channel');
+
+  if(iSubOrder<0 || iChannel<0){
+    return {error:`Missing columns. Need "System Sub Order Id" and "Sales Channel". Found: ${headers.join(', ')}`};
+  }
+
+  const lookup = {};
+  for(let i=1;i<lines.length;i++){
+    const cols = splitCSVRow(lines[i]).map(c=>c.replace(/^"|"$/g,'').trim());
+    const subId   = cols[iSubOrder];
+    const channel = cols[iChannel];
+    if(subId && channel) lookup[subId] = channel;
+  }
+  return { lookup, count: Object.keys(lookup).length };
+}
+
+/* ─── PACKING PROCESSOR ─────────────────────
+   Runs after EITHER file is uploaded — needs both
+   itemAuditRawText and packedOrderLookup to be set  */
+function processPacking(){
+  if(!itemAuditRawText || !Object.keys(packedOrderLookup).length) return;
+
+  const lines = itemAuditRawText.trim().split('\n').filter(l=>l.trim());
+  if(lines.length < 2) return;
+
+  function splitCSVRow(row){
+    const result=[]; let cur='', inQ=false;
+    for(let i=0;i<row.length;i++){
+      const ch=row[i];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){result.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  const headers = splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+  const iLoc   = headers.findIndex(h=>h.includes('fulfillment')||h.includes('location'));
+  const iAct   = headers.findIndex(h=>h.includes('action'));
+  const iActor = headers.findIndex(h=>h.includes('actor'));
+  const iDesc  = headers.findIndex(h=>h.includes('description')||h.includes('desc'));
+
+  const actorMap = {}; // { name: { b3, b5, channels:{} } }
+  let matched=0, unmatched=0;
+
+  for(let i=1;i<lines.length;i++){
+    const cols = splitCSVRow(lines[i]).map(c=>c.replace(/^"|"$/g,'').trim());
+    const loc    = (cols[iLoc]  ||'').toLowerCase();
+    const action = (cols[iAct]  ||'').toLowerCase();
+    const desc   = (cols[iDesc] ||'');
+    const actor  = (cols[iActor]||'').trim();
+
+    const isB3 = loc.includes('bldg3')||loc.includes('bldg_3')||loc==='wms_entoma_bldg3';
+    const isB5 = loc.includes('bldg5')||loc.includes('bldg_5')||loc==='wms_entoma_bldg5';
+    if(!isB3&&!isB5){continue;}
+    if(action.trim().toLowerCase()!=='packed'){continue;}
+    // For packing, we only need the Associated Order ID to be present — BATCH_PICKING not required
+    const fullDesc = cols.slice(iDesc).join(',');
+    if(!fullDesc){continue;}
+    if(!actor){continue;}
+
+    // Extract Associated Order ID from Description
+    // Format: "Item Old Status: PACKING, Associated Order ID:12364347"
+    const match = fullDesc.match(/Associated order ID\s*:\s*(\d+)/i);
+    if(!match){cntNoMatch++;continue;}
+    const subOrderId = match[1].trim();
+
+    // Lookup sales channel
+    const channel = packedOrderLookup[subOrderId];
+    // Skip internal orders
+    if(channel && channel.trim().toLowerCase().includes('internal')) continue;
+    if(channel){ matched++; } else { unmatched++; }
+
+    if(!actorMap[actor]) actorMap[actor]={b3:0,b5:0,channels:{}};
+    if(isB3) actorMap[actor].b3++;
+    else     actorMap[actor].b5++;
+    const ch = channel||'Unknown';
+    actorMap[actor].channels[ch]=(actorMap[actor].channels[ch]||0)+1;
+  }
+
+  packData = Object.entries(actorMap).map(([name,d])=>({
+    Actor:    name,
+    B3:       d.b3,
+    B5:       d.b5,
+    Qty:      d.b3+d.b5,
+    Channels: d.channels,
+    Building: d.b3>d.b5?'B3':'B5',
+    Department:'Packing',
+  }));
+
+  packGlobalQty = packData.reduce((a,r)=>a+r.Qty,0);
+  renderPackTable(packData);
+  applyFilters();
+  setLastUpdated('Packing');
+
+  // Update badge
+  const badge = document.getElementById('pack-status-badge');
+  badge.className = 'pack-has-data';
+  badge.textContent = `${packData.length} packers · ${packGlobalQty.toLocaleString()} packed · ${matched} matched`;
+
+}
+
+/* ─── RENDER PACK TABLE ─────────────────────── */
+function renderPackTable(data){
+  const body = document.getElementById('pack-tbody');
+  if(!data||!data.length){
+    body.innerHTML=`<tr><td colspan="5" class="tc" style="padding:20px;color:var(--txt3);font-size:0.78rem">No packing data</td></tr>`;
+    return;
+  }
+  const sorted=[...data].sort((a,b)=>{
+    const va=a[packSortCol]||0, vb=b[packSortCol]||0;
+    if(packSortCol==='Actor') return packSortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+    return packSortAsc?Number(va)-Number(vb):Number(vb)-Number(va);
+  });
+  body.innerHTML = sorted.map(row=>{
+    const qty  = Number(row.Qty||0);
+    const b3   = Number(row.B3||0);
+    const b5   = Number(row.B5||0);
+    const share= packGlobalQty>0?((qty/packGlobalQty)*100).toFixed(1):'0.0';
+    return `<tr class="pack-row" data-bldg="${row.Building||''}" data-dept="Packing" data-qty="${qty}" data-b3="${b3}" data-b5="${b5}">
+      <td class="psl"><div class="actor-name">${row.Actor}</div></td>
+      <td class="tc" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.82rem;color:#3b82f6">${b3.toLocaleString()}</td>
+      <td class="tc" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.82rem;color:#8b5cf6">${b5.toLocaleString()}</td>
+      <td class="tc"><span class="qty-num">${qty.toLocaleString()}</span></td>
+      <td class="te psr"><span style="font-size:0.75rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--txt2)">${share}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function sortPackTable(col){
+  if(packSortCol===col) packSortAsc=!packSortAsc;
+  else{ packSortCol=col; packSortAsc=(col==='Actor'); }
+  renderPackTable(packData);
+  applyFilters();
+}
+
+/* ─── GRN SKU LEVEL REPORT PARSER ──────────── */
+function parseGrnSkuReport(text){
+  const lines = text.trim().split('\n').filter(l=>l.trim());
+  if(lines.length < 2) return {error:'File is empty or has no data rows.'};
+
+  function splitCSVRow(row){
+    const result=[]; let cur='', inQ=false;
+    for(let i=0;i<row.length;i++){
+      const ch=row[i];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){result.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  const headers = splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+  const iGateId    = headers.findIndex(h=>h.includes('gate entry id')||h==='gate entry id');
+  const iOrderType = headers.findIndex(h=>h.includes('order type')||h==='order type');
+
+  if(iGateId<0)    return {error:`Missing "Gate Entry ID" column. Found: ${headers.join(', ')}`};
+  if(iOrderType<0) return {error:`Missing "Order Type" column. Found: ${headers.join(', ')}`};
+
+  const validIds = new Set();
+  let skipped=0;
+
+  for(let i=1;i<lines.length;i++){
+    const cols = splitCSVRow(lines[i]).map(c=>c.replace(/^"|"$/g,'').trim());
+    const gateId    = cols[iGateId];
+    const orderType = (cols[iOrderType]||'').toLowerCase();
+    if(!gateId) continue;
+    validIds.add(gateId);
+  }
+
+  return { validIds, count: validIds.size, skipped };
+}
+
+/* ─── GRN PROCESSOR ─────────────────────────
+   Needs both itemAuditRawText and grnSkuLookup  */
+function processGrn(){
+  if(!itemAuditRawText || !grnSkuLookup.size) return;
+
+  const lines = itemAuditRawText.trim().split('\n').filter(l=>l.trim());
+  if(lines.length < 2) return;
+
+  function splitCSVRow(row){
+    const result=[]; let cur='', inQ=false;
+    for(let i=0;i<row.length;i++){
+      const ch=row[i];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){result.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  const headers = splitCSVRow(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+  const iLoc   = headers.findIndex(h=>h.includes('fulfillment')||h.includes('location'));
+  const iAct   = headers.findIndex(h=>h.includes('action'));
+  const iActor = headers.findIndex(h=>h.includes('actor'));
+  const iDesc  = headers.findIndex(h=>h.includes('description')||h.includes('desc'));
+
+  const actorMap = {};
+  let matched=0, skipped=0;
+
+  for(let i=1;i<lines.length;i++){
+    const cols  = splitCSVRow(lines[i]).map(c=>c.replace(/^"|"$/g,'').trim());
+    const loc   = (cols[iLoc]  ||'').toLowerCase();
+    const action= (cols[iAct]  ||'').toLowerCase().trim();
+    const actor = (cols[iActor]||'').trim();
+    const fullDesc = cols.slice(iDesc).join(',');
+
+    const isB3 = loc.includes('bldg3')||loc.includes('bldg_3')||loc==='wms_entoma_bldg3';
+    const isB5 = loc.includes('bldg5')||loc.includes('bldg_5')||loc==='wms_entoma_bldg5';
+    if(!isB3&&!isB5) continue;
+    if(action!=='grn') continue;
+    if(!actor) continue;
+
+    // Skip if description contains "Associated Return Order ID"
+    if(/Associated Return Order ID/i.test(fullDesc)){ skipped++; continue; }
+
+    // Must contain Gate Entry ID
+    const gateMatch = fullDesc.match(/Gate Entry ID\s*:\s*(\d+)/i);
+    if(!gateMatch) continue;
+    const gateId = gateMatch[1].trim();
+
+    // Must be in valid GRN SKU lookup (non-return)
+    if(!grnSkuLookup.has(gateId)){ skipped++; continue; }
+    matched++;
+
+    if(!actorMap[actor]) actorMap[actor]={b3:0,b5:0};
+    if(isB3) actorMap[actor].b3++;
+    else     actorMap[actor].b5++;
+  }
+
+  grnData = Object.entries(actorMap).map(([name,d])=>({
+    Actor:      name,
+    B3:         d.b3,
+    B5:         d.b5,
+    Qty:        d.b3+d.b5,
+    Building:   d.b3>d.b5?'B3':'B5',
+    Department: 'GRN',
+  }));
+
+  grnGlobalQty = grnData.reduce((a,r)=>a+r.Qty,0);
+  renderGrnTable(grnData);
+  applyFilters();
+  setLastUpdated('GRN');
+
+  const badge = document.getElementById('grn-status-badge');
+  badge.className='pack-has-data';
+  badge.textContent=`${grnData.length} actors · ${grnGlobalQty.toLocaleString()} GRN · ${matched} matched`;
+}
+
+/* ─── RENDER GRN TABLE ──────────────────────── */
+function renderGrnTable(data){
+  const body = document.getElementById('grn-tbody');
+  if(!data||!data.length){
+    body.innerHTML=`<tr><td colspan="5" class="tc" style="padding:20px;color:var(--txt3);font-size:0.78rem">No GRN data</td></tr>`;
+    return;
+  }
+  const sorted=[...data].sort((a,b)=>{
+    const va=a[grnSortCol]||0, vb=b[grnSortCol]||0;
+    if(grnSortCol==='Actor') return grnSortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+    return grnSortAsc?Number(va)-Number(vb):Number(vb)-Number(va);
+  });
+  body.innerHTML = sorted.map(row=>{
+    const qty  = Number(row.Qty||0);
+    const b3   = Number(row.B3||0);
+    const b5   = Number(row.B5||0);
+    const share= grnGlobalQty>0?((qty/grnGlobalQty)*100).toFixed(1):'0.0';
+    return `<tr class="grn-row" data-bldg="${row.Building||''}" data-dept="GRN" data-qty="${qty}" data-b3="${b3}" data-b5="${b5}">
+      <td class="psl"><div class="actor-name">${row.Actor}</div></td>
+      <td class="tc" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.82rem;color:#3b82f6">${b3.toLocaleString()}</td>
+      <td class="tc" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.82rem;color:#8b5cf6">${b5.toLocaleString()}</td>
+      <td class="tc"><span class="qty-num">${qty.toLocaleString()}</span></td>
+      <td class="te psr"><span style="font-size:0.75rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--txt2)">${share}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function sortGrnTable(col){
+  if(grnSortCol===col) grnSortAsc=!grnSortAsc;
+  else{ grnSortCol=col; grnSortAsc=(col==='Actor'); }
+  renderGrnTable(grnData);
+  applyFilters();
+}
+
 /* ─── INIT DATA ────────────────────────────── */
 function initData(){
   rawData=[
-    {Actor:"John Doe",      Qty:1200, Building:"B3", Department:"Picking"},
-    {Actor:"Jane Smith",    Qty:1500, Building:"B5", Department:"Packing"},
-    {Actor:"Mike Ross",     Qty:800,  Building:"B3", Department:"GRN"},
-    {Actor:"Harvey Specter",Qty:2000, Building:"B5", Department:"Picking"},
-    {Actor:"Donna Paulsen", Qty:1800, Building:"B3", Department:"Packing"},
+    {Actor:"John Doe",      B3:800,  B5:400,  Qty:1200, Building:"B3", Department:"Picking"},
+    {Actor:"Jane Smith",    B3:0,    B5:1500, Qty:1500, Building:"B5", Department:"Picking"},
+    {Actor:"Mike Ross",     B3:800,  B5:0,    Qty:800,  Building:"B3", Department:"Picking"},
+    {Actor:"Harvey Specter",B3:600,  B5:1400, Qty:2000, Building:"B5", Department:"Picking"},
+    {Actor:"Donna Paulsen", B3:1100, B5:700,  Qty:1800, Building:"B3", Department:"Picking"},
   ];
   globalQty=rawData.reduce((a,r)=>a+Number(r.Qty||0),0);
   renderTable(rawData);
