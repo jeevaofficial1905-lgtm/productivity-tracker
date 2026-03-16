@@ -88,13 +88,14 @@ select{font-family:inherit}
   display:flex;align-items:center;justify-content:space-between;
   gap:12px;
 }
-.topbar-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.topbar-brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1;overflow:hidden}
+.topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;max-width:60%}
 .brand-icon{
   width:42px;height:42px;border-radius:13px;flex-shrink:0;
-  background:#ffffff;
+  background:linear-gradient(135deg,var(--a1) 0%,var(--a2) 100%);
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-size:1.2rem;
-  box-shadow:0 4px 14px rgba(37,99,235,.25), inset 0 1px 0 rgba(255,255,255,.25);
+  box-shadow:0 4px 14px rgba(37,99,235,.45), inset 0 1px 0 rgba(255,255,255,.25);
   position:relative;overflow:visible;
   cursor:pointer;-webkit-user-select:none;user-select:none;
   -webkit-tap-highlight-color:transparent;
@@ -207,6 +208,94 @@ select{font-family:inherit}
 }
 
 /* ═══════════════════════════════════════════
+   MOBILE OVERRIDES
+═══════════════════════════════════════════ */
+
+/* Mini grid — single col on tiny screens */
+@media(max-width:380px){
+  .mini-grid{grid-template-columns:1fr}
+}
+
+/* Topbar — shrink on very small screens */
+@media(max-width:380px){
+  .brand-icon{width:36px;height:36px;border-radius:10px}
+  .brand-name{font-size:0.6rem;letter-spacing:.8px}
+  .brand-sub{display:none}
+  .clock-chip{max-width:110px;font-size:0.52rem;padding:4px 7px}
+  .icon-btn{width:32px;height:32px;border-radius:8px}
+}
+@media(max-width:320px){
+  .clock-chip{display:none}
+}
+
+/* Hero — prevent overlap on narrow screens */
+@media(max-width:420px){
+  .hero{flex-direction:column;gap:12px}
+  .hero-meta{flex-direction:row;align-items:flex-start;align-self:stretch;justify-content:flex-start}
+  .hero-val{font-size:2rem}
+  .hero-chip{text-align:left}
+}
+
+/* Filter row wrap */
+@media(max-width:480px){
+  .frow{flex-wrap:wrap}
+  .frow .fsel{flex:1;min-width:120px}
+}
+
+/* Tables — tighter padding on mobile */
+@media(max-width:480px){
+  table{font-size:0.75rem}
+  thead th{font-size:0.55rem;padding:9px 8px;letter-spacing:.6px}
+  tbody td{padding:10px 8px}
+  .psl{padding-left:10px!important}
+  .psr{padding-right:10px!important}
+  .actor-name{font-size:0.78rem}
+  .qty-num{font-size:0.72rem;min-width:30px}
+}
+
+/* Section divider */
+@media(max-width:480px){
+  .section-divider{padding:12px 10px 6px;flex-wrap:wrap;gap:6px}
+  .section-divider-label{font-size:0.72rem}
+  .pack-no-data,.pack-has-data{font-size:0.6rem}
+}
+
+/* Forward ops hero — stack on mobile */
+@media(max-width:480px){
+  .fwd-hero{flex-direction:column;align-items:flex-start;gap:10px;padding:14px}
+  .fwd-hero-title{font-size:0.85rem}
+}
+
+/* Chart height */
+@media(max-width:480px){
+  .chart-area{height:200px!important}
+}
+
+/* Upload cards */
+@media(max-width:480px){
+  .drop-zone{padding:16px 10px}
+  .uc-title{font-size:0.82rem}
+  .uc-sub{font-size:0.65rem}
+}
+
+/* Numpad */
+@media(max-width:360px){
+  .num-btn{height:46px;font-size:1rem}
+}
+
+/* Scard progress row */
+@media(max-width:380px){
+  .scard>div[style*="space-between"]{flex-wrap:wrap;gap:8px}
+  .scard>div[style*="space-between"] .fsel{width:100%}
+}
+
+/* Progress bar label */
+@media(max-width:380px){
+  .prog-label{font-size:0.58rem}
+  #progress-pct-bar{font-size:0.62rem}
+}
+
+/* ═══════════════════════════════════════════
    HERO BANNER  (analytics top)
 ═══════════════════════════════════════════ */
 .hero{
@@ -216,6 +305,7 @@ select{font-family:inherit}
   margin-bottom:14px;
   position:relative;overflow:hidden;
   box-shadow:0 4px 20px rgba(37,99,235,.3);
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
 }
 .hero::before{
   content:'';position:absolute;inset:0;
@@ -232,8 +322,8 @@ select{font-family:inherit}
   font-size:0.62rem;font-weight:700;margin-top:10px;
 }
 .hero-meta{
-  position:absolute;top:18px;right:18px;
   display:flex;flex-direction:column;align-items:flex-end;gap:4px;
+  flex-shrink:0;
 }
 .hero-chip{
   background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);
@@ -302,7 +392,7 @@ select{font-family:inherit}
 /* ═══════════════════════════════════════════
    FILTER ROW
 ═══════════════════════════════════════════ */
-.frow{display:flex;gap:8px;margin-bottom:12px}
+.frow{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .frow .fsel{flex:1}
 .fsel{
   height:44px;padding:0 30px 0 12px;
@@ -419,7 +509,7 @@ tbody tr:hover{background:var(--surf2)}
 .sumtable{width:100%}
 .sumtable tr{transition:background .15s}
 .sumtable tr:hover td{background:var(--surf2)}
-.sumtable td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:0.82rem;font-weight:600}
+.sumtable td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:0.82rem;font-weight:600;word-break:break-word}
 .sumtable tr:last-child td{border-bottom:none}
 .sumtable .sum-total td{background:linear-gradient(90deg,rgba(37,99,235,.06),rgba(124,58,237,.04));font-weight:800;font-size:0.85rem}
 .sum-icon{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;margin-right:8px;vertical-align:middle}
@@ -706,7 +796,8 @@ tbody tr:hover{background:var(--surf2)}
 }
 
 /* ── TARGET FORM ── */
-.target-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 10px}
+.target-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:14px 0 10px}
+@media(min-width:480px){.target-grid{grid-template-columns:1fr 1fr}}
 .tg-section{background:var(--surf2);border-radius:var(--r2);padding:12px;border:1px solid var(--border)}
 .tg-bldg-label{font-size:0.7rem;font-weight:900;letter-spacing:.5px;padding:3px 8px;border-radius:6px;margin-bottom:10px;display:inline-block}
 .tg-b3{background:rgba(37,99,235,.12);color:#2563eb}
@@ -866,7 +957,7 @@ tbody tr:hover{background:var(--surf2)}
          onmousedown="lpStart()" onmouseup="lpCancel()" onmouseleave="lpCancel()"
          ontouchstart="lpStart()" ontouchend="lpCancel()" ontouchcancel="lpCancel()">
       <div class="lp-ring"></div>
-      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAsADgDASIAAhEBAxEB/8QAGgABAQEAAwEAAAAAAAAAAAAAAAIGAwQHCP/EAC8QAAEDAQQJAgcBAAAAAAAAAAABAgMEBQYREgcTMUNic5PC0SFRCBQiQVJhgaH/xAAYAQADAQEAAAAAAAAAAAAAAAAAAQMEAv/EACIRAAEFAAEDBQAAAAAAAAAAAAEAAgMEETEhobEFEmGBkf/aAAwDAQACEQMRAD8A+x6iTVR4omLlXBqfs62Vy+r5ZFX9OVE/w5a3c8ztUxmk+/8AZ1xKGllq6SerqKtXpBDGqNRcuGZXOXYn1J9l2mitXksyCKIa48BTlkbE0vecAWuyccvUd5GTjl6jvJ4ddv4gYJq7U2/Yny0D34NmpZM2rav5Ndtw90X+HuZpvemWaDg2dubx8/ilXtRWATGdxTk45eo7yMnHL1HeSgYVdTk45eo7yCgCFdbueZ2qYXSPcuqvTeO6toxVFKynsesWaoimRV1rFfE7KiYKmyNU9fc3VbueZ2qQWq2JK0gkjPUb3GeCuJYmyt9ruFgNLOj5l7LuU9nWNHZ1nVEdY2Z0rocuLEY9qtxamO1yL/DfgHUlqSWNsTjobufeb4SbE1ji8Dqc7IADOqIAAQrrdzzO1SC63c8ztUgQTKAAaSAAEIAAQv/Z" style="width:1.5rem;height:1.5rem;object-fit:contain;border-radius:4px">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:1.3rem;height:1.3rem;fill:#fff"><path d="M0 488V171.3c0-26.2 15.9-49.9 40.2-59.8L308.1 4.8c7.6-3.1 16.1-3.1 23.8 0L599.8 111.5c24.3 9.9 40.2 33.6 40.2 59.8V488c0 13.3-10.7 24-24 24H496c-13.3 0-24-10.7-24-24V312c0-13.3-10.7-24-24-24H192c-13.3 0-24 10.7-24 24V488c0 13.3-10.7 24-24 24H24C10.7 512 0 501.3 0 488z"/></svg>
     </div>
     <div class="brand-text">
       <span class="brand-name">Productivity Hub</span>
