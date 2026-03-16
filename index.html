@@ -1091,13 +1091,7 @@ tbody tr:hover{background:var(--surf2)}
         <div><span class="lbl">Total Units</span><span class="vl" id="cnt-qty">0</span></div>
       </div>
     </div>
-    <div class="twrap">
-      <div class="tscroll">
-        <table>
-          <thead>
-            <tr>
-              <th class="ts psl" onclick="sortTable('Actor')" style="min-width:160px">
-                Actor
+    <div class="twrap" id="sect-picking-table">
               </th>
               <th class="tc" id="pick-th-b3" onclick="sortTable('B3')" style="min-width:72px;color:#3b82f6;cursor:pointer">
                 B3 ↕
@@ -1121,14 +1115,14 @@ tbody tr:hover{background:var(--surf2)}
     </div>
 
     <!-- ── PACKING SECTION ─────────────────────── -->
-    <div class="section-divider">
+    <div class="section-divider" id="sect-packing-header">
       <div class="section-divider-label">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:.8em;height:.8em;fill:currentColor;margin-right:5px"><path d="M50.7 58.5L0 160H208V32H93.7C75.5 32 58.6 43 50.7 58.5zM240 160H448L397.3 58.5C389.4 43 372.5 32 354.3 32H240V160zm208 32H0V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V192z"/></svg>
         Packing Performance
       </div>
       <span id="pack-status-badge" class="pack-no-data">No packing data — upload in Master tab</span>
     </div>
-    <div class="twrap">
+    <div class="twrap" id="sect-packing-table">
       <div class="tscroll">
         <table>
           <thead>
@@ -1147,14 +1141,14 @@ tbody tr:hover{background:var(--surf2)}
       </div>
     </div>
     <!-- ── GRN SECTION ───────────────────────── -->
-    <div class="section-divider">
+    <div class="section-divider" id="sect-grn-header">
       <div class="section-divider-label">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="width:.8em;height:.8em;fill:currentColor;margin-right:5px"><path d="M0 48C0 21.5 21.5 0 48 0H368c26.5 0 48 21.5 48 48V96h50.7c17 0 33.3 6.7 45.3 18.7L589.3 192c12 12 18.7 28.3 18.7 45.3V256v32 64c17.7 0 32 14.3 32 32s-14.3 32-32 32H576c0 53-43 96-96 96s-96-43-96-96H256c0 53-43 96-96 96s-96-43-96-96H48c-26.5 0-48-21.5-48-48V48zM416 256H544V237.3L466.7 160H416v96zM160 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm368-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/></svg>
         GRN Performance
       </div>
       <span id="grn-status-badge" class="pack-no-data">No GRN data — upload in Master tab</span>
     </div>
-    <div class="twrap">
+    <div class="twrap" id="sect-grn-table">
       <div class="tscroll">
         <table>
           <thead>
@@ -2270,7 +2264,8 @@ function applyFilters(){
     const inB3 = b3qty > 0;
     const inB5 = b5qty > 0;
     const bMatch = bv==='all' || (bv.includes('3') && inB3) || (bv.includes('5') && inB5);
-    const dMatch = dv==='all'||dv==='picking'||String(row.dataset.dept).toLowerCase()===dv;
+    const rowDept = String(row.dataset.dept||'').toLowerCase();
+    const dMatch = dv==='all' || dv===rowDept;
     const show = bMatch && dMatch;
     row.style.display=show?'':'none';
     if(show){
@@ -2287,7 +2282,8 @@ function applyFilters(){
     const inB3 = b3qty > 0;
     const inB5 = b5qty > 0;
     const bMatch = bv==='all' || (bv.includes('3') && inB3) || (bv.includes('5') && inB5);
-    const dMatch = dv==='all'||dv==='packing'||String(row.dataset.dept).toLowerCase()===dv;
+    const rowDept = String(row.dataset.dept||'').toLowerCase();
+    const dMatch = dv==='all' || dv===rowDept;
     const show = bMatch && dMatch;
     row.style.display=show?'':'none';
     if(show){
@@ -2302,7 +2298,8 @@ function applyFilters(){
     const b3qty = Number(row.dataset.b3||0);
     const b5qty = Number(row.dataset.b5||0);
     const bMatch = bv==='all' || (bv.includes('3') && b3qty>0) || (bv.includes('5') && b5qty>0);
-    const dMatch = dv==='all'||dv==='grn'||String(row.dataset.dept).toLowerCase()===dv;
+    const rowDept = String(row.dataset.dept||'').toLowerCase();
+    const dMatch = dv==='all' || dv===rowDept;
     const show = bMatch && dMatch;
     row.style.display=show?'':'none';
     if(show){
@@ -2316,36 +2313,50 @@ function applyFilters(){
   const pickVisible = [...document.querySelectorAll('.user-row')].filter(r=>r.style.display!=='none');
   const packVisible = [...document.querySelectorAll('.pack-row')].filter(r=>r.style.display!=='none');
 
-  function updateRowQty(rows, globalQ){
-    // Recalculate filtered total for share%
+  function updateRowQty(rows){
     const filteredTotal = rows.reduce((sum,r)=>{
-      const bq = bv.includes('3') ? Number(r.dataset.b3||0)
-               : bv.includes('5') ? Number(r.dataset.b5||0)
-               : Number(r.dataset.qty||0);
-      return sum + bq;
+      return sum + (bv.includes('3') ? Number(r.dataset.b3||0)
+                  : bv.includes('5') ? Number(r.dataset.b5||0)
+                  : Number(r.dataset.qty||0));
     }, 0);
     rows.forEach(row=>{
       const dispQty = bv.includes('3') ? Number(row.dataset.b3||0)
                     : bv.includes('5') ? Number(row.dataset.b5||0)
                     : Number(row.dataset.qty||0);
       const share = filteredTotal>0 ? ((dispQty/filteredTotal)*100).toFixed(1) : '0.0';
-      // Total cell = td[3], Share cell = td[4]
       const cells = row.querySelectorAll('td');
-      if(cells[3]) cells[3].querySelector('span').textContent = dispQty.toLocaleString();
-      if(cells[4]) cells[4].querySelector('span').textContent = share+'%';
+      // td[3] = Total (has .qty-num span), td[4] = Share%
+      if(cells[3]){
+        const sp = cells[3].querySelector('.qty-num') || cells[3].querySelector('span');
+        if(sp) sp.textContent = dispQty.toLocaleString();
+      }
+      if(cells[4]){
+        const sp = cells[4].querySelector('span');
+        if(sp) sp.textContent = share+'%';
+      }
     });
   }
   const grnVisible  = [...document.querySelectorAll('.grn-row')].filter(r=>r.style.display!=='none');
-  updateRowQty(pickVisible, globalQty);
-  updateRowQty(packVisible, packGlobalQty);
-  updateRowQty(grnVisible,  grnGlobalQty);
+  updateRowQty(pickVisible);
+  updateRowQty(packVisible);
+  updateRowQty(grnVisible);
+  document.getElementById('cnt-actors').textContent=cnt.toLocaleString();
   document.getElementById('cnt-qty').textContent=qty.toLocaleString();
   const bSel=document.getElementById('bldg-filter');
   const dSel=document.getElementById('dept-filter');
   document.getElementById('fb-bldg').textContent=bSel.options[bSel.selectedIndex].text.toUpperCase();
   document.getElementById('fb-dept').textContent=dSel.options[dSel.selectedIndex].text.toUpperCase();
 
-  // Show/hide B3 and B5 columns based on building filter
+  // Show/hide entire dept sections based on filter
+  const showPicking = dv==='all' || dv==='picking';
+  const showPacking = dv==='all' || dv==='packing';
+  const showGrn     = dv==='all' || dv==='grn';
+  const sectVis = (id, show) => { const el=document.getElementById(id); if(el) el.style.display=show?'':'none'; };
+  sectVis('sect-picking-table',  showPicking);
+  sectVis('sect-packing-header', showPacking);
+  sectVis('sect-packing-table',  showPacking);
+  sectVis('sect-grn-header',     showGrn);
+  sectVis('sect-grn-table',      showGrn);
   const showB3 = bv==='all' || bv.includes('3');
   const showB5 = bv==='all' || bv.includes('5');
   const colVis = (id, show) => {
