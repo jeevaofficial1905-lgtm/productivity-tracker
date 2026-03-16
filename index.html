@@ -2023,7 +2023,11 @@ function clearUpload(type){
 function showStatus(type,cls,msg){
   const el=document.getElementById('us-'+type);
   el.className='uc-status'+(cls?' '+cls:'');
-  el.textContent=msg;
+  if(cls==='info'){
+    el.innerHTML=`<span style="color:var(--txt2);font-weight:700;font-size:0.75rem">${msg}</span>`;
+  } else {
+    el.textContent=msg;
+  }
 }
 /* ─── PICKING CSV PARSER ────────────────────── */
 function parseItemAuditCSV(text){
@@ -2109,62 +2113,67 @@ function importFile(type){
 
     if(type==='productivity'){
       itemAuditRawText = text; // store for packing re-process
-      const result = parseItemAuditCSV(text);
-      if(result.error){
-        showStatus(type,'err','✕ '+result.error);
-        btn.textContent='Import Data';btn.disabled=false;
-        return;
-      }
-      rawData = result.data;
-      globalQty = rawData.reduce((a,r)=>a+r.Qty,0);
-      renderTable(rawData);
-      applyFilters();
-      updateAnalytics();
-      setLastUpdated('Picking');
-      addUploadLog('Productivity (Picking)',file.name,result.filteredRows,`${result.filteredRows} of ${result.totalRows} rows`);
-      showStatus(type,'ok',`✓ ${rawData.length} pickers · ${result.filteredRows.toLocaleString()} picks from ${result.totalRows.toLocaleString()} rows`);
-      btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
-      btn.disabled=false;
-      // Re-process packing and GRN if lookup already loaded
-      processPacking();
-      processGrn();
-      saveToFirebase();
+      showStatus(type,'info','⏳ Parsing picking data…');
+      setTimeout(()=>{
+        const result = parseItemAuditCSV(text);
+        if(result.error){
+          showStatus(type,'err','✕ '+result.error);
+          btn.textContent='Import Data';btn.disabled=false;
+          return;
+        }
+        rawData = result.data;
+        globalQty = rawData.reduce((a,r)=>a+r.Qty,0);
+        renderTable(rawData);
+        applyFilters();
+        updateAnalytics();
+        setLastUpdated('Picking');
+        addUploadLog('Productivity (Picking)',file.name,result.filteredRows,`${result.filteredRows} of ${result.totalRows} rows`);
+        showStatus(type,'ok',`✓ ${rawData.length} pickers · ${result.filteredRows.toLocaleString()} picks from ${result.totalRows.toLocaleString()} rows`);
+        btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+        btn.disabled=false;
+        // Re-process packing and GRN if lookup already loaded
+        setTimeout(()=>{ processPacking(); processGrn(); saveToFirebase(); }, 0);
+      }, 50);
       return;
     }
 
-    // ── Packed Order Details ──────────────────
     if(type==='packed'){
-      const result = parsePackedOrderDetails(text);
-      if(result.error){
-        showStatus(type,'err','✕ '+result.error);
-        btn.textContent='Import Data';btn.disabled=false;
-        return;
-      }
-      packedOrderLookup = result.lookup;
-      processPacking();
-      addUploadLog('Packed Order Details',file.name,result.count,`${result.count} sub-orders mapped`);
-      showStatus(type,'ok',`✓ ${result.count.toLocaleString()} sub-orders mapped to sales channels`);
-      btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
-      btn.disabled=false;
-      saveToFirebase();
+      showStatus(type,'info','⏳ Parsing packed orders…');
+      setTimeout(()=>{
+        const result = parsePackedOrderDetails(text);
+        if(result.error){
+          showStatus(type,'err','✕ '+result.error);
+          btn.textContent='Import Data';btn.disabled=false;
+          return;
+        }
+        packedOrderLookup = result.lookup;
+        processPacking();
+        addUploadLog('Packed Order Details',file.name,result.count,`${result.count} sub-orders mapped`);
+        showStatus(type,'ok',`✓ ${result.count.toLocaleString()} sub-orders mapped to sales channels`);
+        btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+        btn.disabled=false;
+        saveToFirebase();
+      }, 50);
       return;
     }
 
-    // ── GRN SKU Level Report ──────────────────
     if(type==='grn'){
-      const result = parseGrnSkuReport(text);
-      if(result.error){
-        showStatus(type,'err','✕ '+result.error);
-        btn.textContent='Import Data';btn.disabled=false;
-        return;
-      }
-      grnSkuLookup = result.validIds;
-      processGrn();
-      addUploadLog('GRN SKU Level Report',file.name,result.count,`${result.count} valid gate entries`);
-      showStatus(type,'ok',`✓ ${result.count.toLocaleString()} gate entries loaded`);
-      btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
-      btn.disabled=false;
-      saveToFirebase();
+      showStatus(type,'info','⏳ Parsing GRN data…');
+      setTimeout(()=>{
+        const result = parseGrnSkuReport(text);
+        if(result.error){
+          showStatus(type,'err','✕ '+result.error);
+          btn.textContent='Import Data';btn.disabled=false;
+          return;
+        }
+        grnSkuLookup = result.validIds;
+        processGrn();
+        addUploadLog('GRN SKU Level Report',file.name,result.count,`${result.count} valid gate entries`);
+        showStatus(type,'ok',`✓ ${result.count.toLocaleString()} gate entries loaded`);
+        btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
+        btn.disabled=false;
+        saveToFirebase();
+      }, 50);
       return;
     }
     showStatus(type,'ok',`✓ Imported ${dataRows.toLocaleString()} rows successfully.`);
