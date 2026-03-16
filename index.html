@@ -927,6 +927,9 @@ tbody tr:hover{background:var(--surf2)}
 }
 .user-chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px}
 </style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -1965,6 +1968,7 @@ function saveTargets(){
   TARGETS.b3      = get('tgt-b3-picking') + get('tgt-b3-packing') + get('tgt-b3-grn');
   TARGETS.b5      = get('tgt-b5-picking') + get('tgt-b5-packing') + get('tgt-b5-grn');
   updateAnalytics();
+  saveToFirebase();
   const st = document.getElementById('us-targets');
   st.innerHTML = `<span style="color:var(--ok);font-weight:700;font-size:0.78rem">✓ Targets saved — dashboard updated</span>`;
   setTimeout(()=>st.innerHTML='', 3000);
@@ -2124,6 +2128,7 @@ function importFile(type){
       // Re-process packing and GRN if lookup already loaded
       processPacking();
       processGrn();
+      saveToFirebase();
       return;
     }
 
@@ -2141,6 +2146,7 @@ function importFile(type){
       showStatus(type,'ok',`✓ ${result.count.toLocaleString()} sub-orders mapped to sales channels`);
       btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
       btn.disabled=false;
+      saveToFirebase();
       return;
     }
 
@@ -2158,6 +2164,7 @@ function importFile(type){
       showStatus(type,'ok',`✓ ${result.count.toLocaleString()} gate entries loaded`);
       btn.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:.85em;height:.85em;fill:currentColor;margin-right:5px"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg> Imported`;
       btn.disabled=false;
+      saveToFirebase();
       return;
     }
     showStatus(type,'ok',`✓ Imported ${dataRows.toLocaleString()} rows successfully.`);
@@ -2746,20 +2753,120 @@ function sortGrnTable(col){
 }
 
 /* ─── INIT DATA ────────────────────────────── */
-function initData(){
-  rawData=[
-    {Actor:"John Doe",      B3:800,  B5:400,  Qty:1200, Building:"B3", Department:"Picking"},
-    {Actor:"Jane Smith",    B3:0,    B5:1500, Qty:1500, Building:"B5", Department:"Picking"},
-    {Actor:"Mike Ross",     B3:800,  B5:0,    Qty:800,  Building:"B3", Department:"Picking"},
-    {Actor:"Harvey Specter",B3:600,  B5:1400, Qty:2000, Building:"B5", Department:"Picking"},
-    {Actor:"Donna Paulsen", B3:1100, B5:700,  Qty:1800, Building:"B3", Department:"Picking"},
-  ];
-  globalQty=rawData.reduce((a,r)=>a+Number(r.Qty||0),0);
+/* ─── FIREBASE CONFIG & SYNC ────────────────── */
+const firebaseConfig = {
+  apiKey: "AIzaSyD3KGPqQRVGIAOrr0Eoznxm8O6FRG5jO_U",
+  authDomain: "productivity-tracker-76a27.firebaseapp.com",
+  databaseURL: "https://productivity-tracker-76a27-default-rtdb.firebaseio.com",
+  projectId: "productivity-tracker-76a27",
+  storageBucket: "productivity-tracker-76a27.firebasestorage.app",
+  messagingSenderId: "517430747067",
+  appId: "1:517430747067:web:d3dec1d1d949533b7d2e9e"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Save all processed data to Firebase (called after each import)
+function saveToFirebase(){
+  const payload = {
+    rawData,
+    packData,
+    grnData,
+    TARGETS,
+    uploadTimestamps: Object.fromEntries(
+      Object.entries(uploadTimestamps).map(([k,v])=>[k, v instanceof Date ? v.toISOString() : v])
+    ),
+    savedAt: new Date().toISOString()
+  };
+  db.ref('productivityData').set(payload)
+    .then(()=> console.log('✓ Saved to Firebase'))
+    .catch(e=> console.error('Firebase save error:', e));
+}
+
+// Load data from Firebase and render
+function loadFromFirebase(snapshot){
+  const d = snapshot.val();
+  if(!d) {
+    // No data yet — show empty state
+    showFirebaseStatus('No data yet — waiting for admin to import', false);
+    initData();
+    return;
+  }
+
+  // Restore data
+  rawData   = d.rawData   || [];
+  packData  = d.packData  || [];
+  grnData   = d.grnData   || [];
+
+  // Restore targets
+  if(d.TARGETS) Object.assign(TARGETS, d.TARGETS);
+
+  // Restore timestamps
+  if(d.uploadTimestamps){
+    Object.entries(d.uploadTimestamps).forEach(([k,v])=>{
+      uploadTimestamps[k] = new Date(v);
+    });
+  }
+
+  // Recalculate globals
+  globalQty     = rawData.reduce((a,r)=>a+Number(r.Qty||0),0);
+  packGlobalQty = packData.reduce((a,r)=>a+Number(r.Qty||0),0);
+  grnGlobalQty  = grnData.reduce((a,r)=>a+Number(r.Qty||0),0);
+
+  // Re-render everything
   renderTable(rawData);
+  renderPackTable(packData);
+  renderGrnTable(grnData);
   applyFilters();
   updateAnalytics();
   buildFwdRows('sla-body');
   buildFwdRows('backlog-body');
+  refreshLastUpdatedChip();
+
+  // Update badges
+  if(packData.length){
+    const badge = document.getElementById('pack-status-badge');
+    if(badge){ badge.className='pack-has-data'; badge.textContent=`${packData.length} packers · ${packGlobalQty.toLocaleString()} packed`; }
+  }
+  if(grnData.length){
+    const badge = document.getElementById('grn-status-badge');
+    if(badge){ badge.className='pack-has-data'; badge.textContent=`${grnData.length} actors · ${grnGlobalQty.toLocaleString()} GRN`; }
+  }
+
+  const savedAt = d.savedAt ? new Date(d.savedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:true}) : '';
+  showFirebaseStatus(`Live data · Last updated ${savedAt}`, true);
+}
+
+function showFirebaseStatus(msg, ok){
+  // Update mobile status bar
+  const mbar = document.getElementById('mobile-status-bar');
+  const mtxt = document.getElementById('mobile-status-text');
+  const mdot = document.getElementById('mobile-live-dot');
+  if(mbar && mtxt){
+    mtxt.textContent = msg;
+    mbar.classList.toggle('has-data', ok);
+    if(mdot) mdot.style.background = ok ? 'var(--ok)' : 'var(--txt3)';
+  }
+}
+
+function initData(){
+  // Clear mock data — real data comes from Firebase
+  rawData=[]; packData=[]; grnData=[];
+  globalQty=0; packGlobalQty=0; grnGlobalQty=0;
+  renderTable([]);
+  renderPackTable([]);
+  renderGrnTable([]);
+  updateAnalytics();
+  buildFwdRows('sla-body');
+  buildFwdRows('backlog-body');
+
+  // Listen for real-time updates from Firebase
+  showFirebaseStatus('Connecting to database…', false);
+  db.ref('productivityData').on('value', loadFromFirebase, (err)=>{
+    console.error('Firebase error:', err);
+    showFirebaseStatus('Database connection failed', false);
+  });
 }
 
 window.onload=()=>{initClock();initData()};
